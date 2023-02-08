@@ -1,0 +1,19 @@
+# deployment: UniverseBuilder 组件自动部署程序
+# 自动部署CubeUniverse相关组件，由主程序入口调用，请勿直接部署
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: universe-builder
+  namespace: cubeuniverse
+spec:
+  template:
+    spec:
+      containers:
+        - name: universe-builder
+          #image: tksky1/cubeuniverse-builder:dev0.1  # 发布版本
+          image: builder-dev
+          imagePullPolicy: Never #调试完成后这里应该改成IfNotPresent
+      serviceAccount: universe-account
+      restartPolicy: Never
+  backoffLimit: 4
