@@ -7,6 +7,6 @@
 
 要部署CubeUniverse，请在本目录使用k8s提供的命令：
 ```shell
-kubectl create -f cubeuniverse.yml
+kubectl create -f CubeUniverse.yml
 ```
 之后CubeUniverse组件将自动开始自检和安装，整个存储平台的搭建应当视网速在三十分钟左右自动全部完成。
