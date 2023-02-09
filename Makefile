@@ -21,12 +21,12 @@ SSH = ssh
 CAT = cat
 
 $(BUILDTAR): $(BUILDSRC)
-	$(GO) build $^ -o $(DEVTMPDIR)/main
+	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t builder-dev -f $(BUILDDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save builder-dev -o $@
 
 $(MAINTAR): $(MAINSRC)
-	$(GO) build $^ -o $(DEVTMPDIR)/main
+	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t main-dev -f $(MAINDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save main-dev -o $@
 
