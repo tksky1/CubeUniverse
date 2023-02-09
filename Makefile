@@ -17,24 +17,25 @@ MAINTAR = $(DEVTMPDIR)/main-dev.tar
 
 GO = go
 DOCKER = docker
-SCP = scp
+SSH = ssh
+CAT = cat
 
-build: $(BUILDSRC)
+$(BUILDTAR): $(BUILDSRC)
 	$(GO) build $^ -o $(DEVTMPDIR)/main
 	$(DOCKER) build -t builder-dev -f $(BUILDDOCKERFILE) $(WORKDIR)
-	$(DOCKER) save builder-dev -o $(BUILDTAR)
+	$(DOCKER) save builder-dev -o $@
 
-main: $(MAINSRC)
+$(MAINTAR): $(MAINSRC)
 	$(GO) build $^ -o $(DEVTMPDIR)/main
 	$(DOCKER) build -t main-dev -f $(MAINDOCKERFILE) $(WORKDIR)
-	$(DOCKER) save main-dev -o $(MAINTAR)
+	$(DOCKER) save main-dev -o $@
 
-bscp: $(BUILDTAR)
-	$(SCP) $^ 192.168.79.12:/home/node
-	$(SCP) $^ 192.168.79.13:/home/node
+build: $(BUILDTAR)
+	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
+	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
 
-mscp: $(MAINTAR)
-	$(SCP) $^ 192.168.79.12:/home/node
-	$(SCP) $^ 192.168.79.13:/home/node
+main: $(MAINTAR)
+	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
+	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
 
-.PHONY: build main bscp mscp
+.PHONY: build main
