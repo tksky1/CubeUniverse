@@ -2,17 +2,17 @@ WORKDIR = $(abspath .)
 
 DEVTMPDIR = $(WORKDIR)/dev-tmp
 MAINDIR = $(WORKDIR)/main
-BUILDERDIR = $(WORKDIR)/universeBuilder
+BUILDERERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
 
 $(shell mkdir -p $(DEVTMPDIR))
 
-BUILDSRC = $(shell find $(BUILDERDIR) -name "*.go")
+BUILDERSRC = $(shell find $(BUILDERERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
-BUILDDOCKERFILE = $(DOCKERFILEDIR)/universeBuilder_dev.Dockerfile
+BUILDERDOCKERFILE = $(DOCKERFILEDIR)/universeBuilder_dev.Dockerfile
 MAINDOCKERFILE = $(DOCKERFILEDIR)/main_dev.Dockerfile
 
-BUILDTAR = $(DEVTMPDIR)/builder-dev.tar
+BUILDERTAR = $(DEVTMPDIR)/builder-dev.tar
 MAINTAR = $(DEVTMPDIR)/main-dev.tar
 
 GO = go
@@ -20,9 +20,9 @@ DOCKER = docker
 SSH = ssh
 CAT = cat
 
-$(BUILDTAR): $(BUILDSRC)
+$(BUILDERTAR): $(BUILDERSRC)
 	$(GO) build -o $(DEVTMPDIR)/main $^
-	$(DOCKER) build -t builder-dev -f $(BUILDDOCKERFILE) $(WORKDIR)
+	$(DOCKER) build -t builder-dev -f $(BUILDERDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save builder-dev -o $@
 
 $(MAINTAR): $(MAINSRC)
@@ -30,7 +30,7 @@ $(MAINTAR): $(MAINSRC)
 	$(DOCKER) build -t main-dev -f $(MAINDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save main-dev -o $@
 
-build: $(BUILDTAR)
+builder: $(BUILDERTAR)
 	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
 	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
 
@@ -38,4 +38,4 @@ main: $(MAINTAR)
 	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
 	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
 
-.PHONY: build main
+.PHONY: builder main
