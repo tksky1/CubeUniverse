@@ -33,10 +33,10 @@ $(MAINTAR): $(MAINSRC)
 	$(DOCKER) save main-dev -o $@
 
 builder: $(BUILDERTAR)
-	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load;')
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
 main: $(MAINTAR)
-	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load;')
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
 KUBEADM = kubeadm
 RM = rm
@@ -48,8 +48,8 @@ chmod +x /etc/rc.d/rc.local
 reset:
 	$(KUBEADM) reset +y
 	$(RM) -rf $(HOME)/.kube
-	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset +y;')
-	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND);')
-	$(foreach node, $(NODE), $(SSH) $(node) '$(shell $(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | tail -n2);') 
+	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset +y';)
+	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
+	$(foreach node, $(NODE), $(SSH) $(node) '$(shell $(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | tail -n2)';) 
 
 .PHONY: builder main reset
