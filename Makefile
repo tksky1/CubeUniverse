@@ -56,7 +56,7 @@ reset:
 	$(RM) -rf $(HOME)/.kube
 	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset -f';)
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
-	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) | $(TAIL) -n2 > /tmp/kubeinit.sh
+	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) $(shell tty) | $(TAIL) -n2 > /tmp/kubeinit.sh
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(RM) -f /tmp/kubeinit
 
