@@ -6,6 +6,9 @@ BUILDERERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
 
 $(shell mkdir -p $(DEVTMPDIR))
+$(shell export GO111MODULE="on")
+$(shell export GOPROXY="https://goproxy.cn")
+$(shell export GOPATH="")
 
 BUILDERSRC = $(shell find $(BUILDERERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
@@ -40,6 +43,9 @@ main: $(MAINTAR)
 
 KUBEADM = kubeadm
 RM = rm
+XARGS = xargs
+TAIL = tail
+TEE = tee
 
 COMMAND = echo "echo 1 > /proc/sys/net/ipv4/ip_forward" >> /etc/rc.d/rc.local; \
 echo 1 > /proc/sys/net/ipv4/ip_forward; \
@@ -50,8 +56,8 @@ reset:
 	$(RM) -rf $(HOME)/.kube
 	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset -f';)
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
-	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | tail -n2 > /tmp/kubeinit
-	$(foreach node, $(NODE), cat /tmp/kubeinit | xargs $(SSH) $(node);)
-	rm -f /tmp/kubeinit
+	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) | $(TAIL) -n2 > /tmp/kubeinit
+	$(foreach node, $(NODE), $(CAT) /tmp/kubeinit | $(XARGS) $(SSH) $(node);)
+	$(RM) -f /tmp/kubeinit
 
 .PHONY: builder main reset
