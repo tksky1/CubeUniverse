@@ -1,4 +1,4 @@
-# 调试用脚本
+# 调试用脚本，构建调试版本的本地builder镜像
 cd ../universeBuilder
 go build -o ../dev-tmp/main main/universeBuilder.go
 cd ..
