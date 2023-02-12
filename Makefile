@@ -6,9 +6,9 @@ BUILDERERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
 
 $(shell mkdir -p $(DEVTMPDIR))
-$(shell export GO111MODULE="on")
-$(shell export GOPROXY="https://goproxy.cn")
-$(shell export GOPATH="")
+export GO111MODULE = on
+export GOPROXY = https://goproxy.cn
+export GOPATH ?=
 
 BUILDERSRC = $(shell find $(BUILDERERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
