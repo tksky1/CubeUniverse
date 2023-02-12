@@ -20,6 +20,8 @@ DOCKER = docker
 SSH = ssh
 CAT = cat
 
+NODE = 192.168.79.12 192.168.79.13
+
 $(BUILDERTAR): $(BUILDERSRC)
 	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t builder-dev -f $(BUILDERDOCKERFILE) $(WORKDIR)
@@ -31,11 +33,25 @@ $(MAINTAR): $(MAINSRC)
 	$(DOCKER) save main-dev -o $@
 
 builder: $(BUILDERTAR)
-	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
-	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
 main: $(MAINTAR)
-	$(CAT) $^ | $(SSH) 192.168.79.12 'docker load'
-	$(CAT) $^ | $(SSH) 192.168.79.13 'docker load'
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
-.PHONY: builder main
+KUBEADM = kubeadm
+RM = rm
+
+COMMAND = echo "echo 1 > /proc/sys/net/ipv4/ip_forward" >> /etc/rc.d/rc.local; \
+echo 1 > /proc/sys/net/ipv4/ip_forward; \
+chmod +x /etc/rc.d/rc.local
+
+reset:
+	$(KUBEADM) reset +y
+	$(RM) -rf $(HOME)/.kube
+	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset -y';)
+	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
+	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | tail -n2 > /tmp/kubeinit
+	$(foreach node, $(NODE), cat /tmp/kubeinit | xargs $(SSH) $(node);)
+	rm -f /tmp/kubeinit
+
+.PHONY: builder main reset
