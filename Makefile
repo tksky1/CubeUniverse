@@ -56,8 +56,8 @@ reset:
 	$(RM) -rf $(HOME)/.kube
 	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset -f';)
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
-	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) | $(TAIL) -n2 > /tmp/kubeinit
-	$(foreach node, $(NODE), $(CAT) /tmp/kubeinit | $(XARGS) $(SSH) $(node);)
+	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) | $(TAIL) -n2 > /tmp/kubeinit.sh
+	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(RM) -f /tmp/kubeinit
 
 .PHONY: builder main reset
