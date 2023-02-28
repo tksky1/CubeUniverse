@@ -6,8 +6,4 @@ MAINTAINER tk_sky
 
 COPY . .
 
-ENV GO111MODULE=on \
-GOPROXY=https://goproxy.cn \
-GOPATH=""
-
 CMD ["dev-tmp/main"]
