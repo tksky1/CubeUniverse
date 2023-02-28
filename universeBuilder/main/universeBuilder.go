@@ -53,9 +53,13 @@ func buildCube() {
 			log.Println("启动UniverseOperator失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 	}
-
 }
 
 func buildCeph() {
+	log.Println("启动ceph组件..")
+	operator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(clientSet)
+	if !operator {
+
+	}
 
 }
