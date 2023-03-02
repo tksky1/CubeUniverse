@@ -14,6 +14,7 @@ BUILDERSRC = $(shell find $(BUILDERERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
 BUILDERDOCKERFILE = $(DOCKERFILEDIR)/universeBuilder_dev.Dockerfile
 MAINDOCKERFILE = $(DOCKERFILEDIR)/main_dev.Dockerfile
+OPERATORDOCKERFILE = $(DOCKERFILEDIR)/operator_dev.Dockerfile
 
 BUILDERTAR = $(DEVTMPDIR)/builder-dev.tar
 MAINTAR = $(DEVTMPDIR)/main-dev.tar
@@ -41,6 +42,9 @@ builder: $(BUILDERTAR)
 main: $(MAINTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
+operator: $(BUILDERTAR)
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+
 KUBEADM = kubeadm
 RM = rm
 XARGS = xargs
@@ -60,4 +64,4 @@ reset:
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(RM) -f /tmp/kubeinit
 
-.PHONY: builder main reset
+.PHONY: builder main reset operator
