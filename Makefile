@@ -18,7 +18,6 @@ OPERATORDOCKERFILE = $(DOCKERFILEDIR)/operator_dev.Dockerfile
 
 BUILDERTAR = $(DEVTMPDIR)/builder-dev.tar
 MAINTAR = $(DEVTMPDIR)/main-dev.tar
-OPERATORTAR = $(DEVTMPDIR)/operator-dev.tar
 
 GO = go
 DOCKER = docker
@@ -43,7 +42,7 @@ builder: $(BUILDERTAR)
 main: $(MAINTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
-operator: $(OPERATORTAR)
+operator: $(BUILDERTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
 KUBEADM = kubeadm
