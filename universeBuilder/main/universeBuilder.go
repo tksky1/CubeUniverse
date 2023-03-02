@@ -24,19 +24,20 @@ func main() {
 	clientSet = universalFuncs.GetClientSet()
 	dynamicClient = universalFuncs.GetDynamicClient()
 	startTime = time.Now()
+	log.Println("启动CubeUniverse组件..")
 	for !buildCube() {
 		if time.Now().Sub(startTime) > time.Second*120 {
 			log.Println("搭建CubeUniverse组件已超过120秒，请检查集群网络、组件健康情况！")
 		}
 		time.Sleep(3 * time.Second)
 	}
-	log.Println("CubeUniverse组件已正常运行.")
+	log.Println("CubeUniverse组件已正常运行，启动ceph组件..")
 	cephStat = 0
 	startTime = time.Now()
 	for !buildCeph() {
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 		if time.Now().Sub(startTime) > time.Minute*30 {
-			log.Println("搭建ceph集群已超过30分钟，请检查")
+			log.Println("搭建ceph集群已超过30分钟，请检查本log和集群健康情况！")
 		}
 	}
 	log.Println("Ceph已正常运行.")
@@ -46,12 +47,12 @@ func main() {
 
 // 启动CubeUniverse组件
 func buildCube() (ret bool) {
-	log.Println("启动CubeUniverse组件..")
+
 	operator, dashboard, controlBackend := universalFuncs.CheckCubeUniverseComponent(clientSet)
 	ret = true
 	if !operator {
 		log.Println("启动CubeUniverse-operator..")
-		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/UniverseOperator.yml")
+		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/UniverseOperator.yml", "cubeuniverse")
 		if err != nil {
 			log.Println("启动UniverseOperator失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -60,7 +61,7 @@ func buildCube() (ret bool) {
 
 	if !dashboard {
 		log.Println("启动CubeUniverse-DashBoard..")
-		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/UniverseDashBoard.yml")
+		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/UniverseDashBoard.yml", "cubeuniverse")
 		if err != nil {
 			log.Println("启动UniverseDashBoard失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -68,10 +69,10 @@ func buildCube() (ret bool) {
 	}
 
 	if !controlBackend {
-		log.Println("启动CubeUniverse-operator..")
-		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/UniverseOperator.yml")
+		log.Println("启动CubeUniverse-controlBackend..")
+		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/ControlBackend.yml", "cubeuniverse")
 		if err != nil {
-			log.Println("启动UniverseOperator失败，请检查CubeUniverse项目文件是否完好！\n", err)
+			log.Println("启动controlBackend失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 		ret = false
 	}
@@ -80,24 +81,23 @@ func buildCube() (ret bool) {
 
 // 启动ceph组件
 func buildCeph() (ret bool) {
-	log.Println("启动ceph组件..")
+
 	operator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(clientSet)
 	cephStat = 0
 	if !operator {
 		log.Println("启动ceph-operator..")
-		err := universalFuncs.ApplyYamlv2(universalFuncs.GetParentDir()+"/deployment/storage/crds.yaml", clientSet, "rook-ceph")
-		err2 := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/storage/common.yaml")
-		err3 := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/storage/operator.yaml")
-		if err != nil || err2 != nil || err3 != nil {
-			log.Println("启动ceph-operator失败，请检查CubeUniverse项目文件是否完好！\n", err, err2, err3)
-		}
+		universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/crds.yaml", "", clientSet, dynamicClient)
+		time.Sleep(100 * time.Millisecond)
+		universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/common.yaml", "rook-ceph", clientSet, dynamicClient)
+		time.Sleep(100 * time.Millisecond)
+		universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/operator.yaml", "rook-ceph", clientSet, dynamicClient)
 		return false
 	}
 
 	cephStat = 1
 	if !rbdplugin {
 		log.Println("启动ceph-cluster..")
-		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir() + "/deployment/storage/cluster.yaml")
+		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/storage/cluster.yaml", "rook-ceph")
 		if err != nil {
 			log.Println("启动ceph-cluster失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}

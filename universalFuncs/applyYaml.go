@@ -21,7 +21,7 @@ import (
 
 var decUnstructured = yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
 
-func ApplyYaml(filename string) error {
+func ApplyYaml(filename string, namespace string) error {
 	log.Println("部署：", filename)
 
 	ctx := context.TODO()
@@ -67,7 +67,7 @@ func ApplyYaml(filename string) error {
 	}
 
 	_, err = dr.Patch(ctx, obj.GetName(), types.ApplyPatchType, data, metav1.PatchOptions{
-		FieldManager: "cubeuniverse",
+		FieldManager: namespace,
 	})
 
 	return err
