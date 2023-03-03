@@ -13,8 +13,9 @@ spec:
       labels:
         app: cubeuniverse
     spec:
+      serviceAccount: universe-account
       containers:
         - name: operator
           #image: tksky1/cubeuniverse-operator:dev0.1  # 发布版本
           image: operator-dev
-          imagePullPolicy: Never #调试完成后这里应该改成IfNotPresent
+          imagePullPolicy: Never #调试完成后  这里应该改成IfNotPresent

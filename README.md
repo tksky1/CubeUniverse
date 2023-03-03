@@ -1,3 +1,5 @@
+![](https://pic.imgdb.cn/item/6401b226f144a0100783a222.png)
+
 # CubeUniverse: 基于集群的云原生分布式海量数据存储平台
 
 ## 简介
