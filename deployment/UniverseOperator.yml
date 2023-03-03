@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universe-operator
+  namespace: cubeuniverse
+spec:
+  selector:
+    matchLabels:
+      app: cubeuniverse
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cubeuniverse
+    spec:
+      containers:
+        - name: operator
+          #image: tksky1/cubeuniverse-operator:dev0.1  # 发布版本
+          image: operator-dev
+          imagePullPolicy: Never #调试完成后这里应该改成IfNotPresent

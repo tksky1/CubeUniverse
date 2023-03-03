@@ -2,39 +2,48 @@ WORKDIR = $(abspath .)
 
 DEVTMPDIR = $(WORKDIR)/dev-tmp
 MAINDIR = $(WORKDIR)/main
-BUILDERERDIR = $(WORKDIR)/universeBuilder
+BUILDERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
+OPERATORDIR = $(WORKDIR)/universeOperator
 
 $(shell mkdir -p $(DEVTMPDIR))
 export GO111MODULE = on
 export GOPROXY = https://goproxy.cn
 export GOPATH ?=
 
-BUILDERSRC = $(shell find $(BUILDERERDIR) -name "*.go")
+BUILDERSRC = $(shell find $(BUILDERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
-BUILDERDOCKERFILE = $(DOCKERFILEDIR)/universeBuilder_dev.Dockerfile
-MAINDOCKERFILE = $(DOCKERFILEDIR)/main_dev.Dockerfile
-OPERATORDOCKERFILE = $(DOCKERFILEDIR)/operator_dev.Dockerfile
+OPERATORSRC = $(shell find $(OPERATORDIR) -name "*.go")
+
+
+DEVDOCKERFILE = $(DOCKERFILEDIR)/dev-debug.Dockerfile
 
 BUILDERTAR = $(DEVTMPDIR)/builder-dev.tar
 MAINTAR = $(DEVTMPDIR)/main-dev.tar
+OPERATORTAR = $(DEVTMPDIR)/operator-dev.tar
 
 GO = go
 DOCKER = docker
 SSH = ssh
 CAT = cat
 
+
 NODE = 192.168.79.12 192.168.79.13
 
 $(BUILDERTAR): $(BUILDERSRC)
 	$(GO) build -o $(DEVTMPDIR)/main $^
-	$(DOCKER) build -t builder-dev -f $(BUILDERDOCKERFILE) $(WORKDIR)
+	$(DOCKER) build -t builder-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save builder-dev -o $@
 
 $(MAINTAR): $(MAINSRC)
 	$(GO) build -o $(DEVTMPDIR)/main $^
-	$(DOCKER) build -t main-dev -f $(MAINDOCKERFILE) $(WORKDIR)
+	$(DOCKER) build -t main-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save main-dev -o $@
+
+$(OPERATORTAR): $(OPERATORSRC)
+	$(GO) build -o $(DEVTMPDIR)/main $^
+	$(DOCKER) build -t operator-dev -f $(DEVDOCKERFILE) $(WORKDIR)
+	$(DOCKER) save operator-dev -o $@
 
 builder: $(BUILDERTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
@@ -42,7 +51,7 @@ builder: $(BUILDERTAR)
 main: $(MAINTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
-operator: $(BUILDERTAR)
+operator: $(OPERATORTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
 KUBEADM = kubeadm

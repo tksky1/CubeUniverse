@@ -48,7 +48,7 @@ func main() {
 // 启动CubeUniverse组件
 func buildCube() (ret bool) {
 
-	operator, dashboard, controlBackend := universalFuncs.CheckCubeUniverseComponent(clientSet)
+	operator, dashboard, controlBackend, _ := universalFuncs.CheckCubeUniverseComponent(clientSet)
 	ret = true
 	if !operator {
 		log.Println("启动CubeUniverse-operator..")
