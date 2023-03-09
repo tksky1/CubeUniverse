@@ -24,13 +24,13 @@ kubectl create -f deployment/CubeUniverse.yml && watch -n 0.5 kubectl get pod -n
 
 集群至少包括三个工作节点和一个主节点；
 
-集群的每个工作节点应安装有一块没有写入数据和文件系统的卷或磁盘，其大小不小于3GB；
+集群的每个工作节点应安装有一块**没有写入数据和文件系统**的卷或磁盘，其大小不小于3GB；
 
-Linux内核版本4.9以上；Kubernetes版本1.20以上；关闭SELINUX和swap；
+Linux**内核版本4.7以上**；**Kubernetes版本1.20以上**；关闭SELINUX和swap；
 
 集群已经正确部署、所有节点运行正常无污点，且已安装网络插件，所有节点能够访问互联网；
 
-国内Dockerhub连接较慢，建议配置代理。
+国内Dockerhub连接较慢，建议配置镜像，必要时使用代理。
 
 ## 接口
 

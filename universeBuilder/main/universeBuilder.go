@@ -105,6 +105,10 @@ func buildCeph() (ret bool) {
 	}
 
 	cephStat = 2
+	err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/storage/toolbox.yaml", "rook-ceph")
+	if err != nil {
+		log.Println("启动ceph-toolbox失败，请检查CubeUniverse项目文件是否完好！\n", err)
+	}
 	if !mon {
 		log.Println("ceph-monitor未启动，等待..")
 		if time.Now().Sub(startTime) > time.Minute*20 {

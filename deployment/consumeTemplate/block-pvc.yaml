@@ -1,0 +1,13 @@
+# 消费CubeUniverse块存储的PVC的标准模板，用于在控制台上创建新的pvc。请勿修改！
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sample-pvc
+  namespace: sample-namespace
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: cubeuniverse-block-storage
