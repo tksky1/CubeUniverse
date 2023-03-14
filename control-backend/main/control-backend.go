@@ -1,18 +1,26 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
+	"CubeUniverse/universalFuncs"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	"log"
 )
 
+// UniverseVersion CubeUniverse版本号
+const UniverseVersion = "dev0.1"
+
+var clientSet *kubernetes.Clientset
+var dynamicClient *dynamic.DynamicClient
+
 func main() {
+	log.SetPrefix("[ControlBackend]")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Println("正在加载ControlBackend", UniverseVersion)
 
-	r := gin.Default()
-	r.GET("/", func(context *gin.Context) {
-		context.String(http.StatusOK, "Hello")
-	})
-	r.POST("/xxxpost", func())
-	r.PUT("/xxxput", func())
+	clientSet = universalFuncs.GetClientSet()
+	dynamicClient = universalFuncs.GetDynamicClient()
 
-	r.Run(":8080")
+	// 后端内容...
+
 }

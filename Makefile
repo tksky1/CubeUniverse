@@ -62,15 +62,19 @@ TEE = tee
 
 COMMAND = echo "echo 1 > /proc/sys/net/ipv4/ip_forward" >> /etc/rc.d/rc.local; \
 echo 1 > /proc/sys/net/ipv4/ip_forward; \
-chmod +x /etc/rc.d/rc.local
+chmod +x /etc/rc.d/rc.local; \
+rm -rf /var/lib/rook
 
 reset:
 	$(KUBEADM) reset -f
 	$(RM) -rf $(HOME)/.kube
+	$(RM) -rf /var/lib/rook
 	$(foreach node, $(NODE), $(SSH) $(node) '$(KUBEADM) reset -f';)
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
 	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) $(shell tty) | $(TAIL) -n2 > /tmp/kubeinit.sh
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(RM) -f /tmp/kubeinit
+	kubectl taint nodes master node-role.kubernetes.io/master-
+	kubectl create -f /home/master/kube-flannel.yml
 
 .PHONY: builder main reset operator

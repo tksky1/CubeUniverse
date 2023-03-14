@@ -1,0 +1,11 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: sample-bucket-claim
+  namespace: sample-namespace
+  labels:
+    pvc-provider: cubeuniverse
+    pvc-type: object
+spec:
+  generateBucketName: sample-bucket
+  storageClassName: cubeuniverse-obj-bucket

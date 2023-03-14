@@ -4,6 +4,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: sample-pvc
   namespace: sample-namespace
+  labels:
+    pvc-provider: cubeuniverse
+    pvc-type: filesystem
 spec:
   accessModes:
   - ReadWriteMany

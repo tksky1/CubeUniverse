@@ -10,7 +10,7 @@ import (
 
 // GetClientSet 加载kubeconfig信息，然后获得ClientSet
 func GetClientSet() *kubernetes.Clientset {
-	log.Println("加载kubeconfig鉴权..")
+	//log.Println("加载kubeconfig鉴权..")
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		log.Println("Warning：未检测到pod运行时，程序未运行在pod中！")
@@ -27,7 +27,7 @@ func GetClientSet() *kubernetes.Clientset {
 		}
 	}
 
-	log.Println("读取kubeconfig成功")
+	//log.Println("读取kubeconfig成功")
 	var client *kubernetes.Clientset
 	client, err = kubernetes.NewForConfig(config)
 	if err != nil {

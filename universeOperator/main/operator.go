@@ -3,7 +3,6 @@ package main
 
 import (
 	"CubeUniverse/universalFuncs"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"log"
 	"time"
@@ -13,7 +12,6 @@ import (
 const UniverseVersion = "dev0.1"
 
 var clientSet *kubernetes.Clientset
-var dynamicClient *dynamic.DynamicClient
 
 func main() {
 	println("\n ██████╗██╗   ██╗██████╗ ███████╗██╗   ██╗███╗   ██╗██╗██╗   ██╗███████╗██████╗ ███████╗███████╗\n██╔════╝██║   ██║██╔══██╗██╔════╝██║   ██║████╗  ██║██║██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝\n██║     ██║   ██║██████╔╝█████╗  ██║   ██║██╔██╗ ██║██║██║   ██║█████╗  ██████╔╝███████╗█████╗  \n██║     ██║   ██║██╔══██╗██╔══╝  ██║   ██║██║╚██╗██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗╚════██║██╔══╝  \n╚██████╗╚██████╔╝██████╔╝███████╗╚██████╔╝██║ ╚████║██║ ╚████╔╝ ███████╗██║  ██║███████║███████╗\n ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝\n")
@@ -23,7 +21,6 @@ func main() {
 	log.Println("正在加载UniverseOperator", UniverseVersion)
 
 	clientSet = universalFuncs.GetClientSet()
-	dynamicClient = universalFuncs.GetDynamicClient()
 
 	for {
 		time.Sleep(5 * time.Second)

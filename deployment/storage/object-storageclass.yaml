@@ -19,20 +19,17 @@ spec:
     port: 80
     # securePort: 443
     instances: 1
-  healthCheck:
-    bucket:
-      disabled: false
-      interval: 60s
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: cubeuniverse-obj-bucket
+  name: cubeuniverse-obj-storage
 provisioner: rook-ceph.ceph.rook.io/bucket
 reclaimPolicy: Delete
 parameters:
   objectStoreName: cubeuniverse-object
   objectStoreNamespace: rook-ceph
+allowVolumeExpansion: true
 
 
 

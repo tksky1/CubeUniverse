@@ -8,7 +8,7 @@ import (
 
 // GetDynamicClient 加载kubeconfig信息，然后获得DynamicClient
 func GetDynamicClient() *dynamic.DynamicClient {
-	log.Println("加载kubeconfig鉴权..")
+	//log.Println("加载kubeconfig鉴权..")
 	config, _ := rest.InClusterConfig()
 	client, err := dynamic.NewForConfig(config)
 
