@@ -5,15 +5,17 @@ MAINDIR = $(WORKDIR)/main
 BUILDERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
 OPERATORDIR = $(WORKDIR)/universeOperator
+BACKENDDIR = $(WORKDIR)/control-backend
 
 $(shell mkdir -p $(DEVTMPDIR))
 export GO111MODULE = on
 export GOPROXY = https://goproxy.cn
-export GOPATH ?=
+export GOPATH = /usr/local/go
 
 BUILDERSRC = $(shell find $(BUILDERDIR) -name "*.go")
 MAINSRC = $(shell find $(MAINDIR) -name "*.go")
 OPERATORSRC = $(shell find $(OPERATORDIR) -name "*.go")
+BACKENDSRC= $(shell find $(BACKENDDIR) -name "*.go")
 
 
 DEVDOCKERFILE = $(DOCKERFILEDIR)/dev-debug.Dockerfile
@@ -21,6 +23,7 @@ DEVDOCKERFILE = $(DOCKERFILEDIR)/dev-debug.Dockerfile
 BUILDERTAR = $(DEVTMPDIR)/builder-dev.tar
 MAINTAR = $(DEVTMPDIR)/main-dev.tar
 OPERATORTAR = $(DEVTMPDIR)/operator-dev.tar
+BACKENDTAR = $(DEVTMPDIR)/backend-dev.tar
 
 GO = go
 DOCKER = docker
@@ -31,19 +34,28 @@ CAT = cat
 NODE = 192.168.79.12 192.168.79.13
 
 $(BUILDERTAR): $(BUILDERSRC)
+	$(GO) mod download
 	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t builder-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save builder-dev -o $@
 
 $(MAINTAR): $(MAINSRC)
+	$(GO) mod download
 	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t main-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save main-dev -o $@
 
 $(OPERATORTAR): $(OPERATORSRC)
+	$(GO) mod download
 	$(GO) build -o $(DEVTMPDIR)/main $^
 	$(DOCKER) build -t operator-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save operator-dev -o $@
+
+$(BACKENDTAR): $(BACKENDSRC)
+	$(GO) mod download
+	$(GO) build -o $(DEVTMPDIR)/main $^
+	$(DOCKER) build -t backend-dev -f $(DEVDOCKERFILE) $(WORKDIR)
+	$(DOCKER) save backend-dev -o $@
 
 builder: $(BUILDERTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
@@ -54,16 +66,23 @@ main: $(MAINTAR)
 operator: $(OPERATORTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
 
+backend: $(BACKENDTAR)
+	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+
 KUBEADM = kubeadm
 RM = rm
 XARGS = xargs
 TAIL = tail
 TEE = tee
+SCP = scp
+KUBECTL = kubectl
 
 COMMAND = echo "echo 1 > /proc/sys/net/ipv4/ip_forward" >> /etc/rc.d/rc.local; \
 echo 1 > /proc/sys/net/ipv4/ip_forward; \
 chmod +x /etc/rc.d/rc.local; \
-rm -rf /var/lib/rook
+rm -rf /var/lib/rook; \
+export KUBECONFIG=/etc/kubernetes/admin.conf; \
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile
 
 reset:
 	$(KUBEADM) reset -f
@@ -73,8 +92,10 @@ reset:
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
 	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) $(shell tty) | $(TAIL) -n2 > /tmp/kubeinit.sh
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
+	$(SCP) /etc/kubernetes/admin.conf 192.168.79.12:/etc/kubernetes/admin.conf
+    $(SCP) /etc/kubernetes/admin.conf 192.168.79.13:/etc/kubernetes/admin.conf
 	$(RM) -f /tmp/kubeinit
-	kubectl taint nodes master node-role.kubernetes.io/master-
-	kubectl create -f /home/master/kube-flannel.yml
+	$(KUBECTL) taint nodes master node-role.kubernetes.io/master-
+	$(KUBECTL) create -f /home/master/kube-flannel.yml
 
-.PHONY: builder main reset operator
+.PHONY: builder main reset operator backend

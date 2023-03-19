@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-backend
+  namespace: cubeuniverse
+spec:
+  selector:
+    matchLabels:
+      app: cubeuniverse
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cubeuniverse
+    spec:
+      serviceAccount: universe-account
+      containers:
+        - name: control-backend
+          #image: tksky1/cubeuniverse-backend:dev0.1  # 发布版本
+          image: backend-dev
+          imagePullPolicy: Never #调试完成后  这里应该改成IfNotPresent
