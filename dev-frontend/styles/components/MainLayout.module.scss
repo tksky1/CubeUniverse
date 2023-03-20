@@ -1,0 +1,31 @@
+@use "../mixins";
+
+.outerContainer {
+    --header-height: 80px;
+    --sider-width: 300px;
+    height: 100vh;
+    .header {
+        height: var(--header-height);
+        border-bottom: solid 1px black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .bottomContainer {
+        height: calc(100vh - var(--header-height));
+        display: flex;
+        .sider {
+            @include mixins.scrollbars;
+            height: 100%;
+            width: var(--sider-width);
+            overflow-y: scroll;
+            border-right: solid 1px black;
+        }
+        .contentContainer {
+            @include mixins.scrollbars;
+            flex-grow: 1;
+            height: 100%;
+            overflow-y: scroll;
+        }
+    }
+}
