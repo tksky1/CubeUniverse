@@ -1,6 +1,6 @@
 $size: 8px;
-$foreground-color: #ffffff;
-$background-color: rgba(129, 129, 129, 0);
+$foreground-color: #f7234d;
+$background-color: #fff0f0;
 
 @mixin scrollbars {
   // For Chrome & Safari
@@ -17,5 +17,7 @@ $background-color: rgba(129, 129, 129, 0);
   }
 
   // Standard version (Firefox only for now)
-  scrollbar-color: $foreground-color $background-color;
+  &.scrolling {
+    scrollbar-color: $foreground-color $background-color;
+  }
 }
