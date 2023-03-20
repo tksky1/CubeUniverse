@@ -2,6 +2,7 @@ import { ReactElement, useRef, useState } from "react";
 import { Menu } from "antd";
 import styles from "@/styles/components/MainLayout.module.scss"
 import { useRouter } from "next/router";
+import Link from "next/link";
 import clsx from "clsx";
 
 interface MainLayout {
@@ -55,8 +56,15 @@ let items = [
 
 export default function MainLayout({children}: MainLayout) {
     let router = useRouter();
+    
     let [isScrolling, setIsScrolling] = useState(false);
+    
+    let scrollClass: {[key: string]: boolean} = {};
+    scrollClass[styles.scrolling] = isScrolling;
+    
     let timeoutId = useRef<null | ReturnType<typeof setTimeout>>(null);
+    let scrollDisappearTime = 1500;
+    
     function handleScroll() {
         setIsScrolling(true);
         if (timeoutId.current) {
@@ -64,16 +72,23 @@ export default function MainLayout({children}: MainLayout) {
         }
         timeoutId.current = setTimeout(() => {
             setIsScrolling(false);
-        }, 2000);
+        }, scrollDisappearTime);
     }
     return (
         <div className={styles.outerContainer}>
             <div className={styles.header}>
-                CubeUniverse
+                <Link href={"/"}>
+                    <p>
+                        CubeUniverse
+                    </p>
+                </Link>
             </div>
             <div className={styles.bottomContainer}>
                 <div 
-                    className={`${styles.sider} ${isScrolling ? styles.scrolling : ""}`} 
+                    className={clsx(
+                        styles.sider,
+                        scrollClass
+                    )} 
                     onScroll={() => handleScroll()}
                 >
                     <Menu 
@@ -89,7 +104,10 @@ export default function MainLayout({children}: MainLayout) {
                     />
                 </div>
                 <div 
-                    className={`${styles.contentContainer} ${isScrolling ? styles.scrolling : ""}`} 
+                    className={clsx(
+                        styles.contentContainer,
+                        scrollClass
+                    )} 
                 >
                     {children}
                 </div>

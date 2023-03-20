@@ -14,7 +14,7 @@ type AppPropsWithLayout = AppProps & {
 
 let myTheme = {
   token: {
-    colorPrimary: "#f7234d",
+    colorPrimary: "#0440a4",
   }
 }
 
