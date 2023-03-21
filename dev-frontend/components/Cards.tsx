@@ -1,17 +1,22 @@
 import Link from "next/link";
 import { ReactElement } from "react";
 
-interface Card<T extends boolean> {
+interface Card {
     title: string,
-    disabled: T,
     content: ReactElement,
-    href: T extends true ? string : undefined
+    href?: string
 }
-
-export default function Card<T extends boolean>({title, disabled, content, href}: Card<T>) {
+ 
+export default function Card({title, content, href}: Card) {
     return (
         <div>
             <div>
+                {href 
+                    ? <Link href={href}><p>{title}</p></Link> 
+                    : <p>{title}</p>}
+            </div>
+            <div>
+                {content}
             </div>
         </div>
     )
