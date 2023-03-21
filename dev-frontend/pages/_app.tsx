@@ -1,6 +1,6 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ConfigProvider, theme } from 'antd'
+import { MantineProvider } from "@mantine/core"
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
 
@@ -23,8 +23,13 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
 
   return (
-    <ConfigProvider theme={myTheme}>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      theme={{
+        colorScheme: "light"
+      }}>
       {getLayout(<Component {...pageProps} />)}
-    </ConfigProvider>
+    </MantineProvider>
   )
 }
