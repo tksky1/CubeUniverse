@@ -78,20 +78,20 @@ export default function MainLayout({children}: MainLayout) {
     return (
         <div className={classes.outerContainer}>
             <Flex
-                sx={theme => ({
+                sx={_theme => ({
                     height: 50,
-                    boxShadow: 'inset 0 -5px 5px -5px #0440a4',
+                    boxShadow: 'inset 0 -5px 7px -5px #0440a4',
                 })}
                 justify="flex-start"
                 align="center"
                 pl={10}
             >
                 <Link href={"/"}>
-                    <Title order={1} sx={theme => ({
-                        color: "transparent",
-                        WebkitBackgroundClip: "text",
-                        backgroundImage: theme.fn.linearGradient(30, "#4fb9e3", "#032d81")
-                    })}>CubeUniverse</Title>
+                    <Title 
+                        order={1}
+                        variant="gradient"
+                        gradient={{from: "#4fb9e3", to: "#032d81", deg: 30}}
+                    >CubeUniverse</Title>
                 </Link>
             </Flex>
             <div className={classes.bottomContainer}>
@@ -123,21 +123,14 @@ export default function MainLayout({children}: MainLayout) {
                     sx={_theme => ({
                         flexGrow: 1,
                         height: "100%",
-                        backgroundColor: "#fff",
+                        backgroundColor: "#eeeeee",
                     })}
                     classNames={{
                         viewport: classes.scrollAreaViewport
                     }}
                     type="scroll"
                 >
-                    <Container
-                        sx={_theme => ({
-                            height: "100%",
-                            width: "100%",
-                        })}
-                    >
-                        {children}
-                    </Container>
+                    {children}
                 </ScrollArea>
             </div>
         </div>
