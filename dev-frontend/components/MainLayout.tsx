@@ -1,9 +1,9 @@
 import { ReactElement, useRef, useState } from "react";
+import MyConfigProvider from "./MyConfigProvider";
 import { Menu } from "antd";
-import styles from "@/styles/components/MainLayout.module.scss"
 import { useRouter } from "next/router";
 import Link from "next/link";
-import clsx from "clsx";
+import { Title, createStyles, ScrollArea, Flex, Container } from "@mantine/core"
 
 interface MainLayout {
     children: ReactElement
@@ -54,63 +54,91 @@ let items = [
     }
 ]
 
+const useStyles = createStyles(_theme => {
+    return {
+        outerContainer: {
+            height: "100vh"
+        },
+        bottomContainer: {
+            height: "calc(100vh - 50px)",
+            display: "flex"
+        },
+        scrollAreaViewport: {
+            ' > div': {
+                height: "100%"
+            }
+        }
+    }
+})
+
 export default function MainLayout({children}: MainLayout) {
+    let { classes } = useStyles();
     let router = useRouter();
     
-    let [isScrolling, setIsScrolling] = useState(false);
-    
-    let scrollClass: {[key: string]: boolean} = {};
-    scrollClass[styles.scrolling] = isScrolling;
-    
-    let timeoutId = useRef<null | ReturnType<typeof setTimeout>>(null);
-    let scrollDisappearTime = 1500;
-    
-    function handleScroll() {
-        setIsScrolling(true);
-        if (timeoutId.current) {
-            clearTimeout(timeoutId.current);
-        }
-        timeoutId.current = setTimeout(() => {
-            setIsScrolling(false);
-        }, scrollDisappearTime);
-    }
     return (
-        <div className={styles.outerContainer}>
-            <div className={styles.header}>
+        <div className={classes.outerContainer}>
+            <Flex
+                sx={theme => ({
+                    height: 50,
+                    boxShadow: 'inset 0 -5px 5px -5px #0440a4',
+                })}
+                justify="flex-start"
+                align="center"
+                pl={10}
+            >
                 <Link href={"/"}>
-                    <p>
-                        CubeUniverse
-                    </p>
+                    <Title order={1} sx={theme => ({
+                        color: "transparent",
+                        WebkitBackgroundClip: "text",
+                        backgroundImage: theme.fn.linearGradient(30, "#4fb9e3", "#032d81")
+                    })}>CubeUniverse</Title>
                 </Link>
-            </div>
-            <div className={styles.bottomContainer}>
-                <div 
-                    className={clsx(
-                        styles.sider,
-                        scrollClass
-                    )} 
-                    onScroll={() => handleScroll()}
+            </Flex>
+            <div className={classes.bottomContainer}>
+                <ScrollArea 
+                    sx={_theme => ({
+                        height: "100%",
+                        width: 200
+                    })}
+                    classNames={{
+                        viewport: classes.scrollAreaViewport
+                    }}
+                    type="scroll"
                 >
-                    <Menu 
-                        theme="light"
-                        selectedKeys={[router.asPath]}
-                        items={items}
-                        mode="inline"
-                        onClick={(clickedItem) => router.push(clickedItem.key)}
-                        style={{
+                    <MyConfigProvider>
+                        <Menu 
+                            theme="light"
+                            selectedKeys={[router.asPath]}
+                            items={items}
+                            mode="inline"
+                            onClick={(clickedItem) => router.push(clickedItem.key)}
+                            style={{
+                                height: "100%",
+                                width: "100%",
+                            }}
+                        />
+                    </MyConfigProvider>
+                </ScrollArea>
+                <ScrollArea
+                    sx={_theme => ({
+                        flexGrow: 1,
+                        height: "100%",
+                        backgroundColor: "#fff",
+                    })}
+                    classNames={{
+                        viewport: classes.scrollAreaViewport
+                    }}
+                    type="scroll"
+                >
+                    <Container
+                        sx={_theme => ({
                             height: "100%",
                             width: "100%",
-                        }}
-                    />
-                </div>
-                <div 
-                    className={clsx(
-                        styles.contentContainer,
-                        scrollClass
-                    )} 
-                >
-                    {children}
-                </div>
+                        })}
+                    >
+                        {children}
+                    </Container>
+                </ScrollArea>
             </div>
         </div>
     )

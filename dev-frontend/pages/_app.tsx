@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { MantineProvider } from "@mantine/core"
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
+import { emotionCache } from '@/emotionCache'
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -26,6 +27,7 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     <MantineProvider
       withGlobalStyles
       withNormalizeCSS
+      emotionCache={emotionCache}
       theme={{
         colorScheme: "light"
       }}>
