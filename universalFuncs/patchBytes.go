@@ -22,9 +22,9 @@ import (
 	"log"
 )
 
-// ApplyBytes 将bytes格式的Yaml解析并创建对应资源
+// PatchBytes 将bytes格式的Yaml解析并创建对应资源
 // 也可以更新已存在资源
-func ApplyBytes(yamlBytes []byte, namespace string) error {
+func PatchBytes(yamlBytes []byte, namespace string) error {
 
 	ctx := context.TODO()
 	cfg, _ := rest.InClusterConfig()
@@ -73,9 +73,9 @@ func ApplyBytes(yamlBytes []byte, namespace string) error {
 	return err
 }
 
-// ApplyCrdFromBytes 从Bytes格式的Yaml创建CRD资源
+// PatchCrdFromBytes 从Bytes格式的Yaml创建CRD资源
 // 也可以用于更新已存在资源
-func ApplyCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
+func PatchCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
 
 	config, _ := rest.InClusterConfig()
 	config.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(1000, 1000)

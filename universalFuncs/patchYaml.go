@@ -12,20 +12,20 @@ import (
 
 var decUnstructured = yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
 
-// ApplyYaml 将Yaml解析并创建对应资源
-func ApplyYaml(filename string, namespace string) error {
+// PatchYaml 将Yaml解析并创建对应资源 使用PATCH方法
+func PatchYaml(filename string, namespace string) error {
 	log.Println("部署：", filename)
 
 	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}
-	err = ApplyBytes(bytes, namespace)
+	err = PatchBytes(bytes, namespace)
 	return err
 }
 
-// ApplyCrdFromYaml 用于创建带CRD的yaml资源
-func ApplyCrdFromYaml(yamlFilePath string, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
+// PatchCrdFromYaml 用于创建带CRD的yaml资源 使用PATCH方法
+func PatchCrdFromYaml(yamlFilePath string, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
 
 	log.Println("准备ceph组件", yamlFilePath, "..")
 
@@ -33,6 +33,6 @@ func ApplyCrdFromYaml(yamlFilePath string, nameSpace string, clientSet *kubernet
 	if err != nil {
 		return err
 	}
-	err = ApplyCrdFromBytes(fileBytes, nameSpace, clientSet, dd)
+	err = PatchCrdFromBytes(fileBytes, nameSpace, clientSet, dd)
 	return err
 }

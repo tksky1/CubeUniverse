@@ -84,9 +84,9 @@ KUBECTL = kubectl
 COMMAND = echo "echo 1 > /proc/sys/net/ipv4/ip_forward" >> /etc/rc.d/rc.local; \
 echo 1 > /proc/sys/net/ipv4/ip_forward; \
 chmod +x /etc/rc.d/rc.local; \
-rm -rf /var/lib/rook; \
-export KUBECONFIG=/etc/kubernetes/admin.conf; \
-echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile
+rm -rf /var/lib/rook;
+
+COMMAND2 = echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile && export KUBECONFIG=/etc/kubernetes/admin.conf
 
 reset:
 	$(KUBEADM) reset -f
@@ -98,6 +98,7 @@ reset:
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(SCP) /etc/kubernetes/admin.conf 192.168.79.12:/etc/kubernetes/admin.conf
 	$(SCP) /etc/kubernetes/admin.conf 192.168.79.13:/etc/kubernetes/admin.conf
+	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND2)';)
 	$(RM) -f /tmp/kubeinit
 	$(KUBECTL) taint nodes master node-role.kubernetes.io/master-
 	$(KUBECTL) create -f /home/master/kube-flannel.yml

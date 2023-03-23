@@ -32,7 +32,7 @@ func main() {
 	operator, dashboard, controlBackend, _ := universalFuncs.CheckCubeUniverseComponent(clientSet)
 	if !(operator && dashboard && controlBackend) {
 		log.Println("CubeUniverse组件未完全加载，启动UniverseBuilder..")
-		err := universalFuncs.ApplyYaml(universalFuncs.GetParentDir()+"/deployment/UniverseBuilder.yml", "cubeuniverse")
+		err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/UniverseBuilder.yml", "cubeuniverse")
 		if err != nil {
 			log.Panic("启动UniverseBuilder失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}

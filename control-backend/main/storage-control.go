@@ -32,13 +32,13 @@ func CreateBlockStorage() error {
 	if CheckBlockStorage() {
 		return errors.New("块存储已存在！")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml", "", clientSet, dynamicClient)
 	return err
 }
 
-// ApplyBlockPVC 为客户创建/更新块存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
+// CreateBlockPVC 为客户创建(CREATE)块存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
 // 很可能会出现命名空间不存在等err，要正确处理告知前端
-func ApplyBlockPVC(name string, namespace string, volume int) error {
+func CreateBlockPVC(name string, namespace string, volume int) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -50,7 +50,25 @@ func ApplyBlockPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
-	err = universalFuncs.ApplyBytes(pvcBytes, namespace)
+	err = universalFuncs.CreateBytes(pvcBytes, namespace)
+	return err
+}
+
+// PatchBlockPVC 为客户创建/更新(PATCH)块存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
+// 很可能会出现命名空间不存在等err，要正确处理告知前端
+func PatchBlockPVC(name string, namespace string, volume int) error {
+	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
+	if !match {
+		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
+	}
+	pvcBytes, err := os.ReadFile(universalFuncs.GetParentDir() + "/deployment/consumeTemplate/block-pvc.yaml")
+	if err != nil {
+		return err
+	}
+	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
+	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
+	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	err = universalFuncs.PatchBytes(pvcBytes, namespace)
 	return err
 }
 
@@ -76,13 +94,13 @@ func CreateFileSystemStorage() error {
 	if CheckFileSystemStorage() {
 		return errors.New("文件系统存储已存在！")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml", "", clientSet, dynamicClient)
 	return err
 }
 
-// ApplyFileSystemPVC 为客户创建/更新文件存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
+// CreateFileSystemPVC 为客户创建(CREATE)文件存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
 // 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
-func ApplyFileSystemPVC(name string, namespace string, volume int) error {
+func CreateFileSystemPVC(name string, namespace string, volume int) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -94,7 +112,25 @@ func ApplyFileSystemPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
-	err = universalFuncs.ApplyBytes(pvcBytes, namespace)
+	err = universalFuncs.CreateBytes(pvcBytes, namespace)
+	return err
+}
+
+// PatchFileSystemPVC 为客户创建/更新(PATCH)文件存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
+// 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
+func PatchFileSystemPVC(name string, namespace string, volume int) error {
+	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
+	if !match {
+		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
+	}
+	pvcBytes, err := os.ReadFile(universalFuncs.GetParentDir() + "/deployment/consumeTemplate/fs-pvc.yaml")
+	if err != nil {
+		return err
+	}
+	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
+	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
+	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	err = universalFuncs.PatchBytes(pvcBytes, namespace)
 	return err
 }
 
@@ -120,13 +156,13 @@ func CreateObjectStorage() error {
 	if CheckObjectStorage() {
 		return errors.New("对象存储已存在！")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml", "", clientSet, dynamicClient)
 	return err
 }
 
-// ApplyObjectBucket 为客户创建/更新对象存储的bucket，指定名字（必须全小写、只能用-.隔开）、命名空间、最高对象数、最高容量（GB）
+// CreateObjectBucket 为客户创建/更新对象存储的bucket，指定名字（必须全小写、只能用-.隔开）、命名空间、最高对象数、最高容量（GB）
 // 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
-func ApplyObjectBucket(name string, namespace string, maxObjects int, maxGBSize int) error {
+func CreateObjectBucket(name string, namespace string, maxObjects int, maxGBSize int) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的对象桶名字不合法！请使用全英文小写，用-或.隔开")
@@ -138,8 +174,27 @@ func ApplyObjectBucket(name string, namespace string, maxObjects int, maxGBSize 
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("sample-bucket"), []byte(name))
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
-	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxObjects)))
-	err = universalFuncs.ApplyCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxGBSize)))
+	err = universalFuncs.CreateCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
+	return err
+}
+
+// PatchObjectBucket 为客户创建/更新对象存储的bucket，指定名字（必须全小写、只能用-.隔开）、命名空间、最高对象数、最高容量（GB）
+// 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
+func PatchObjectBucket(name string, namespace string, maxObjects int, maxGBSize int) error {
+	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
+	if !match {
+		return errors.New("输入的对象桶名字不合法！请使用全英文小写，用-或.隔开")
+	}
+	pvcBytes, err := os.ReadFile(universalFuncs.GetParentDir() + "/deployment/consumeTemplate/obj-bucket-claim.yaml")
+	if err != nil {
+		return err
+	}
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("sample-bucket"), []byte(name))
+	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxGBSize)))
+	err = universalFuncs.PatchCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
 	return err
 }
 
