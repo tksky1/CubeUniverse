@@ -2,17 +2,14 @@ import {
     Title, 
     Box, 
     Text, 
-    Card, 
     Grid, 
     useMantineTheme, 
     Group, 
     ThemeIcon,
     Badge,
-    Center
 } from "@mantine/core"
 import { IconExclamationCircle, IconAlertTriangle } from "@tabler/icons-react";
-import Link from "next/link";
-import { ReactElement } from "react";
+import MyCard from "../MyCard";
 
 export default function Status() {
     let theme = useMantineTheme();
@@ -122,49 +119,5 @@ export default function Status() {
                 </Grid.Col>
             </Grid>
         </Box>
-    )
-}
-
-
-interface MyCard {
-    title: string,
-    children: ReactElement,
-    href?: string
-}
-
-function MyCard({title, children, href}: MyCard) {
-    return (
-        <Card 
-            shadow={"xs"}
-            p={"xl"}
-            h={"100%"}
-            withBorder
-        >
-            <Card.Section 
-                mb={"xs"} 
-                sx={_theme => ({
-                    borderBottom: "solid 1px rgba(0, 0, 0, 0.3)"
-                })}>
-                {href
-                    ? (<Link href={href}>
-                        <Text 
-                            size={"xs"}
-                            weight={"bold"}
-                            underline
-                        >
-                            {title}
-                        </Text>
-                    </Link>)
-                    : (<Text 
-                        size={"xs"}
-                        weight={"bold"}
-                    >
-                        {title}
-                    </Text>)}
-            </Card.Section>
-            <Center h={"100%"}>
-                {children}
-            </Center>
-        </Card>
     )
 }
