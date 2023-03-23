@@ -59,15 +59,19 @@ $(BACKENDTAR): $(BACKENDSRC)
 
 builder: $(BUILDERTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+	rm -f dev-tmp/*.ta
 
 main: $(MAINTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+	rm -f dev-tmp/*.tar
 
 operator: $(OPERATORTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+	rm -f dev-tmp/*.tar
 
 backend: $(BACKENDTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
+	rm -f dev-tmp/*.tar
 
 KUBEADM = kubeadm
 RM = rm
@@ -93,7 +97,7 @@ reset:
 	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) $(shell tty) | $(TAIL) -n2 > /tmp/kubeinit.sh
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
 	$(SCP) /etc/kubernetes/admin.conf 192.168.79.12:/etc/kubernetes/admin.conf
-    $(SCP) /etc/kubernetes/admin.conf 192.168.79.13:/etc/kubernetes/admin.conf
+	$(SCP) /etc/kubernetes/admin.conf 192.168.79.13:/etc/kubernetes/admin.conf
 	$(RM) -f /tmp/kubeinit
 	$(KUBECTL) taint nodes master node-role.kubernetes.io/master-
 	$(KUBECTL) create -f /home/master/kube-flannel.yml

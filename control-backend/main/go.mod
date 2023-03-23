@@ -6,6 +6,7 @@ require k8s.io/client-go v0.26.2
 
 require (
 	CubeUniverse/universalFuncs v0.0.0
+	github.com/aws/aws-sdk-go v1.15.77
 	github.com/bitly/go-simplejson v0.5.0
 	k8s.io/api v0.26.2
 	k8s.io/apimachinery v0.26.2
@@ -27,6 +28,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
+	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/pretty v0.3.0 // indirect

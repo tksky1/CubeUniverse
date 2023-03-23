@@ -30,7 +30,7 @@ const cephApiBase = "https://192.168.79.11:30701/" //TODO: 调试后改回来
 // GetCephHosts 获取Ceph的Hosts状态
 func GetCephHosts() ([]CephHost, error) {
 	req, _ := http.NewRequest("GET", cephApiBase+"api/host", nil)
-	resJson, err := SendHttpsForJson(req, true)
+	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, errors.New("访问cephAPI出错：" + err.Error())
 	}
@@ -55,7 +55,7 @@ func GetCephHosts() ([]CephHost, error) {
 // GetCephMonitor 获取Ceph的Monitor状态
 func GetCephMonitor() (inQuorumMonitor []CephMonitor, outQuorumMonitor []CephMonitor, errr error) {
 	req, _ := http.NewRequest("GET", cephApiBase+"api/monitor", nil)
-	resJson, err := SendHttpsForJson(req, true)
+	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, nil, errors.New("访问cephAPI出错：" + err.Error())
 	}
@@ -95,7 +95,7 @@ func GetCephMonitor() (inQuorumMonitor []CephMonitor, outQuorumMonitor []CephMon
 // GetCephOSD 获取Ceph的OSD的状态
 func GetCephOSD() ([]CephOSD, error) {
 	req, _ := http.NewRequest("GET", cephApiBase+"api/osd", nil)
-	resJson, err := SendHttpsForJson(req, true)
+	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, err
 	}
@@ -133,6 +133,26 @@ func GetCephOSD() ([]CephOSD, error) {
 		osds = append(osds, osd)
 	}
 	return osds, nil
+}
+
+// GetCephPool 获取Ceph的Pool的相关信息
+func GetCephPool() ([]CephPool, error) {
+	req, _ := http.NewRequest("GET", cephApiBase+"api/pool", nil)
+	resJson, err := SendHttpsForJson(req)
+	if err != nil {
+		return nil, err
+	}
+	var pools []CephPool
+	for i := 0; i < len(resJson.MustArray()); i++ {
+		pool := CephPool{}
+		poolJson := resJson.GetIndex(i)
+		pool.Name = poolJson.Get("pool_name").MustString()
+		pool.PG = poolJson.Get("pg_num").MustInt()
+		pool.Replica = poolJson.Get("size").MustInt()
+		pool.CreateTime = poolJson.Get("create_time").MustString()
+		pools = append(pools, pool)
+	}
+	return pools, nil
 }
 
 // <-----------工具函数，不需要外部调用------------>
@@ -193,7 +213,7 @@ func ParseResponseMap(response *http.Response) (map[string]interface{}, error) {
 	return result, err
 }
 
-// SetCubeUniverseAccount 工具类，在初始化时设置ceph-api的账号
+// SetCubeUniverseAccount 工具函数，在初始化时设置ceph-api的账号
 func SetCubeUniverseAccount() error {
 	// 进入tool-box pod创建cubeUniverse账号
 	selector := labels.SelectorFromSet(map[string]string{"app": "rook-ceph-tools"})
@@ -233,7 +253,7 @@ func GetCephToken() error {
 }
 
 // SendHttpsForJson 工具函数，发送https请求并将返回体转为Json格式
-func SendHttpsForJson(request *http.Request, withToken bool) (*simplejson.Json, error) {
+func SendHttpsForJson(request *http.Request) (*simplejson.Json, error) {
 	res, err := SendHttpsRequest(request, true)
 	if err != nil {
 		return nil, err
@@ -244,7 +264,7 @@ func SendHttpsForJson(request *http.Request, withToken bool) (*simplejson.Json, 
 		return nil, err
 	}
 	if !strings.Contains(res.Status, "OK") {
-		err = errors.New("CephAPI请求未正确返回：" + res.Status + ", url：" + request.URL.String())
+		err = errors.New("CephAPI请求未正确返回：" + res.Status + ", " + string(body) + " url：" + request.URL.String())
 	}
 	return resJson, err
 }

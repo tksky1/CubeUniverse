@@ -1,0 +1,11 @@
+*/文档/*
+*.pdf
+*/LICENSE
+*/Makefile
+*.md
+*.tar
+
+#暂时不需要机器学习部分录入镜像
+ml/*
+#暂时不需要打包前端
+dev-frontend/*

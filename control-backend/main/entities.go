@@ -33,8 +33,10 @@ type CephOSD struct {
 	WriteOperations []float64 //平均写请求数 （/s），近19条数据
 }
 
+// CephPool 代表ceph的储存池
 type CephPool struct {
-	Name string
-	Size int // 副本个数
-
+	Name       string
+	Replica    int    // 副本个数
+	PG         int    // PG数
+	CreateTime string //创建时间
 }

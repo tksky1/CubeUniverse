@@ -21,6 +21,7 @@ func main() {
 	log.Println("正在加载UniverseOperator", UniverseVersion)
 
 	clientSet = universalFuncs.GetClientSet()
+	sessionCacheMap = make(map[[16]byte]*SessionAndBucketName)
 
 	for {
 		time.Sleep(5 * time.Second)

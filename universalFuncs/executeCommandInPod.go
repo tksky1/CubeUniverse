@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// ExecInPod 在pod内执行指令（bash)
 func ExecInPod(config *rest.Config, namespace, podName, command string) (outstd string, outerr string, err error) {
 	k8sCli, err := kubernetes.NewForConfig(config)
 	if err != nil {

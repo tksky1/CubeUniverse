@@ -1,3 +1,4 @@
+# 消费CubeUniverse对象存储提供的对象桶的模板，用于在控制台创建对象桶。请勿修改或直接部署！
 apiVersion: objectbucket.io/v1alpha1
 kind: ObjectBucketClaim
 metadata:
@@ -8,4 +9,7 @@ metadata:
     pvc-type: object
 spec:
   generateBucketName: sample-bucket
-  storageClassName: cubeuniverse-obj-bucket
+  storageClassName: cubeuniverse-obj-storage
+  additionalConfig:
+    maxObjects: "1000"
+    maxSize: "1G"

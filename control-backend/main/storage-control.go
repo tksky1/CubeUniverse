@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	"github.com/bitly/go-simplejson"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -122,9 +124,9 @@ func CreateObjectStorage() error {
 	return err
 }
 
-// ApplyObjectBucket 为客户创建/更新对象存储的bucket，指定名字（必须全小写、只能用-.隔开）、命名空间
+// ApplyObjectBucket 为客户创建/更新对象存储的bucket，指定名字（必须全小写、只能用-.隔开）、命名空间、最高对象数、最高容量（GB）
 // 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
-func ApplyObjectBucket(name string, namespace string) error {
+func ApplyObjectBucket(name string, namespace string, maxObjects int, maxGBSize int) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的对象桶名字不合法！请使用全英文小写，用-或.隔开")
@@ -135,6 +137,8 @@ func ApplyObjectBucket(name string, namespace string) error {
 	}
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("sample-bucket"), []byte(name))
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxObjects)))
 	err = universalFuncs.ApplyCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
 	return err
 }
@@ -144,12 +148,17 @@ func DeleteObjectBucket(name string, namespace string) error {
 	return DeleteCRD("objectbucket.io", "v1alpha1", "objectbucketclaims", name, namespace)
 }
 
-// ListBlockPVC 返回所有通过CubeUniverse创建的块存储bucket-Claim列表，内含名字、命名空间等
-func ListBlockPVC() ([]corev1.PersistentVolumeClaim, error) {
+// ListObjectBucketClaim 返回所有通过CubeUniverse创建的对象存储bucket-Claim列表，是数组的json格式
+func ListObjectBucketClaim() (*simplejson.Json, error) {
+	crdMeta := schema.GroupVersionResource{Group: "objectbucket.io", Version: "v1alpha1", Resource: "objectbucketclaims"}
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "object"})
-	listPVC, err := clientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
-	pvcs := listPVC.Items
-	return pvcs, err
+	list, err := dynamicClient.Resource(crdMeta).Namespace("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	if err != nil {
+		return nil, errors.New("获取bucket-claim列表失败，" + err.Error())
+	}
+	byteJson, _ := list.MarshalJSON()
+	json, _ := simplejson.NewJson(byteJson)
+	return json, nil
 }
 
 //<------其他/通用------>
