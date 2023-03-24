@@ -174,7 +174,7 @@ func CreateObjectBucket(name string, namespace string, maxObjects int, maxGBSize
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("sample-bucket"), []byte(name))
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
-	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxGBSize)))
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%dG", maxGBSize)))
 	err = universalFuncs.CreateCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
 	return err
 }
@@ -193,7 +193,7 @@ func PatchObjectBucket(name string, namespace string, maxObjects int, maxGBSize 
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("sample-bucket"), []byte(name))
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
-	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxGBSize)))
+	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%dG", maxGBSize)))
 	err = universalFuncs.PatchCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
 	return err
 }

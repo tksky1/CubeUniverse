@@ -155,6 +155,57 @@ func GetCephPool() ([]CephPool, error) {
 	return pools, nil
 }
 
+// GetCephPerformance 获取Ceph集群总体的相关状态数据
+func GetCephPerformance() (*CephPerformance, error) {
+	req, _ := http.NewRequest("GET", cephApiBase+"api/health/minimal", nil)
+	resJson, err := SendHttpsForJson(req)
+	if err != nil {
+		return nil, err
+	}
+	cephPerformance := CephPerformance{}
+	perfJson := resJson.Get("client_perf")
+	cephPerformance.ReadBytesPerSec = perfJson.Get("read_bytes_sec").MustInt()
+	cephPerformance.ReadOperationsPerSec = perfJson.Get("read_op_per_sec").MustInt()
+	cephPerformance.RecoveringBytesPerSec = perfJson.Get("recovering_bytes_per_sec").MustInt()
+	cephPerformance.WriteBytesPerSec = perfJson.Get("write_bytes_sec").MustInt()
+	cephPerformance.WriteOperationPerSec = perfJson.Get("write_op_per_sec").MustInt()
+
+	dfStatJson := resJson.Get("df").Get("stats")
+	cephPerformance.TotalBytes = dfStatJson.Get("total_bytes").MustInt()
+	cephPerformance.TotalUsedBytes = dfStatJson.Get("total_used_raw_bytes").MustInt()
+
+	heathJson := resJson.Get("health")
+	cephPerformance.HealthStatus = heathJson.Get("status").MustString()
+	for i := 0; i < len(heathJson.Get("checks").MustArray()); i++ {
+		cephPerformance.HealthStatusDetailed = append(cephPerformance.HealthStatusDetailed,
+			heathJson.Get("checks").GetIndex(i).Get("summary").Get("message").MustString())
+	}
+
+	cephPerformance.HostNum = resJson.Get("hosts").MustInt()
+	cephPerformance.MonitorNum = len(resJson.Get("mon_status").Get("quorum").MustArray())
+
+	osdJson := resJson.Get("osd_map").Get("osds")
+	osdTotal := len(osdJson.MustArray())
+	for i := 0; i < osdTotal; i++ {
+		up, err := osdJson.GetIndex(i).Get("up").Int()
+		if up <= 0 || err != nil {
+			cephPerformance.OSDNotReadyNum++
+		}
+	}
+	cephPerformance.OSDReadyNum = osdTotal - cephPerformance.OSDNotReadyNum
+
+	pgJson := resJson.Get("pg_info")
+	objectJson := pgJson.Get("object_stats")
+	cephPerformance.ObjectNum = objectJson.Get("num_objects").MustInt()
+	cephPerformance.ObjectReplicatedNum = objectJson.Get("num_object_copies").MustInt()
+	cephPerformance.ObjectDegradedNum = objectJson.Get("num_objects_degraded").MustInt()
+	cephPerformance.ObjectMisplacedNum = objectJson.Get("num_objects_misplaced").MustInt()
+	cephPerformance.ObjectNotFoundNum = objectJson.Get("num_objects_unfound").MustInt()
+
+	cephPerformance.PoolNum = len(resJson.Get("pools").MustArray())
+	return &cephPerformance, nil
+}
+
 // <-----------工具函数，不需要外部调用------------>
 
 // SendHttpsRequest 工具函数，根据ceph要求发送https请求

@@ -40,3 +40,27 @@ type CephPool struct {
 	PG         int    // PG数
 	CreateTime string //创建时间
 }
+
+// CephPerformance 包含Ceph的总体状态信息和性能信息
+// 只含一份，需刷新
+type CephPerformance struct {
+	ReadBytesPerSec       int      // 每秒读的bytes
+	ReadOperationsPerSec  int      // 每秒读操作数
+	WriteBytesPerSec      int      // 每秒写的bytes
+	WriteOperationPerSec  int      // 每秒写操作数
+	RecoveringBytesPerSec int      // 每秒恢复数据流量
+	TotalBytes            int      // 集群可用总容量(bytes)
+	TotalUsedBytes        int      // 集群已占用容(bytes)
+	HealthStatus          string   // 健康状态总体，如HEALTH_WARN
+	HealthStatusDetailed  []string // 健康状态事件（可能有多个）详细说明，如xxx has recently crashed
+	HostNum               int      // Host（存储服务节点）的个数
+	MonitorNum            int      // 就绪的monitor数量
+	OSDReadyNum           int      // 就绪的osd数量
+	OSDNotReadyNum        int      // 未就绪的osd数量
+	ObjectReplicatedNum   int      // 储存的(包含副本的)对象总数
+	ObjectNum             int      // 储存的独立对象总数
+	ObjectDegradedNum     int      // 处于降级状态的对象总数
+	ObjectMisplacedNum    int      // 处于未归置状态的对象总数
+	ObjectNotFoundNum     int      // 处于丢失状态的对象总数
+	PoolNum               int      // 存储池总数
+}
