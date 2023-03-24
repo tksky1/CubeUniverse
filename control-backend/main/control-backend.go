@@ -2,10 +2,11 @@ package main
 
 import (
 	"CubeUniverse/universalFuncs"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
 	"log"
 	"time"
+
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 )
 
 // UniverseVersion CubeUniverse版本号
@@ -15,6 +16,9 @@ var clientSet *kubernetes.Clientset
 var dynamicClient *dynamic.DynamicClient
 
 func main() {
+	//写在这里测试用
+	loginInit()
+
 	log.SetPrefix("[ControlBackend]")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
@@ -43,7 +47,8 @@ func main() {
 	}
 
 	// 后端内容...
-
+	//初始化登录，完成路由注册，实现全部服务
+	loginInit()
 	//后端完成前先hold
 	select {}
 }
