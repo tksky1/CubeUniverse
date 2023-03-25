@@ -1,7 +1,7 @@
 package main
 
 import (
-	"control-backend/cubecontrol"
+	"control-backend/cubeControl"
 	"control-backend/login-kit/common"
 	"control-backend/login-kit/model"
 	"control-backend/login-kit/util"
@@ -65,7 +65,7 @@ func main() {
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init
 	loginInit()
 	//实际上应该先执行这个init
-	cubecontrol.Init()
+	cubeControl.Init()
 
 	// 后端内容...
 	//初始化登录，完成路由注册，实现全部服务

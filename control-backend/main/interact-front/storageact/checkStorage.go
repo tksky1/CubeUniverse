@@ -1,13 +1,13 @@
 package storageact
 
 import (
-	"control-backend/cubecontrol"
+	"control-backend/cubeControl"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 // 处理的get请求的Header必须由X-type字段和X-action字段
-func CheckOrCreate(ctx *gin.Context) {
+func CheckStorage(ctx *gin.Context) {
 	//根据get请求的type与action数据来选择调用函数
 	get_type := ctx.GetHeader("X-type")
 	get_action := ctx.GetHeader("X-action")
@@ -17,21 +17,21 @@ func CheckOrCreate(ctx *gin.Context) {
 	//如果是块存储的请求
 	case "block":
 		if get_action == "check" {
-			checkFunc(get_type, cubecontrol.CheckBlockStorage, ctx) //检查
+			checkFunc(get_type, cubeControl.CheckBlockStorage, ctx) //检查
 		} else if get_action == "create" {
-			createFunc(get_type, cubecontrol.CreateBlockStorage, ctx) //创建
+			createFunc(get_type, cubeControl.CreateBlockStorage, ctx) //创建
 		}
 	case "file":
 		if get_action == "check" {
-			checkFunc(get_type, cubecontrol.CheckFileSystemStorage, ctx)
+			checkFunc(get_type, cubeControl.CheckFileSystemStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, cubecontrol.CreateFileSystemStorage, ctx)
+			createFunc(get_type, cubeControl.CreateFileSystemStorage, ctx)
 		}
 	case "object":
 		if get_action == "check" {
-			checkFunc(get_type, cubecontrol.CheckObjectStorage, ctx)
+			checkFunc(get_type, cubeControl.CheckObjectStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, cubecontrol.CreateObjectStorage, ctx)
+			createFunc(get_type, cubeControl.CreateObjectStorage, ctx)
 		}
 	}
 	//完成三种存储模式的检查与创建工作

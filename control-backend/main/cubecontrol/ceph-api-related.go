@@ -1,4 +1,4 @@
-package cubecontrol
+package cubeControl
 
 import (
 	"CubeUniverse/universalFuncs"
