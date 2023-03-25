@@ -6,7 +6,7 @@ import (
 
 // 测试用
 func test() {
-	req, err := http.NewRequest("GET", cephApiBase+"api/health/minimal", nil)
+	req, err := http.NewRequest("GET", cephApiBase+"api/pool?stats=true", nil)
 	if err != nil {
 		panic(err)
 	}

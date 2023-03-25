@@ -15,6 +15,9 @@ var clientSet *kubernetes.Clientset
 var dynamicClient *dynamic.DynamicClient
 
 func main() {
+	//TODO：删除测试内容
+	test()
+
 	log.SetPrefix("[ControlBackend]")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
