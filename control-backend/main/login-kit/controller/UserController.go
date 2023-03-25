@@ -135,6 +135,13 @@ func AlterPasswd(ctx *gin.Context) {
 		newpasswd = json["newpassword"].(string)
 		newtelphone = json["newtelphone"].(string)
 	}
+	//对于未传入的参数不做修改
+	if newtelphone == "" {
+		newtelphone = telephone
+	}
+	if newpasswd == "" {
+		newpasswd = password
+	}
 
 	hashdPassword, err := bcrypt.GenerateFromPassword([]byte(newpasswd), bcrypt.DefaultCost) //密码hash化
 	if err != nil {
@@ -144,6 +151,10 @@ func AlterPasswd(ctx *gin.Context) {
 
 	//数据校验
 	if len(telephone) != 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
+		return
+	}
+	if len(newtelphone) != 11 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
 		return
 	}

@@ -1,4 +1,4 @@
-package main
+package apikit
 
 import (
 	"CubeUniverse/universalFuncs"
@@ -217,7 +217,7 @@ func ParseResponseMap(response *http.Response) (map[string]interface{}, error) {
 func SetCubeUniverseAccount() error {
 	// 进入tool-box pod创建cubeUniverse账号
 	selector := labels.SelectorFromSet(map[string]string{"app": "rook-ceph-tools"})
-	toolBoxPods, err := clientSet.CoreV1().Pods("rook-ceph").List(context.TODO(),
+	toolBoxPods, err := ClientSet.CoreV1().Pods("rook-ceph").List(context.TODO(),
 		v1.ListOptions{LabelSelector: selector.String()})
 	if len(toolBoxPods.Items) == 0 {
 		return errors.New(err.Error() + " 获取toolbox pod失败！")

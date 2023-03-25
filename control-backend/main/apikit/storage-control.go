@@ -1,4 +1,4 @@
-package main
+package apikit
 
 import (
 	"CubeUniverse/universalFuncs"
@@ -21,7 +21,7 @@ import (
 //<-------块存储-------->
 
 func CheckBlockStorage() bool {
-	storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage", v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -30,9 +30,9 @@ func CheckBlockStorage() bool {
 
 func CreateBlockStorage() error {
 	if CheckBlockStorage() {
-		return errors.New("块存储已存在！")
+		return errors.New("block already exist")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml", "", ClientSet, DynamicClient)
 	return err
 }
 
@@ -57,7 +57,7 @@ func ApplyBlockPVC(name string, namespace string, volume int) error {
 // ListBlockSystemPVC 返回所有通过CubeUniverse创建的块存储PVC列表，内含名字、命名空间、容量等
 func ListBlockSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "block"})
-	listPVC, err := clientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
 	pvcs := listPVC.Items
 	return pvcs, err
 }
@@ -65,7 +65,7 @@ func ListBlockSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 //<--------文件存储--------->
 
 func CheckFileSystemStorage() bool {
-	storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage", v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -76,7 +76,7 @@ func CreateFileSystemStorage() error {
 	if CheckFileSystemStorage() {
 		return errors.New("文件系统存储已存在！")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml", "", ClientSet, DynamicClient)
 	return err
 }
 
@@ -101,7 +101,7 @@ func ApplyFileSystemPVC(name string, namespace string, volume int) error {
 // ListFileSystemPVC 返回所有通过CubeUniverse创建的文件存储PVC列表，内含名字、命名空间、容量等
 func ListFileSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "filesystem"})
-	listPVC, err := clientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
 	pvcs := listPVC.Items
 	return pvcs, err
 }
@@ -109,7 +109,7 @@ func ListFileSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 //<--------对象存储-------->
 
 func CheckObjectStorage() bool {
-	storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-obj-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-obj-storage", v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -120,7 +120,7 @@ func CreateObjectStorage() error {
 	if CheckObjectStorage() {
 		return errors.New("对象存储已存在！")
 	}
-	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml", "", clientSet, dynamicClient)
+	err := universalFuncs.ApplyCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml", "", ClientSet, DynamicClient)
 	return err
 }
 
@@ -139,7 +139,7 @@ func ApplyObjectBucket(name string, namespace string, maxObjects int, maxGBSize 
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1000"), []byte(fmt.Sprintf("%d", maxObjects)))
 	pvcBytes = bytes.ReplaceAll(pvcBytes, []byte("1G"), []byte(fmt.Sprintf("%d", maxObjects)))
-	err = universalFuncs.ApplyCrdFromBytes(pvcBytes, namespace, clientSet, dynamicClient)
+	err = universalFuncs.ApplyCrdFromBytes(pvcBytes, namespace, ClientSet, DynamicClient)
 	return err
 }
 
@@ -152,7 +152,7 @@ func DeleteObjectBucket(name string, namespace string) error {
 func ListObjectBucketClaim() (*simplejson.Json, error) {
 	crdMeta := schema.GroupVersionResource{Group: "objectbucket.io", Version: "v1alpha1", Resource: "objectbucketclaims"}
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "object"})
-	list, err := dynamicClient.Resource(crdMeta).Namespace("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	list, err := DynamicClient.Resource(crdMeta).Namespace("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
 	if err != nil {
 		return nil, errors.New("获取bucket-claim列表失败，" + err.Error())
 	}
@@ -165,13 +165,13 @@ func ListObjectBucketClaim() (*simplejson.Json, error) {
 
 // DeletePVC 删除块存储/文件存储PVC，删除后用户使用pvc的数据将被删除，应提示用户
 func DeletePVC(name string, namespace string) error {
-	err := clientSet.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
+	err := ClientSet.CoreV1().PersistentVolumeClaims(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 	return err
 }
 
 // DeleteCRD 用于删除CRD，比如对象存储对应的bucket-claim
 func DeleteCRD(group string, version string, resource string, name string, namespace string) error {
 	crdMeta := schema.GroupVersionResource{Group: group, Version: version, Resource: resource}
-	err := dynamicClient.Resource(crdMeta).Namespace(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
+	err := DynamicClient.Resource(crdMeta).Namespace(namespace).Delete(context.TODO(), name, v1.DeleteOptions{})
 	return err
 }

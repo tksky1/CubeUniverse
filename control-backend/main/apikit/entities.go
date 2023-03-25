@@ -1,4 +1,4 @@
-package main
+package apikit
 
 //存一些简化版本的Ceph及其他实体的信息
 

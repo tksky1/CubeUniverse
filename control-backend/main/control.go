@@ -1,10 +1,10 @@
 package main
 
 import (
+	"control-backend/apikit"
 	"control-backend/login-kit/common"
 	"control-backend/login-kit/model"
 	"control-backend/login-kit/util"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
@@ -57,4 +57,17 @@ func loginInit() {
 	}
 	panic(r.Run())
 
+}
+
+func main() {
+	//只是测试的时候先执行这个，正常情况下应该先执行apikit的init
+	loginInit()
+	//实际上应该先执行这个init
+	apikit.Init()
+
+	// 后端内容...
+	//初始化登录，完成路由注册，实现全部服务
+	loginInit()
+	//后端完成前先hold
+	select {}
 }
