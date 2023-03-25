@@ -29,12 +29,12 @@ func InitUsrAdmin() {
 	//不存在则创建用户
 	if user.ID == 0 {
 		//创建用户
-		hashdPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost) //密码hash化
+		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost) //密码hash化
 
 		newUser := model.User{
 			Name:      name,
 			Telephone: telephone,
-			Password:  string(hashdPassword),
+			Password:  string(hashedPassword),
 		}
 		if err := db.Create(&newUser).Error; err != nil {
 			panic("createUser err" + err.Error())
@@ -70,6 +70,5 @@ func main() {
 	// 后端内容...
 	//初始化登录，完成路由注册，实现全部服务
 	loginInit()
-	//后端完成前先hold
-	select {}
+
 }

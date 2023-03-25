@@ -4,7 +4,6 @@ package cubeOperatorKit
 import (
 	"CubeUniverse/universalFuncs"
 	"log"
-	"time"
 
 	"k8s.io/client-go/kubernetes"
 )
@@ -12,7 +11,7 @@ import (
 // UniverseVersion CubeUniverse版本号
 const UniverseVersion = "dev0.1"
 
-var clientSet *kubernetes.Clientset
+var ClientSet *kubernetes.Clientset
 
 func Init() {
 	println("\n ██████╗██╗   ██╗██████╗ ███████╗██╗   ██╗███╗   ██╗██╗██╗   ██╗███████╗██████╗ ███████╗███████╗\n██╔════╝██║   ██║██╔══██╗██╔════╝██║   ██║████╗  ██║██║██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝\n██║     ██║   ██║██████╔╝█████╗  ██║   ██║██╔██╗ ██║██║██║   ██║█████╗  ██████╔╝███████╗█████╗  \n██║     ██║   ██║██╔══██╗██╔══╝  ██║   ██║██║╚██╗██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗╚════██║██╔══╝  \n╚██████╗╚██████╔╝██████╔╝███████╗╚██████╔╝██║ ╚████║██║ ╚████╔╝ ███████╗██║  ██║███████║███████╗\n ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝\n")
@@ -21,24 +20,7 @@ func Init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载UniverseOperator", UniverseVersion)
 
-	clientSet = universalFuncs.GetClientSet()
+	ClientSet = universalFuncs.GetClientSet()
 	sessionCacheMap = make(map[[16]byte]*SessionAndBucketName)
-
-	for {
-		time.Sleep(5 * time.Second)
-		operator, dashboard, controlBackend, builder := universalFuncs.CheckCubeUniverseComponent(clientSet)
-		if builder {
-			continue
-		}
-		cephOperator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(clientSet)
-		if !(operator && dashboard && controlBackend && cephOperator && rbdplugin && mon && mgr && osd) {
-			log.Println("监测到集群未完全运行，启动UniverseBuilder..")
-			err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/UniverseBuilder.yml", "cubeuniverse")
-			if err != nil {
-				log.Panic("启动UniverseBuilder失败，请检查CubeUniverse项目文件是否完好！\n", err)
-			}
-			time.Sleep(15 * time.Second)
-		}
-	}
 
 }

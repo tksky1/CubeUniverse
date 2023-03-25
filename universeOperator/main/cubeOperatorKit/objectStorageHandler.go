@@ -114,13 +114,13 @@ func GetObjectStorageSession(namespace, bucketClaimName string) (*SessionAndBuck
 		return sessionCached, nil
 	}
 
-	cm, err := clientSet.CoreV1().ConfigMaps(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
+	cm, err := ClientSet.CoreV1().ConfigMaps(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
 	if err != nil {
 		panic("configMap获取失败：" + err.Error())
 	}
 	bucketName := cm.Data["BUCKET_NAME"]
 	bucketHost := cm.Data["BUCKET_HOST"]
-	secret, err := clientSet.CoreV1().Secrets(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
+	secret, err := ClientSet.CoreV1().Secrets(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
 	if err != nil {
 		panic("secret获取失败：" + err.Error())
 	}
