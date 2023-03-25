@@ -1,4 +1,4 @@
-package cubekit
+package cubecontrol
 
 import (
 	"CubeUniverse/universalFuncs"
@@ -12,24 +12,20 @@ import (
 // UniverseVersion CubeUniverse版本号
 const UniverseVersion = "dev0.1"
 
-var ClientSet *kubernetes.Clientset
-var DynamicClient *dynamic.DynamicClient
+var clientSet *kubernetes.Clientset
+var dynamicClient *dynamic.DynamicClient
 
-<<<<<<< HEAD:control-backend/main/cubekit/control-backend.go
 func Init() {
 
-=======
-func main() {
->>>>>>> parent of 594495b (chore: add test function):control-backend/main/control-backend.go
 	log.SetPrefix("[ControlBackend]")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
 
-	ClientSet = universalFuncs.GetClientSet()
-	DynamicClient = universalFuncs.GetDynamicClient()
+	clientSet = universalFuncs.GetClientSet()
+	dynamicClient = universalFuncs.GetDynamicClient()
 
 	for { //等待osd加载完成
-		_, _, _, _, osdStat := universalFuncs.CheckCephComponent(ClientSet)
+		_, _, _, _, osdStat := universalFuncs.CheckCephComponent(clientSet)
 		if osdStat {
 			break
 		}
@@ -48,4 +44,8 @@ func main() {
 		log.Println(err)
 	}
 
+	// 后端内容...
+
+	//后端完成前先hold
+	select {}
 }

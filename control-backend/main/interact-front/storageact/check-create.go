@@ -1,7 +1,7 @@
 package storageact
 
 import (
-	"control-backend/cubekit"
+	"control-backend/cubecontrol"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -17,21 +17,21 @@ func CheckOrCreate(ctx *gin.Context) {
 	//如果是块存储的请求
 	case "block":
 		if get_action == "check" {
-			checkFunc(get_type, cubekit.CheckBlockStorage, ctx) //检查
+			checkFunc(get_type, cubecontrol.CheckBlockStorage, ctx) //检查
 		} else if get_action == "create" {
-			createFunc(get_type, cubekit.CreateBlockStorage, ctx) //创建
+			createFunc(get_type, cubecontrol.CreateBlockStorage, ctx) //创建
 		}
 	case "file":
 		if get_action == "check" {
-			checkFunc(get_type, cubekit.CheckFileSystemStorage, ctx)
+			checkFunc(get_type, cubecontrol.CheckFileSystemStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, cubekit.CreateFileSystemStorage, ctx)
+			createFunc(get_type, cubecontrol.CreateFileSystemStorage, ctx)
 		}
 	case "object":
 		if get_action == "check" {
-			checkFunc(get_type, cubekit.CheckObjectStorage, ctx)
+			checkFunc(get_type, cubecontrol.CheckObjectStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, cubekit.CreateObjectStorage, ctx)
+			createFunc(get_type, cubecontrol.CreateObjectStorage, ctx)
 		}
 	}
 	//完成三种存储模式的检查与创建工作

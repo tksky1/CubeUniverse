@@ -1,4 +1,4 @@
-package main
+package cubecontrol
 
 import (
 	"CubeUniverse/universalFuncs"
@@ -6,14 +6,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"regexp"
+	"strconv"
+
 	"github.com/bitly/go-simplejson"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"os"
-	"regexp"
-	"strconv"
 )
 
 // 块存储/文件存储/对象存储相关控制

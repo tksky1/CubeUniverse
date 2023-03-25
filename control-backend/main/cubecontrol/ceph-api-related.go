@@ -1,4 +1,4 @@
-package main
+package cubecontrol
 
 import (
 	"CubeUniverse/universalFuncs"
@@ -8,15 +8,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/bitly/go-simplejson"
 	"io"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/rest"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/bitly/go-simplejson"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/rest"
 )
 
 // ceph-api有关的交互内容
@@ -24,12 +25,12 @@ import (
 
 var cephToken string
 
-// const cephApiBase = "https://ceph-dashboard-in-cluster.rook-ceph.svc.cluster.local:8443/"
-const cephApiBase = "https://192.168.79.11:30701/" //TODO: 调试后改回来
+// const CephApiBase = "https://ceph-dashboard-in-cluster.rook-ceph.svc.cluster.local:8443/"
+const CephApiBase = "https://192.168.79.11:30701/" //TODO: 调试后改回来
 
 // GetCephHosts 获取Ceph的Hosts状态
 func GetCephHosts() ([]CephHost, error) {
-	req, _ := http.NewRequest("GET", cephApiBase+"api/host", nil)
+	req, _ := http.NewRequest("GET", CephApiBase+"api/host", nil)
 	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, errors.New("访问cephAPI出错：" + err.Error())
@@ -54,7 +55,7 @@ func GetCephHosts() ([]CephHost, error) {
 
 // GetCephMonitor 获取Ceph的Monitor状态
 func GetCephMonitor() (inQuorumMonitor []CephMonitor, outQuorumMonitor []CephMonitor, errr error) {
-	req, _ := http.NewRequest("GET", cephApiBase+"api/monitor", nil)
+	req, _ := http.NewRequest("GET", CephApiBase+"api/monitor", nil)
 	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, nil, errors.New("访问cephAPI出错：" + err.Error())
@@ -94,7 +95,7 @@ func GetCephMonitor() (inQuorumMonitor []CephMonitor, outQuorumMonitor []CephMon
 
 // GetCephOSD 获取Ceph的OSD的状态
 func GetCephOSD() ([]CephOSD, error) {
-	req, _ := http.NewRequest("GET", cephApiBase+"api/osd", nil)
+	req, _ := http.NewRequest("GET", CephApiBase+"api/osd", nil)
 	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, err
@@ -137,7 +138,7 @@ func GetCephOSD() ([]CephOSD, error) {
 
 // GetCephPool 获取Ceph的Pool的相关信息
 func GetCephPool() ([]CephPool, error) {
-	req, _ := http.NewRequest("GET", cephApiBase+"api/pool", nil)
+	req, _ := http.NewRequest("GET", CephApiBase+"api/pool", nil)
 	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, err
@@ -157,7 +158,7 @@ func GetCephPool() ([]CephPool, error) {
 
 // GetCephPerformance 获取Ceph集群总体的相关状态数据
 func GetCephPerformance() (*CephPerformance, error) {
-	req, _ := http.NewRequest("GET", cephApiBase+"api/health/minimal", nil)
+	req, _ := http.NewRequest("GET", CephApiBase+"api/health/minimal", nil)
 	resJson, err := SendHttpsForJson(req)
 	if err != nil {
 		return nil, err
@@ -286,7 +287,7 @@ func SetCubeUniverseAccount() error {
 // GetCephToken 工具函数，用于get CephAPI的token
 func GetCephToken() error {
 	// 申请token
-	req, err := http.NewRequest("POST", cephApiBase+"api/auth",
+	req, err := http.NewRequest("POST", CephApiBase+"api/auth",
 		strings.NewReader("{\"username\": \"cubeuniverse\", \"password\": \"cubeuniverse\"}"))
 	if err != nil {
 		return err
