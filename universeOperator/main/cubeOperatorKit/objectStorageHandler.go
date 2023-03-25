@@ -1,9 +1,11 @@
-package main
+package cubeOperatorKit
 
 import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -11,7 +13,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"time"
 )
 
 /*

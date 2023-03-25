@@ -1,11 +1,12 @@
 // @Description  UniverseOperator 常驻运行 监测集群状态和自动维护
-package main
+package cubeOperatorKit
 
 import (
 	"CubeUniverse/universalFuncs"
-	"k8s.io/client-go/kubernetes"
 	"log"
 	"time"
+
+	"k8s.io/client-go/kubernetes"
 )
 
 // UniverseVersion CubeUniverse版本号
@@ -13,7 +14,7 @@ const UniverseVersion = "dev0.1"
 
 var clientSet *kubernetes.Clientset
 
-func main() {
+func Init() {
 	println("\n ██████╗██╗   ██╗██████╗ ███████╗██╗   ██╗███╗   ██╗██╗██╗   ██╗███████╗██████╗ ███████╗███████╗\n██╔════╝██║   ██║██╔══██╗██╔════╝██║   ██║████╗  ██║██║██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝\n██║     ██║   ██║██████╔╝█████╗  ██║   ██║██╔██╗ ██║██║██║   ██║█████╗  ██████╔╝███████╗█████╗  \n██║     ██║   ██║██╔══██╗██╔══╝  ██║   ██║██║╚██╗██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗╚════██║██╔══╝  \n╚██████╗╚██████╔╝██████╔╝███████╗╚██████╔╝██║ ╚████║██║ ╚████╔╝ ███████╗██║  ██║███████║███████╗\n ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝\n")
 
 	log.SetPrefix("[UniverseOperator]")
