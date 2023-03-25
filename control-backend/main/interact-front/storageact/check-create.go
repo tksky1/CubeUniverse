@@ -1,7 +1,7 @@
 package storageact
 
 import (
-	"control-backend/apikit"
+	"control-backend/cubekit"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
@@ -17,41 +17,24 @@ func CheckOrCreate(ctx *gin.Context) {
 	//如果是块存储的请求
 	case "block":
 		if get_action == "check" {
-			checkFunc(get_type, apikit.CheckBlockStorage, ctx) //检查
+			checkFunc(get_type, cubekit.CheckBlockStorage, ctx) //检查
 		} else if get_action == "create" {
-			createFunc(get_type, apikit.CreateBlockStorage, ctx) //创建
+			createFunc(get_type, cubekit.CreateBlockStorage, ctx) //创建
 		}
 	case "file":
 		if get_action == "check" {
-			checkFunc(get_type, apikit.CheckFileSystemStorage, ctx)
+			checkFunc(get_type, cubekit.CheckFileSystemStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, apikit.CreateFileSystemStorage, ctx)
+			createFunc(get_type, cubekit.CreateFileSystemStorage, ctx)
 		}
 	case "object":
 		if get_action == "check" {
-			checkFunc(get_type, apikit.CheckObjectStorage, ctx)
+			checkFunc(get_type, cubekit.CheckObjectStorage, ctx)
 		} else if get_action == "create" {
-			createFunc(get_type, apikit.CreateObjectStorage, ctx)
+			createFunc(get_type, cubekit.CreateObjectStorage, ctx)
 		}
 	}
 	//完成三种存储模式的检查与创建工作
-}
-
-// 处理的请求必须带有name、namespace、volume字段,均为string
-func Pvcreq(ctx *gin.Context) {
-	//根据post请求body体参数来解析数据,支持postform和json两种格式
-	name := ctx.PostForm("name")
-	namespace := ctx.PostForm("namespace")
-	volume := ctx.PostForm("volume")
-
-	if name == "" && namespace == "" && volume == "" {
-		json := make(map[string]interface{})
-		ctx.BindJSON(&json)
-		name = json["name"].(string)
-		namespace = json["namespace"].(string)
-		volume = json["volume"].(string)
-	}
-
 }
 
 // 内部工具方法

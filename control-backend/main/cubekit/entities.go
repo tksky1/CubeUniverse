@@ -1,4 +1,4 @@
-package apikit
+package cubekit
 
 //存一些简化版本的Ceph及其他实体的信息
 

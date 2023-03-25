@@ -1,4 +1,4 @@
-package apikit
+package cubekit
 
 import (
 	"CubeUniverse/universalFuncs"
