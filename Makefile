@@ -5,7 +5,7 @@ MAINDIR = $(WORKDIR)/main
 BUILDERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
 OPERATORDIR = $(WORKDIR)/universeOperator
-BACKENDDIR = $(WORKDIR)/control-backend
+BACKENDDIR = $(WORKDIR)/control-backend/main
 
 $(shell mkdir -p $(DEVTMPDIR))
 export GO111MODULE = on
@@ -52,8 +52,8 @@ $(OPERATORTAR): $(OPERATORSRC)
 	$(DOCKER) save operator-dev -o $@
 
 $(BACKENDTAR): $(BACKENDSRC)
-	$(GO) mod download
-	$(GO) build -o $(DEVTMPDIR)/main $^
+	cd control-backend/main && $(GO) mod download
+	cd control-backend/main && $(GO) build -o $(DEVTMPDIR)/main $(BACKENDDIR)/control.go $(BACKENDDIR)/routes.go $(BACKENDDIR)/test.go
 	$(DOCKER) build -t backend-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save backend-dev -o $@
 

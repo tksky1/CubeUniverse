@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CubeUniverse/universalFuncs"
 	"control-backend/cubeControl"
 	"control-backend/login-kit/common"
 	"control-backend/login-kit/model"
@@ -60,6 +61,10 @@ func loginInit() {
 }
 
 func main() {
+
+	cubeControl.ClientSet = universalFuncs.GetClientSet()
+	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
+
 	//TODO：删除测试内容
 	test()
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init

@@ -64,3 +64,11 @@ type CephPerformance struct {
 	ObjectNotFoundNum     int      // 处于丢失状态的对象总数
 	PoolNum               int      // 存储池总数
 }
+
+type CephOSDBucket struct {
+	Name       string `json:"name"`
+	Namespace  string `json:"namespace"`
+	MaxObjects string `json:"max_object"`
+	MaxSize    string `json:"max_size"`
+	CreateTime string `json:"time"`
+}

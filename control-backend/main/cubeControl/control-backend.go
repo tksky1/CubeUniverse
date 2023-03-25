@@ -12,8 +12,8 @@ import (
 // UniverseVersion CubeUniverse版本号
 const UniverseVersion = "dev0.1"
 
-var clientSet *kubernetes.Clientset
-var dynamicClient *dynamic.DynamicClient
+var ClientSet *kubernetes.Clientset
+var DynamicClient *dynamic.DynamicClient
 
 func Init() {
 
@@ -21,11 +21,8 @@ func Init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
 
-	clientSet = universalFuncs.GetClientSet()
-	dynamicClient = universalFuncs.GetDynamicClient()
-
 	for { //等待osd加载完成
-		_, _, _, _, osdStat := universalFuncs.CheckCephComponent(clientSet)
+		_, _, _, _, osdStat := universalFuncs.CheckCephComponent(ClientSet)
 		if osdStat {
 			break
 		}
