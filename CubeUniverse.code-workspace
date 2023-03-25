@@ -1,0 +1,17 @@
+{
+    "folders": [
+        {
+          "name": "control-backend",
+          "path": "./control-backend/main"
+        },
+      ],
+      "settings": {
+        "go.formatTool": "gofmt",
+        "[go]": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": false
+          }
+        }
+      }
+}
