@@ -53,7 +53,7 @@ func GetCephHosts() ([]CephHost, error) {
 	return hosts, err
 }
 
-// GetCephMonitor 获取Ceph的Monitor状态
+// GetCephMonitor 获取Ceph的Monitor状态  inQuorum:正常的 outQuorum:异常是
 func GetCephMonitor() (inQuorumMonitor []CephMonitor, outQuorumMonitor []CephMonitor, errr error) {
 	req, _ := http.NewRequest("GET", CephApiBase+"api/monitor", nil)
 	resJson, err := SendHttpsForJson(req)

@@ -39,7 +39,7 @@ func CreateBlockStorage() error {
 
 // CreateBlockPVC 为客户创建(CREATE)块存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
 // 很可能会出现命名空间不存在等err，要正确处理告知前端
-func CreateBlockPVC(name string, namespace string, volume int) error {
+func CreateBlockPVC(name string, namespace string, volume int, autoScale bool) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -51,13 +51,16 @@ func CreateBlockPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	if !autoScale {
+		pvcBytes = bytes.Replace(pvcBytes, []byte("auto-scale: auto"), []byte("auto-scale: manual"), 1)
+	}
 	err = universalFuncs.CreateBytes(pvcBytes, namespace)
 	return err
 }
 
 // PatchBlockPVC 为客户创建/更新(PATCH)块存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
-// 很可能会出现命名空间不存在等err，要正确处理告知前端
-func PatchBlockPVC(name string, namespace string, volume int) error {
+// 很可能会出现命名空间不存在等err，要正确处理告知前端 !!修改要注意容量只能扩容不能缩容
+func PatchBlockPVC(name string, namespace string, volume int, autoScale bool) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -69,6 +72,9 @@ func PatchBlockPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	if !autoScale {
+		pvcBytes = bytes.Replace(pvcBytes, []byte("auto-scale: auto"), []byte("auto-scale: manual"), 1)
+	}
 	err = universalFuncs.PatchBytes(pvcBytes, namespace)
 	return err
 }
@@ -101,7 +107,7 @@ func CreateFileSystemStorage() error {
 
 // CreateFileSystemPVC 为客户创建(CREATE)文件存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
 // 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
-func CreateFileSystemPVC(name string, namespace string, volume int) error {
+func CreateFileSystemPVC(name string, namespace string, volume int, autoScale bool) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -113,13 +119,16 @@ func CreateFileSystemPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	if !autoScale {
+		pvcBytes = bytes.Replace(pvcBytes, []byte("auto-scale: auto"), []byte("auto-scale: manual"), 1)
+	}
 	err = universalFuncs.CreateBytes(pvcBytes, namespace)
 	return err
 }
 
 // PatchFileSystemPVC 为客户创建/更新(PATCH)文件存储PVC，指定名字（必须全小写、只能用-.隔开）、命名空间、申请容量（整数，GB）
 // 很可能会出现名称已存在/命名空间不存在等err，要正确处理告知前端
-func PatchFileSystemPVC(name string, namespace string, volume int) error {
+func PatchFileSystemPVC(name string, namespace string, volume int, autoScale bool) error {
 	match, _ := regexp.MatchString("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*", name)
 	if !match {
 		return errors.New("输入的pvc名字不合法！请使用全英文小写，用-或.隔开")
@@ -131,6 +140,9 @@ func PatchFileSystemPVC(name string, namespace string, volume int) error {
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-pvc"), []byte(name), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("sample-namespace"), []byte(namespace), 1)
 	pvcBytes = bytes.Replace(pvcBytes, []byte("1Gi"), append([]byte(strconv.Itoa(volume)), 'G', 'i'), 1)
+	if !autoScale {
+		pvcBytes = bytes.Replace(pvcBytes, []byte("auto-scale: auto"), []byte("auto-scale: manual"), 1)
+	}
 	err = universalFuncs.PatchBytes(pvcBytes, namespace)
 	return err
 }

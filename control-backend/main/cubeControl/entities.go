@@ -65,6 +65,7 @@ type CephPerformance struct {
 	PoolNum               int      // 存储池总数
 }
 
+// CephOSDBucket 包含已创建的OSDBucketClaim信息
 type CephOSDBucket struct {
 	Name       string `json:"name"`
 	Namespace  string `json:"namespace"`

@@ -1,0 +1,27 @@
+apiVersion: v1
+data:
+  rootHost: JQ==
+  rootPassword: Y3ViZXVuaXZlcnNl
+  rootUser: cm9vdA==
+kind: Secret
+metadata:
+  name: universe-mysql-secret
+---
+apiVersion: mysql.oracle.com/v2
+kind: InnoDBCluster
+metadata:
+  name: cubeuniverse-mysql-cluster
+spec:
+  secretName: universe-mysql-secret
+  tlsUseSelfSigned: true
+  instances: 3
+  version: 8.0.31
+  router:
+    instances: 1
+    version: 8.0.31
+  datadirVolumeClaimTemplate:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
