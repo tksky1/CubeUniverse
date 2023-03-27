@@ -20,7 +20,7 @@ type CephMonitor struct {
 type CephOSD struct {
 	Address         string
 	HostName        string //osd所在的host的name
-	Id              int
+	Uid             int
 	KbAll           int       // 全部空间，kb为单位
 	KbUsed          int       // 已使用的空间。kb
 	KbUsedData      int       //实际数据使用的kb

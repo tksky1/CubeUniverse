@@ -14,15 +14,15 @@ import (
 
 type User struct {
 	gorm.Model
-	Name      string `gorm:"type:varchar(20);not null"`
-	Telephone string `gorm:"varchar(11);not null;unique"`
-	Password  string `gorm:"size(255);not null"`
+	Name     string `gorm:"type:varchar(20);not null"`
+	Uid      string `gorm:"varchar(11);not null;unique"`
+	Password string `gorm:"size(255);not null"`
 }
 
 func InitUsrAdmin() {
 	db := common.GetDB()
 	name := "Admin"
-	telephone := "12345678901"
+	uid := "12345678901"
 	password := "12345678"
 	//判断Admin用户是否已经存在
 	var user model.User
@@ -33,9 +33,9 @@ func InitUsrAdmin() {
 		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost) //密码hash化
 
 		newUser := model.User{
-			Name:      name,
-			Telephone: telephone,
-			Password:  string(hashedPassword),
+			Name:     name,
+			Uid:      uid,
+			Password: string(hashedPassword),
 		}
 		if err := db.Create(&newUser).Error; err != nil {
 			panic("createUser err" + err.Error())
@@ -62,14 +62,14 @@ func loginInit() {
 
 func main() {
 
-	cubeControl.ClientSet = universalFuncs.GetClientSet()
-	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
-
 	//TODO：删除测试内容
-	test()
+	// test()
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init
 	loginInit()
 	//实际上应该先执行这个init
+	cubeControl.ClientSet = universalFuncs.GetClientSet()
+	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
+
 	cubeControl.Init()
 
 	// 后端内容...

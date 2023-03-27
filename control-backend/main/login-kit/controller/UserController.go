@@ -16,31 +16,31 @@ func Register(ctx *gin.Context) {
 	db := common.GetDB()
 	//获取参数
 	name := ctx.PostForm("name")
-	telephone := ctx.PostForm("telephone")
+	uid := ctx.PostForm("uid")
 	password := ctx.PostForm("password")
 	//数据验证
 
-	if telephone == "" && password == "" && name == "" {
+	if uid == "" && password == "" && name == "" {
 		json := make(map[string]interface{})
 		ctx.BindJSON(&json)
-		telephone = json["telephone"].(string)
+		uid = json["uid"].(string)
 		password = json["password"].(string)
 		name = json["name"].(string)
 	}
 
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
+	if len(uid) != 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id必须11位")
 		return
 	}
 	if len(password) < 8 {
 		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "密码必须大于8位")
 		return
 	}
-	log.Println(name, telephone, password)
+	log.Println(name, uid, password)
 
-	//判断手机号是否存在
-	if isTelephoneExist(db, telephone) {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号已注册")
+	//判断Id是否存在
+	if isTelephoneExist(db, uid) {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id已注册")
 		return
 	}
 
@@ -51,9 +51,9 @@ func Register(ctx *gin.Context) {
 		return
 	}
 	newUser := model.User{
-		Name:      name,
-		Telephone: telephone,
-		Password:  string(hashdPassword),
+		Name:     name,
+		Uid:      uid,
+		Password: string(hashdPassword),
 	}
 	if err := db.Create(&newUser).Error; err != nil {
 		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, err.Error())
@@ -64,28 +64,28 @@ func Register(ctx *gin.Context) {
 
 }
 
-func isTelephoneExist(db *gorm.DB, telephone string) bool {
+func isTelephoneExist(db *gorm.DB, uid string) bool {
 	var user model.User
-	db.Where("telephone=?", telephone).First(&user)
+	db.Where("uid=?", uid).First(&user)
 	return user.ID != 0
 }
 
 func Login(ctx *gin.Context) {
 	db := common.GetDB()
 	//获取参数
-	telephone := ctx.PostForm("telephone")
+	uid := ctx.PostForm("uid")
 	password := ctx.PostForm("password")
 
-	if telephone == "" && password == "" {
+	if uid == "" && password == "" {
 		json := make(map[string]interface{})
 		ctx.BindJSON(&json)
-		telephone = json["telephone"].(string)
+		uid = json["uid"].(string)
 		password = json["password"].(string)
 	}
 
 	//数据校验
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
+	if len(uid) != 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id必须11位")
 		return
 	}
 	if len(password) < 8 {
@@ -93,11 +93,11 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	//判断手机号是否存在
+	//判断Id是否存在
 	var user model.User
-	db.Where("telephone=?", telephone).First(&user)
+	db.Where("uid=?", uid).First(&user)
 	if user.ID == 0 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号不存在")
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id不存在")
 		return
 	}
 
@@ -122,22 +122,22 @@ func Login(ctx *gin.Context) {
 func AlterPasswd(ctx *gin.Context) {
 	db := common.GetDB()
 	//获取参数
-	telephone := ctx.PostForm("telephone")
+	uid := ctx.PostForm("uid")
 	password := ctx.PostForm("password")
 	newpasswd := ctx.PostForm("newpassword")
-	newtelphone := ctx.PostForm("newtelphone")
+	newuid := ctx.PostForm("newuid")
 	//如果form-data数据行不通，试试json格式
-	if telephone == "" && password == "" && newpasswd == "" && newtelphone == "" {
+	if uid == "" && password == "" && newpasswd == "" && newuid == "" {
 		json := make(map[string]interface{})
 		ctx.BindJSON(&json)
-		telephone = json["telephone"].(string)
+		uid = json["uid"].(string)
 		password = json["password"].(string)
 		newpasswd = json["newpassword"].(string)
-		newtelphone = json["newtelphone"].(string)
+		newuid = json["newuid"].(string)
 	}
 	//对于未传入的参数不做修改
-	if newtelphone == "" {
-		newtelphone = telephone
+	if newuid == "" {
+		newuid = uid
 	}
 	if newpasswd == "" {
 		newpasswd = password
@@ -150,12 +150,12 @@ func AlterPasswd(ctx *gin.Context) {
 	}
 
 	//数据校验
-	if len(telephone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
+	if len(uid) != 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id必须11位")
 		return
 	}
-	if len(newtelphone) != 11 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号必须11位")
+	if len(newuid) != 11 {
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id必须11位")
 		return
 	}
 	if len(newpasswd) < 8 {
@@ -168,11 +168,11 @@ func AlterPasswd(ctx *gin.Context) {
 		return
 	}
 
-	//判断手机号是否存在
+	//判断Id是否存在
 	var user model.User
-	db.Where("telephone=?", telephone).First(&user)
+	db.Where("uid=?", uid).First(&user)
 	if user.ID == 0 {
-		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "手机号不存在")
+		response.Response(ctx, http.StatusUnprocessableEntity, 442, nil, "Id不存在")
 		return
 	}
 
@@ -185,8 +185,8 @@ func AlterPasswd(ctx *gin.Context) {
 	if newpasswd != "" {
 		user.Password = string(hashdPassword)
 	}
-	if newtelphone != "" {
-		user.Telephone = string(newtelphone)
+	if newuid != "" {
+		user.Uid = string(newuid)
 	}
 
 	db.Save(&user)
