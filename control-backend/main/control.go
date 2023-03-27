@@ -66,6 +66,9 @@ func main() {
 	// test()
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init
 	loginInit()
+
+	//测试websocket发送数据
+
 	//实际上应该先执行这个init
 	cubeControl.ClientSet = universalFuncs.GetClientSet()
 	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
