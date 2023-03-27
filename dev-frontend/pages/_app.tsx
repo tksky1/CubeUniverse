@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app'
 import { MantineProvider } from "@mantine/core"
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
+import { NextUIProvider } from "@nextui-org/react"
 import { emotionCache } from '@/emotionCache'
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -31,7 +32,9 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
       theme={{
         colorScheme: "light"
       }}>
-      {getLayout(<Component {...pageProps} />)}
+      <NextUIProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </NextUIProvider>
     </MantineProvider>
   )
 }

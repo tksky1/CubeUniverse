@@ -3,7 +3,7 @@ import MyConfigProvider from "./MyConfigProvider";
 import { Menu } from "antd";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Title, createStyles, ScrollArea, Flex, Container } from "@mantine/core"
+import { Title, createStyles, ScrollArea, Flex, Container, Text } from "@mantine/core"
 
 interface MainLayout {
     children: ReactElement
@@ -71,12 +71,16 @@ const useStyles = createStyles(_theme => {
     }
 })
 
-export default function MainLayout({children}: MainLayout) {
+export default function MainLayout({ children }: MainLayout) {
     let { classes } = useStyles();
     let router = useRouter();
-    
+
     return (
-        <div className={classes.outerContainer}>
+        <div
+            className={
+                classes.outerContainer
+            }
+        >
             <Flex
                 sx={_theme => ({
                     height: 50,
@@ -87,26 +91,35 @@ export default function MainLayout({children}: MainLayout) {
                 pl={10}
             >
                 <Link href={"/"}>
-                    <Title 
+                    <Title
                         order={1}
                         variant="gradient"
-                        gradient={{from: "#4fb9e3", to: "#032d81", deg: 30}}
+                        gradient={{ from: "#4fb9e3", to: "#032d81", deg: 30 }}
                     >CubeUniverse</Title>
                 </Link>
             </Flex>
             <div className={classes.bottomContainer}>
-                <ScrollArea 
+                <ScrollArea
                     sx={_theme => ({
                         height: "100%",
-                        width: 200
+                        width: "200px"
                     })}
                     classNames={{
                         viewport: classes.scrollAreaViewport
                     }}
                     type="scroll"
                 >
+                    <Link href={"/"}>
+                        <Title
+                            order={4}
+                            pl={"lg"}
+                            pt={"xs"}
+                        >
+                            DashBoard
+                        </Title>
+                    </Link>
                     <MyConfigProvider>
-                        <Menu 
+                        <Menu
                             theme="light"
                             selectedKeys={[router.asPath]}
                             items={items}
@@ -115,6 +128,7 @@ export default function MainLayout({children}: MainLayout) {
                             style={{
                                 height: "100%",
                                 width: "100%",
+                                borderStyle: "none"
                             }}
                         />
                     </MyConfigProvider>
@@ -123,7 +137,6 @@ export default function MainLayout({children}: MainLayout) {
                     sx={_theme => ({
                         flexGrow: 1,
                         height: "100%",
-                        backgroundColor: "#eeeeee",
                     })}
                     classNames={{
                         viewport: classes.scrollAreaViewport

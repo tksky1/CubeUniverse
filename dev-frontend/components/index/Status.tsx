@@ -36,7 +36,7 @@ export default function Status() {
                             size={"xl"}
                             color="yellow"
                         >
-                            <Group spacing={1}>
+                            <Group spacing={1} noWrap>
                                 <Text>
                                     HEALTH_WARM
                                 </Text>

@@ -1,0 +1,1 @@
+import {} from "mantine-react-table"

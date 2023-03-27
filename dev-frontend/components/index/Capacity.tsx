@@ -134,7 +134,7 @@ function MyPie() {
     return (
         <ResponsivePie
             data={data}
-            margin={{bottom: 80, top: 40}}
+            margin={{bottom: 80, top: 40, left: 40, right: 40}}
             innerRadius={0.7}
             padAngle={0.7}
             cornerRadius={3}
