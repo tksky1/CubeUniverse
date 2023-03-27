@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"control-backend/cubeControl"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -30,6 +31,8 @@ func ConstSend(ctx *gin.Context) {
 		})
 		return
 	}
+	ws.SetReadLimit(1024) // 设置读取缓冲区大小为1024字节
+	defer ws.Close()
 
 	//测试部分：TODO
 	for i := 1; i <= 10; i++ {
@@ -44,12 +47,13 @@ func ConstSend(ctx *gin.Context) {
 		//将map入队
 		queue.PushBack(resMap)
 	}
-	for i := 1; i <= 10; i++ {
+	for {
 		//从缓存中拿数据
 		resMap := queue.Front().Value //取出队头元素
-		queue.Remove(queue.Front())   //删除队头，即出队
-		//设置读取用户请求时间，也能实现心跳
-		// ws.SetReadDeadline(time.Now().Add(20 * time.Second))
+		//测试就不出队了
+		// queue.Remove(queue.Front())   //删除队头，即出队
+		time.Sleep(1 * time.Second)
+		println("working on sending")
 		//格式化json
 		msg, _ := json.Marshal(&resMap)
 		//发送数据
@@ -58,9 +62,16 @@ func ConstSend(ctx *gin.Context) {
 			log.Print(err.Error())
 
 		}
-		//读取用户返回数据，用于用户主动断开连接
-		mt, msg, err := ws.ReadMessage()
-		if err == nil && mt == websocket.TextMessage {
+		//设置读取用户请求时间，也能实现心跳
+		ws.SetReadDeadline(time.Now().Add(4 * time.Second))
+		//读取用户返回数据，用于用户主动断开连接，以及长时间无用户响应而终止
+		mt, msg, errRead := ws.ReadMessage()
+		if errRead != nil {
+			fmt.Println("err : " + errRead.Error())
+			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+			return
+		}
+		if errRead == nil && mt == websocket.TextMessage {
 			jsons := make(map[string]interface{})
 			//将json字符串解析
 			if errCtx := json.Unmarshal(msg, &jsons); errCtx != nil {
@@ -93,6 +104,10 @@ func ConstSend(ctx *gin.Context) {
 	//开启一个协程填入缓存数据
 	go func() {
 		for {
+			//如果链表过长休眠等待资源消耗
+			if queue.Len() >= 100 {
+				time.Sleep(5 * time.Second)
+			}
 			//500毫秒的间歇
 			time.Sleep(500 * time.Millisecond)
 			resMap := make(gin.H)
@@ -107,11 +122,17 @@ func ConstSend(ctx *gin.Context) {
 	}()
 	//进入死循环
 	for {
+		time.Sleep(3 * time.Second)
 		//从缓存中拿数据
+		//缓存吃空了
+		if queue.Len() <= 0 {
+			time.Sleep(1 * time.Second) //歇一下
+		}
+		time.Sleep(1 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		queue.Remove(queue.Front())   //删除队头，即出队
 		//设置读取用户请求时间，也能实现心跳
-		ws.SetReadDeadline(time.Now().Add(1 * time.Second))
+		ws.SetReadDeadline(time.Now().Add(4 * time.Second))
 		//格式化json
 		msg, _ := json.Marshal(&resMap)
 		//发送数据
@@ -120,8 +141,12 @@ func ConstSend(ctx *gin.Context) {
 			log.Print(err.Error())
 
 		}
-		//读取用户返回数据，用于用户主动断开连接
+		//读取用户返回数据，用于用户主动断开连接,以及长时间无用户响应而终止
 		mt, msg, err := ws.ReadMessage()
+		if err != nil {
+			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+			return
+		}
 		if err != nil && mt == websocket.TextMessage {
 			jsons := make(map[string]interface{})
 			//将json字符串解析
