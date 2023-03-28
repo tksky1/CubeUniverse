@@ -3,6 +3,7 @@ package universalFuncs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -25,19 +26,23 @@ func SetInUse(clientSet *kubernetes.Clientset, key string, uuid string) {
 		},
 		Data: data,
 	}
-	patchedBytes, _ := json.Marshal(configMap)
-	_, err := clientSet.CoreV1().ConfigMaps("cubeuniverse").Patch(context.Background(), key, types.JSONPatchType, patchedBytes, metav1.PatchOptions{})
-	if err != nil {
-		log.Println("设置pod互斥锁失败：", err.Error())
+	dataBytes, _ := json.Marshal(data)
+	_, err1 := clientSet.CoreV1().ConfigMaps("cubeuniverse").Patch(context.Background(), key,
+		types.MergePatchType, []byte(fmt.Sprintf(`{"data":%s}`, string(dataBytes))), metav1.PatchOptions{})
+	if err1 != nil {
+		_, err2 := clientSet.CoreV1().ConfigMaps("cubeuniverse").Create(context.Background(), configMap, metav1.CreateOptions{})
+		if err2 != nil {
+			log.Println("设置pod互斥锁失败：", err1.Error(), err2.Error())
+		}
 	}
 }
 
 // CheckInUse 检查key对应的互斥锁是否已被占用，如果已占用，返回占用者uuid、占用时间
 func CheckInUse(clientSet *kubernetes.Clientset, key string) (locked bool, uuid string, lockTime time.Time) {
+	locked = true
 	cm, err := clientSet.CoreV1().ConfigMaps("cubeuniverse").Get(context.Background(), key, metav1.GetOptions{})
 	if err != nil {
-		log.Println("读pod互斥锁失败：", err.Error())
-		locked = false
+		return false, "", time.Now()
 	}
 	if cm == nil {
 		return false, "", time.Now()
@@ -45,5 +50,5 @@ func CheckInUse(clientSet *kubernetes.Clientset, key string) (locked bool, uuid 
 	uuid = cm.Data["uuid"]
 	timeString := cm.Data["time"]
 	lockTime, _ = time.Parse(time.RFC3339, timeString)
-	return true, uuid, lockTime
+	return locked, uuid, lockTime
 }

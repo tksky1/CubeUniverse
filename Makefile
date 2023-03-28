@@ -4,7 +4,7 @@ DEVTMPDIR = $(WORKDIR)/dev-tmp
 MAINDIR = $(WORKDIR)/main
 BUILDERDIR = $(WORKDIR)/universeBuilder
 DOCKERFILEDIR = $(WORKDIR)/dockerfiles
-OPERATORDIR = $(WORKDIR)/universeOperator
+OPERATORDIR = $(WORKDIR)/universeOperator/main
 BACKENDDIR = $(WORKDIR)/control-backend/main
 
 $(shell mkdir -p $(DEVTMPDIR))
@@ -47,7 +47,7 @@ $(MAINTAR): $(MAINSRC)
 
 $(OPERATORTAR): $(OPERATORSRC)
 	$(GO) mod download
-	$(GO) build -o $(DEVTMPDIR)/main $^
+	cd universeOperator/main && $(GO) build -o $(DEVTMPDIR)/main $(OPERATORDIR)/mainCubeOperator.go $(OPERATORDIR)/routes.go
 	$(DOCKER) build -t operator-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save operator-dev -o $@
 

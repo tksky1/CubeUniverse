@@ -21,9 +21,10 @@ func Init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
 
-	for { //等待osd加载完成
-		_, _, _, _, osdStat := universalFuncs.CheckCephComponent(ClientSet)
-		if osdStat {
+	log.Println("等待文件存储和mysql启动..")
+	for { //等待mysql加载完成
+		mysql := universalFuncs.CheckMysqlStat(ClientSet)
+		if mysql {
 			break
 		}
 		time.Sleep(5 * time.Second)

@@ -74,7 +74,7 @@ func buildCube() (ret bool) {
 		}
 		ret = false
 	}
-	return true //TODO：调试完改成False
+	return true //TODO：调试完改成ret
 }
 
 // 启动ceph组件
@@ -145,7 +145,12 @@ func buildCeph() (ret bool) {
 	}
 
 	if !universalFuncs.CheckMysqlStat(clientSet) {
-		err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml", "cubeuniverse")
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
+			"", clientSet, dynamicClient)
+		if err != nil {
+			log.Println("启动文件存储失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
+		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml", "cubeuniverse")
 		if err != nil {
 			log.Println("启动mysql-pre失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}

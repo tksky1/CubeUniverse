@@ -17,7 +17,7 @@ func CheckCubeUniverseComponent(clientSet *kubernetes.Clientset) (bool, bool, bo
 			operator = true
 		} else if strings.Index(pod.Name, "dashboard") != -1 && pod.Status.Phase == "Running" {
 			dashboard = true
-		} else if strings.Index(pod.Name, "controlBackend") != -1 && pod.Status.Phase == "Running" {
+		} else if strings.Index(pod.Name, "control-backend") != -1 && pod.Status.Phase == "Running" {
 			controlBackend = true
 		} else if strings.Index(pod.Name, "builder") != -1 {
 			universeBuilder = true

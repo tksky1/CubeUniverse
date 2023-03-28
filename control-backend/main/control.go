@@ -7,9 +7,11 @@ import (
 	"control-backend/login-kit/model"
 	"control-backend/login-kit/util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 type User struct {
@@ -60,6 +62,22 @@ func loginInit() {
 
 }
 
+// 启用pod互斥锁，必须在初始化时运行
+func mutexInit() {
+	for {
+		locked, _, lockTime := universalFuncs.CheckInUse(cubeControl.ClientSet, "backend-mutex")
+		if !locked || time.Now().Sub(lockTime).Seconds() > 5 {
+			universalFuncs.SetInUse(cubeControl.ClientSet, "backend-mutex", UUID)
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
+	// 启动心跳go程
+	go universalFuncs.HeartBeat(cubeControl.ClientSet, "backend-mutex", UUID)
+}
+
+var UUID = uuid.New().String()
+
 func main() {
 	//在loginInit正式提供dashbord开始前先检测是否数据库被初始化了
 	//开启一个协程来检查
@@ -67,14 +85,14 @@ func main() {
 	//TODO：删除测试内容
 	// test()
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init
-	loginInit()
+	//loginInit()
 
 	//测试websocket发送数据
 
 	//实际上应该先执行这个init
 	cubeControl.ClientSet = universalFuncs.GetClientSet()
 	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
-
+	mutexInit()
 	cubeControl.Init()
 
 	// 后端内容...

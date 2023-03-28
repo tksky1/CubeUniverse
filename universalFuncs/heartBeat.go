@@ -2,6 +2,7 @@ package universalFuncs
 
 import (
 	"k8s.io/client-go/kubernetes"
+	"log"
 	"os"
 	"os/exec"
 	"time"
@@ -12,10 +13,11 @@ func HeartBeat(clientSet *kubernetes.Clientset, key string, ownUUID string) {
 
 	for {
 		time.Sleep(3 * time.Second)
-		_, uuid, _ := CheckInUse(clientSet, key)
-		if ownUUID != uuid {
+		locked, uuid, _ := CheckInUse(clientSet, key)
+		if locked && ownUUID != uuid {
 			// 被抢占，重启程序
 			cmd := exec.Command(os.Args[0])
+			log.Println("被抢占，重启..")
 			_ = cmd.Start()
 			os.Exit(0)
 		}
