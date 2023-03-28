@@ -64,13 +64,14 @@ func loginInit(ch1 chan bool) {
 
 	InitUsrAdmin()
 	defer db.Close()
+	//表明初始化完成
+	ch1 <- true
+	//保证正好在下一次重开web服务前之前的关闭
 	var r *gin.Engine = gin.Default()
 	r = CollectRoute(r) //一次性注册完路由
 
 	port := viper.GetString("server.port")
-	//表明初始化完成
-	ch1 <- true
-	//
+
 	if port != "" {
 		panic(r.Run(":" + port))
 	}
