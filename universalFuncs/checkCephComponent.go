@@ -30,3 +30,13 @@ func CheckCephComponent(clientSet *kubernetes.Clientset) (operator bool, rbdplug
 	}
 	return operator, rbdplugin, mon, mgr, osd
 }
+
+func CheckMysqlStat(clientSet *kubernetes.Clientset) bool {
+	pods, _ := clientSet.CoreV1().Pods("rook-ceph").List(context.TODO(), metav1.ListOptions{})
+	for _, pod := range pods.Items {
+		if strings.Index(pod.Name, "mysql") != -1 && pod.Status.Phase == "Running" {
+			return true
+		}
+	}
+	return false
+}

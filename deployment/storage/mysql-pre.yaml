@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: cubeuniverse
+type: kubernetes.io/basic-auth
+stringData:
+  password: cubeuniverse
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: cubeuniverse
+  labels:
+    pvc-provider: cubeuniverse
+    pvc-type: filesystem
+    auto-scale: auto
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: cubeuniverse-fs-storage

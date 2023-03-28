@@ -1,0 +1,49 @@
+package universalFuncs
+
+import (
+	"context"
+	"encoding/json"
+	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes"
+	"log"
+	"time"
+)
+
+// 这个go文件用于实现pod间的互斥机制，类似于mutex.Lock和Unlock，但也依赖于心跳和时间
+
+// SetInUse 标注该key已被占用，占用者为uuid。类似于mutex.lock
+func SetInUse(clientSet *kubernetes.Clientset, key string, uuid string) {
+	data := make(map[string]string)
+	data["uuid"] = uuid
+	data["time"] = time.Now().Format(time.RFC3339)
+	configMap := &v1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      key,
+			Namespace: "cubeuniverse",
+		},
+		Data: data,
+	}
+	patchedBytes, _ := json.Marshal(configMap)
+	_, err := clientSet.CoreV1().ConfigMaps("cubeuniverse").Patch(context.Background(), key, types.JSONPatchType, patchedBytes, metav1.PatchOptions{})
+	if err != nil {
+		log.Println("设置pod互斥锁失败：", err.Error())
+	}
+}
+
+// CheckInUse 检查key对应的互斥锁是否已被占用，如果已占用，返回占用者uuid、占用时间
+func CheckInUse(clientSet *kubernetes.Clientset, key string) (locked bool, uuid string, lockTime time.Time) {
+	cm, err := clientSet.CoreV1().ConfigMaps("cubeuniverse").Get(context.Background(), key, metav1.GetOptions{})
+	if err != nil {
+		log.Println("读pod互斥锁失败：", err.Error())
+		locked = false
+	}
+	if cm == nil {
+		return false, "", time.Now()
+	}
+	uuid = cm.Data["uuid"]
+	timeString := cm.Data["time"]
+	lockTime, _ = time.Parse(time.RFC3339, timeString)
+	return true, uuid, lockTime
+}

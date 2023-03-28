@@ -7,10 +7,14 @@ import (
 	"control-backend/login-kit/model"
 	"control-backend/login-kit/util"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
+
+var UUID = uuid.New().String()
 
 type User struct {
 	gorm.Model
@@ -60,6 +64,20 @@ func loginInit() {
 
 }
 
+// 必须先运行这个调用pod互斥锁防止多个pod同时运行功能
+func mutexInit() {
+	for {
+		locked, _, lockTime := universalFuncs.CheckInUse(cubeControl.ClientSet, "backend-mutex")
+		if !locked || time.Now().Sub(lockTime).Seconds() > 5 {
+			universalFuncs.SetInUse(cubeControl.ClientSet, "backend-mutex", UUID)
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
+	// 启动心跳go程
+	go universalFuncs.HeartBeat(cubeControl.ClientSet, "backend-mutex", UUID)
+}
+
 func main() {
 
 	cubeControl.ClientSet = universalFuncs.GetClientSet()
@@ -69,7 +87,8 @@ func main() {
 	test()
 	//只是测试的时候先执行这个，正常情况下应该先执行cubekit的init
 	loginInit()
-	//实际上应该先执行这个init
+	//实际上应该先执行这两个init
+	mutexInit()
 	cubeControl.Init()
 
 	// 后端内容...

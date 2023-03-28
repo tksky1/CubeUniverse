@@ -2,13 +2,38 @@ package main
 
 import (
 	"CubeUniverse/universalFuncs"
+	"github.com/google/uuid"
 	"log"
 	kit "main/cubeOperatorKit"
 	"time"
 )
 
+// UniverseVersion CubeUniverse版本号
+const UniverseVersion = "dev0.1"
+
+var UUID = uuid.New().String()
+
 func main() {
 	kit.Init()
+
+	// pod互斥锁，保证同时只有一个operator执行功能
+	for {
+		locked, _, lockTime := universalFuncs.CheckInUse(kit.ClientSet, "operator-mutex")
+		if !locked || time.Now().Sub(lockTime).Seconds() > 5 {
+			universalFuncs.SetInUse(kit.ClientSet, "operator-mutex", UUID)
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
+	// 启动心跳go程
+	go universalFuncs.HeartBeat(kit.ClientSet, "operator-mutex", UUID)
+
+	println("\n ██████╗██╗   ██╗██████╗ ███████╗██╗   ██╗███╗   ██╗██╗██╗   ██╗███████╗██████╗ ███████╗███████╗\n██╔════╝██║   ██║██╔══██╗██╔════╝██║   ██║████╗  ██║██║██║   ██║██╔════╝██╔══██╗██╔════╝██╔════╝\n██║     ██║   ██║██████╔╝█████╗  ██║   ██║██╔██╗ ██║██║██║   ██║█████╗  ██████╔╝███████╗█████╗  \n██║     ██║   ██║██╔══██╗██╔══╝  ██║   ██║██║╚██╗██║██║╚██╗ ██╔╝██╔══╝  ██╔══██╗╚════██║██╔══╝  \n╚██████╗╚██████╔╝██████╔╝███████╗╚██████╔╝██║ ╚████║██║ ╚████╔╝ ███████╗██║  ██║███████║███████╗\n ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚══════╝\n")
+
+	log.SetPrefix("[UniverseOperator]")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Println("正在加载UniverseOperator", UniverseVersion)
+
 	for {
 		time.Sleep(5 * time.Second)
 		operator, dashboard, controlBackend, builder := universalFuncs.CheckCubeUniverseComponent(kit.ClientSet)

@@ -83,17 +83,17 @@ func buildCeph() (ret bool) {
 	operator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(clientSet)
 	if !operator {
 		log.Println("启动ceph-operator..")
-		err := universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/crds.yaml", "", clientSet, dynamicClient)
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/crds.yaml", "", clientSet, dynamicClient)
 		if err != nil {
 			log.Fatal(err)
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/common.yaml", "rook-ceph", clientSet, dynamicClient)
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/common.yaml", "rook-ceph", clientSet, dynamicClient)
 		if err != nil {
 			log.Fatal(err)
 		}
 		time.Sleep(100 * time.Millisecond)
-		err = universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/operator.yaml", "rook-ceph", clientSet, dynamicClient)
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/operator.yaml", "rook-ceph", clientSet, dynamicClient)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -102,17 +102,17 @@ func buildCeph() (ret bool) {
 
 	if !rbdplugin {
 		log.Println("启动ceph-cluster..")
-		err := universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/storage/cluster.yaml", "rook-ceph")
+		err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/cluster.yaml", "rook-ceph")
 		if err != nil {
 			log.Println("启动ceph-cluster失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 
-		err = universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/storage/toolbox.yaml", "rook-ceph")
+		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/toolbox.yaml", "rook-ceph")
 		if err != nil {
 			log.Println("启动ceph-toolbox失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 
-		err = universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/storage/dashboard-external-https.yaml", "rook-ceph")
+		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/dashboard-external-https.yaml", "rook-ceph")
 		if err != nil {
 			log.Println("启动ceph-dashboard失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -140,6 +140,18 @@ func buildCeph() (ret bool) {
 		log.Println("ceph-osd未启动，等待..")
 		if time.Now().Sub(startTime) > time.Minute*30 {
 			log.Println("ceph已开始构建超过30分钟，osd仍未启动，请确保节点都已安装一个没有文件系统的空磁盘，并重新安装集群！")
+		}
+		return false
+	}
+
+	if !universalFuncs.CheckMysqlStat(clientSet) {
+		err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml", "cubeuniverse")
+		if err != nil {
+			log.Println("启动mysql-pre失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
+		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql.yaml", "cubeuniverse")
+		if err != nil {
+			log.Println("启动mysql失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 		return false
 	}

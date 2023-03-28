@@ -73,3 +73,8 @@ type CephOSDBucket struct {
 	MaxSize    string `json:"max_size"`
 	CreateTime string `json:"time"`
 }
+
+type CephLog struct {
+	Operator string
+	Backend  string
+}
