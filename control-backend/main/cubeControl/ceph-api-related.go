@@ -105,7 +105,7 @@ func GetCephOSD() ([]CephOSD, error) {
 		osd := CephOSD{}
 		osdJson := resJson.GetIndex(i)
 		osd.Address = osdJson.Get("public_addr").MustString()
-		osd.Id = osdJson.Get("id").MustInt()
+		osd.Uid = osdJson.Get("uid").MustInt()
 		osd.HostName = osdJson.Get("host").Get("name").MustString()
 		osdStatJson := osdJson.Get("osd_stats")
 		osd.KbAll = osdStatJson.Get("kb").MustInt()

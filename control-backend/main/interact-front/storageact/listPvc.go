@@ -20,6 +20,21 @@ func ListPvc(ctx *gin.Context) {
 	var actType string
 	var resMap gin.H = make(gin.H)
 	actType = ctx.GetHeader("X-type")
+
+	//仅用于测试，最后删去再替换:TODO
+	for index := 0; index < 10; index++ {
+		var responseStru info
+		responseStru.Name = actType + "testname-" + string(index+int('1'))
+		responseStru.Namespace = actType + "testnamespace-" + string(index+int('1'))
+		responseStru.Volume = string(index + int('1'))
+		responseStru.CreaTime = fmt.Sprint("2006-01-02 15:04:0", index)
+		key := fmt.Sprint(actType, index)
+		resMap[key] = responseStru
+	}
+	Success(ctx, resMap, "all info") //测试返回
+	return
+	//记得删除
+
 	switch strings.ToLower(actType) {
 	case "block":
 		pvcList, err := cubeControl.ListBlockSystemPVC()

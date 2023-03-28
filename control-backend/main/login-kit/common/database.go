@@ -10,8 +10,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// var DB *gorm.DB = InitDB()
-var DB *gorm.DB //TODO:调试后修改
+var DB *gorm.DB = InitDB()
+
+// var DB *gorm.DB //TODO:调试后修改
 
 func InitDB() *gorm.DB {
 	util.InitConfig()
