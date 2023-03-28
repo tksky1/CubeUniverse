@@ -11,15 +11,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-var DB *gorm.DB = InitDB()
+var DB *gorm.DB
 
 // var DB *gorm.DB //TODO:调试后修改
 
-func InitDB() *gorm.DB {
-	//TODO:调试加入等待操作，模拟数据库连接很慢10min
+func InitDB() {
 
-	time.Sleep(10 * time.Minute)
+	//TODO:调试加入等待操作，模拟数据库连接很慢10min
+	time.Sleep(30 * time.Second)
 	//记得删除
+
 	util.InitConfig()
 	driverName := viper.GetString("datasource.driverName")
 	host := viper.GetString("datasource.host")
@@ -42,7 +43,7 @@ func InitDB() *gorm.DB {
 		panic(err)
 	}
 	db.AutoMigrate(&model.User{}) //自动创建表
-	return db
+	DB = db
 }
 
 func GetDB() *gorm.DB {
