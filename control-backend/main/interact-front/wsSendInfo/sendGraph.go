@@ -31,7 +31,7 @@ func ConstSend(ctx *gin.Context) {
 		})
 		return
 	}
-	ws.SetReadLimit(1024) // 设置读取缓冲区大小为1024字节
+	ws.SetReadLimit(1024 * 10) // 设置读取缓冲区大小为1024字节
 	defer ws.Close()
 
 	//测试部分：TODO
@@ -39,7 +39,7 @@ func ConstSend(ctx *gin.Context) {
 		//500毫秒的间歇
 		time.Sleep(500 * time.Millisecond)
 		resMap := make(gin.H)
-		resMap["CephHosts"] = "CephHosts"
+		resMap["CephHosts"] = "CephHost"
 		resMap["inQuorumMonitor"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
 		resMap["CephOSD"] = "CephOSD"
 		resMap["CephPool"] = "CephPool"
@@ -69,6 +69,7 @@ func ConstSend(ctx *gin.Context) {
 		if errRead != nil {
 			fmt.Println("err : " + errRead.Error())
 			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+			time.Sleep(500 * time.Millisecond)
 			return
 		}
 		if errRead == nil && mt == websocket.TextMessage {
@@ -79,6 +80,8 @@ func ConstSend(ctx *gin.Context) {
 			}
 			//说明要结束
 			if value, ok := jsons["over"].(string); ok && value == "yes" {
+				ws.WriteMessage(websocket.TextMessage, []byte("bye"))
+				time.Sleep(500 * time.Millisecond)
 				//关闭连接
 				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				return //结束死循环
@@ -144,6 +147,7 @@ func ConstSend(ctx *gin.Context) {
 		//读取用户返回数据，用于用户主动断开连接,以及长时间无用户响应而终止
 		mt, msg, err := ws.ReadMessage()
 		if err != nil {
+			time.Sleep(500 * time.Millisecond)
 			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
 			return
 		}
@@ -155,6 +159,10 @@ func ConstSend(ctx *gin.Context) {
 			}
 			//说明要结束
 			if value, ok := jsons["over"].(string); ok && value == "yes" {
+				ws.WriteMessage(websocket.TextMessage, []byte("bye"))
+
+				time.Sleep(500 * time.Millisecond)
+
 				//关闭连接
 				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				return //结束死循环
