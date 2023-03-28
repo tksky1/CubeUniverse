@@ -8,6 +8,7 @@ require (
 	CubeUniverse/universalFuncs v0.0.0
 	github.com/aws/aws-sdk-go v1.44.227
 	github.com/gin-gonic/gin v1.9.0
+	github.com/google/uuid v1.1.2
 	k8s.io/apimachinery v0.26.2
 )
 
