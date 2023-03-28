@@ -6,6 +6,9 @@
         },{
           "name": "CubeOperator",
           "path": "universeOperator/main"
+        },{
+          "name": "CubeOperator",
+          "path": "universeOperator"
         }
       ],
       "settings": {
