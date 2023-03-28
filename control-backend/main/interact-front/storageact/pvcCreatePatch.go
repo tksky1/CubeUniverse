@@ -74,6 +74,7 @@ func PvcCrea(ctx *gin.Context) {
 
 	//测试用记得删除
 	Success(ctx, nil, "create done")
+	return
 	//:TODO
 
 	//判断调用方法
