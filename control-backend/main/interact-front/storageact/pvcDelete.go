@@ -29,6 +29,12 @@ func DeletePvc(ctx *gin.Context) {
 		Fail(ctx, nil, "type should be string") //返回错误反馈
 		return
 	}
+
+	//测试用:TODO
+	Success(ctx, nil, "delete done")
+	return
+	//记得删除
+
 	switch strings.ToLower(actType) {
 	case "block", "file":
 		if err := cubeControl.DeletePVC(name, namespace); err != nil {

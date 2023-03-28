@@ -5,7 +5,6 @@ import (
 	"control-backend/login-kit/dto"
 	"control-backend/login-kit/model"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,14 +15,14 @@ func AuthMiddleware() gin.HandlerFunc {
 		//获取authorization header
 		tokenString := ctx.GetHeader("Authorization")
 
-		//验证token格式,若token为空或不是以Bearer开头，则token格式不对
-		if tokenString == "" || !strings.HasPrefix(tokenString, "Bearer") {
+		//验证token格式,若token为空，则token格式不对
+		if tokenString == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"code": 401, "msg": "权限不足"})
 			ctx.Abort() //将此次请求抛弃
 			return
 		}
 
-		tokenString = tokenString[6:] //token的前面是“bearer”，有效部分从第7位开始
+		// tokenString = tokenString[6:] //token的前面是“bearer”，有效部分从第7位开始
 
 		//从tokenString中解析信息
 		token, claims, err := common.ParseToken(tokenString)

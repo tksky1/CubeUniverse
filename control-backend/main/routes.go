@@ -2,6 +2,7 @@ package main
 
 import (
 	"control-backend/interact-front/storageact"
+	"control-backend/interact-front/wsSendInfo"
 	"control-backend/login-kit/controller"
 	"control-backend/login-kit/middleware"
 	"github.com/gin-gonic/gin"
@@ -17,5 +18,6 @@ func CollectRoute(r *gin.Engine) *gin.Engine {
 	r.POST("api/storage/pvcpatch", middleware.AuthMiddleware(), storageact.PvcPatch) //patch请求进行更新数据
 	r.DELETE("api/storage/pvc", middleware.AuthMiddleware(), storageact.DeletePvc)   //对申请的存储删除
 	r.GET("api/storage/pvc", middleware.AuthMiddleware(), storageact.ListPvc)        //查看所有申请的容器
+	r.GET("api/storage/pvcws", wsSendInfo.ConstSend)                                 //websocket长连接
 	return r
 }
