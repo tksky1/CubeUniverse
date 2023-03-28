@@ -61,6 +61,8 @@ func loginInit() {
 }
 
 func main() {
+	//在loginInit正式提供dashbord开始前先检测是否数据库被初始化了
+	//开启一个协程来检查
 
 	//TODO：删除测试内容
 	// test()
