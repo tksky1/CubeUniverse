@@ -1,29 +1,23 @@
 package main
 
 import (
-	"CubeUniverse/universalFuncs"
-	"log"
+	"github.com/gin-gonic/gin"
 	kit "main/cubeOperatorKit"
-	"time"
 )
 
-func main() {
-	kit.Init()
-	for {
-		time.Sleep(5 * time.Second)
-		operator, dashboard, controlBackend, builder := universalFuncs.CheckCubeUniverseComponent(kit.ClientSet)
-		if builder {
-			continue
-		}
-		cephOperator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(kit.ClientSet)
-		if !(operator && dashboard && controlBackend && cephOperator && rbdplugin && mon && mgr && osd) {
-			log.Println("监测到集群未完全运行，启动UniverseBuilder..")
-			err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/UniverseBuilder.yml", "cubeuniverse")
-			if err != nil {
-				log.Panic("启动UniverseBuilder失败，请检查CubeUniverse项目文件是否完好！\n", err)
-			}
-			time.Sleep(15 * time.Second)
-		}
-	}
+var port string = "8888"
 
+func webInit() {
+	var r *gin.Engine = gin.Default()
+	r = CollectRoute(r) //一次性注册完路由
+	//选择监听端口
+	panic(r.Run(":" + port))
+}
+
+func main() {
+	//开启协程运行监听web
+	go webInit()
+	//剩下完成初始化
+	kit.Init()
+	
 }
