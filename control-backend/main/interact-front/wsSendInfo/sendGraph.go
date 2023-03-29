@@ -13,8 +13,32 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// 定义channel,字节数组，并初始化,设置缓冲区大小为10
+// 不能放在循环体里面，不然每次都会被初始化丢失数据,我这里为了方便就直接放在全局变量了
+var readInfo chan []byte = make(chan []byte, 10)
+
 // 做一个map的缓存队列,最大存储1000个map信息
 var queue = list.New()
+
+// 用于在协程中完成读取websocket的操作
+func readMsg(ws *websocket.Conn, readInfo chan []byte) {
+	for {
+		mt, msg, errRead := ws.ReadMessage()
+		if errRead != nil {
+			fmt.Println("err : " + errRead.Error())
+			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+			//关闭websocket
+			ws.Close()
+			return
+		}
+		//如果读取成功,将读取结果发送到channel中
+		if errRead == nil && mt == websocket.TextMessage {
+			fmt.Println("done : get msg :---" + string(msg))
+			readInfo <- msg
+		}
+	}
+
+}
 
 func ConstSend(ctx *gin.Context) {
 	var upgrade = websocket.Upgrader{
@@ -36,8 +60,8 @@ func ConstSend(ctx *gin.Context) {
 
 	//测试部分：TODO
 	for i := 1; i <= 10; i++ {
-		//500毫秒的间歇
-		time.Sleep(500 * time.Millisecond)
+		//100毫秒的间歇
+		time.Sleep(100 * time.Millisecond)
 		resMap := make(gin.H)
 		resMap["CephHosts"] = "CephHost"
 		resMap["inQuorumMonitor"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
@@ -47,6 +71,7 @@ func ConstSend(ctx *gin.Context) {
 		//将map入队
 		queue.PushBack(resMap)
 	}
+
 	for {
 		//从缓存中拿数据
 		resMap := queue.Front().Value //取出队头元素
@@ -54,28 +79,30 @@ func ConstSend(ctx *gin.Context) {
 		// queue.Remove(queue.Front())   //删除队头，即出队
 		time.Sleep(1 * time.Second)
 		println("working on sending")
-		//格式化json
-		msg, _ := json.Marshal(&resMap)
-		//发送数据
-		if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-			//发送错误，记录到日志
-			log.Print(err.Error())
 
-		}
-		//设置读取用户请求时间，也能实现心跳
-		ws.SetReadDeadline(time.Now().Add(4 * time.Second))
+		//我这里就改变了，不设置读取时间，造成阻塞状态
+		// //设置读取用户请求时间，也能实现心跳
+		// ws.SetReadDeadline(time.Now().Add(4 * time.Second))
 		//读取用户返回数据，用于用户主动断开连接，以及长时间无用户响应而终止
-		mt, msg, errRead := ws.ReadMessage()
-		if errRead != nil {
-			fmt.Println("err : " + errRead.Error())
-			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
-			time.Sleep(500 * time.Millisecond)
-			return
-		}
-		if errRead == nil && mt == websocket.TextMessage {
+
+		// mt, msg, errRead := ws.ReadMessage()
+		// if errRead != nil {
+		// 	fmt.Println("err : " + errRead.Error())
+		// 	ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+		// 	time.Sleep(500 * time.Millisecond)
+		// 	return
+		// }
+
+		//开启读取协程
+		go readMsg(ws, readInfo)
+
+		//通过select语句进行channel读取
+		select {
+		case msg1 := <-readInfo:
+			fmt.Println("in readInfo---" + string(msg1))
 			jsons := make(map[string]interface{})
 			//将json字符串解析
-			if errCtx := json.Unmarshal(msg, &jsons); errCtx != nil {
+			if errCtx := json.Unmarshal(msg1, &jsons); errCtx != nil {
 				log.Print(errCtx.Error())
 			}
 			//说明要结束
@@ -85,8 +112,24 @@ func ConstSend(ctx *gin.Context) {
 				//关闭连接
 				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				return //结束死循环
+			} else if ok { //如果value不为yes，但没有报错
+				//格式化json
+				msg, _ := json.Marshal(&resMap)
+				//发送数据
+				if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+					//发送错误，记录到日志
+					log.Print(err.Error())
+				}
 			}
+		default: //默认没有从管道接收到数据的情况下，发送数据
+			//格式化json
+			msg, _ := json.Marshal(&resMap)
+			//发送数据
+			if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+				//发送错误，记录到日志
+				log.Print(err.Error())
 
+			}
 		}
 
 	}
@@ -134,40 +177,45 @@ func ConstSend(ctx *gin.Context) {
 		time.Sleep(1 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		queue.Remove(queue.Front())   //删除队头，即出队
-		//设置读取用户请求时间，也能实现心跳
-		ws.SetReadDeadline(time.Now().Add(4 * time.Second))
-		//格式化json
-		msg, _ := json.Marshal(&resMap)
-		//发送数据
-		if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-			//发送错误，记录到日志
-			log.Print(err.Error())
 
-		}
-		//读取用户返回数据，用于用户主动断开连接,以及长时间无用户响应而终止
-		mt, msg, err := ws.ReadMessage()
-		if err != nil {
-			time.Sleep(500 * time.Millisecond)
-			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
-			return
-		}
-		if err != nil && mt == websocket.TextMessage {
+		//开启读取协程
+		go readMsg(ws, readInfo)
+
+		//通过select语句进行channel读取
+		select {
+		case msg1 := <-readInfo:
+			fmt.Println("in readInfo---" + string(msg1))
 			jsons := make(map[string]interface{})
 			//将json字符串解析
-			if errCtx := json.Unmarshal(msg, &jsons); errCtx != nil {
+			if errCtx := json.Unmarshal(msg1, &jsons); errCtx != nil {
 				log.Print(errCtx.Error())
 			}
 			//说明要结束
 			if value, ok := jsons["over"].(string); ok && value == "yes" {
 				ws.WriteMessage(websocket.TextMessage, []byte("bye"))
-
 				time.Sleep(500 * time.Millisecond)
-
 				//关闭连接
 				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 				return //结束死循环
-			}
+			} else if ok { //如果value不为yes，但没有报错
+				//格式化json
+				msg, _ := json.Marshal(&resMap)
+				//发送数据
+				if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+					//发送错误，记录到日志
+					log.Print(err.Error())
 
+				}
+			}
+		default: //默认没有从管道接收到数据的情况下，发送数据
+			//格式化json
+			msg, _ := json.Marshal(&resMap)
+			//发送数据
+			if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+				//发送错误，记录到日志
+				log.Print(err.Error())
+
+			}
 		}
 
 	}

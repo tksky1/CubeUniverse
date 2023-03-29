@@ -7,8 +7,8 @@
           "name": "CubeOperator",
           "path": "universeOperator/main"
         },{
-          "name": "CubeOperator",
-          "path": "universeOperator"
+          "name": "universalFuncs",
+          "path": "universalFuncs"
         }
       ],
       "settings": {

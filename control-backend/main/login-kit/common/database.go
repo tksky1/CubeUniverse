@@ -18,7 +18,7 @@ var DB *gorm.DB
 func InitDB() {
 
 	//TODO:调试加入等待操作，模拟数据库连接很慢10min
-	time.Sleep(30 * time.Second)
+	time.Sleep(5 * time.Second)
 	//记得删除
 
 	util.InitConfig()
