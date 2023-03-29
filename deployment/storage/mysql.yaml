@@ -16,7 +16,7 @@ spec:
         app: mysql
     spec:
       containers:
-        - image: mysql:5.6
+        - image: mysql:8.0.19
           name: mysql
           env:
             - name: MYSQL_ROOT_PASSWORD
@@ -30,15 +30,32 @@ spec:
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /var/lib/mysql
+            - name: config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
           livenessProbe:
-            tcpSocket:
-              port: 3306
             initialDelaySeconds: 30
-            periodSeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command: [ "mysqladmin", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "ping" ]
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+            exec:
+              command: [ "mysqladmin", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "ping" ]
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
+        - name: config
+          configMap:
+            name: mysql-config
 ---
 apiVersion: v1
 kind: Service

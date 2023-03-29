@@ -8,6 +8,7 @@ import (
 	"control-backend/login-kit/model"
 	"control-backend/login-kit/util"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -110,6 +111,12 @@ func watchDB(ch1 chan bool, srv *http.Server) {
 	}
 }
 func main() {
+
+	cubeControl.ClientSet = universalFuncs.GetClientSet()
+	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
+	mutexInit()
+
+	log.Println("正在加载control-backend..")
 	//先开启一个web服务告诉前端需要等待
 	router := gin.Default()
 	router.GET("/api/wait", func(c *gin.Context) {
@@ -137,10 +144,6 @@ func main() {
 
 	//测试websocket发送数据
 
-	//实际上应该先执行这个init
-	cubeControl.ClientSet = universalFuncs.GetClientSet()
-	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
-	mutexInit()
 	cubeControl.Init()
 
 	// 后端内容...

@@ -3,6 +3,8 @@ package main
 
 import (
 	"CubeUniverse/universalFuncs"
+	"context"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"log"
@@ -33,7 +35,7 @@ func main() {
 	log.Println("CubeUniverse组件已正常运行，启动ceph组件..")
 	startTime = time.Now()
 	for !buildCeph() {
-		time.Sleep(5 * time.Second)
+		time.Sleep(7 * time.Second)
 		if time.Now().Sub(startTime) > time.Minute*30 {
 			log.Println("搭建ceph集群已超过30分钟，请检查本log和集群健康情况！")
 		}
@@ -145,16 +147,22 @@ func buildCeph() (ret bool) {
 	}
 
 	if !universalFuncs.CheckMysqlStat(clientSet) {
-		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
-			"", clientSet, dynamicClient)
-		if err != nil {
-			log.Println("启动文件存储失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage", v1.GetOptions{})
+		if storage == nil || err != nil {
+			err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
+				"", clientSet, dynamicClient)
+			if err != nil {
+				log.Println("启动文件存储失败，请检查CubeUniverse项目文件是否完好！\n", err)
+			}
+			time.Sleep(1 * time.Second)
 		}
-		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml", "cubeuniverse")
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml",
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动mysql-pre失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
-		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql.yaml", "cubeuniverse")
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql.yaml",
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动mysql失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// GetLog Get
+// GetLog Get Operator和Backend的log，供前端显示给用户查看
 func GetLog() (log *CephLog, retErr error) {
 	selector := labels.Set{"app": "cubeuniverse"}.AsSelector()
 
