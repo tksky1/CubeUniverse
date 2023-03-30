@@ -100,9 +100,11 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	if valueStr, ok := jsons["value"].(string); ok {
 		value = []byte(valueStr)
 	} else {
-		if valueByte, err := jsons["value"].([]byte); err {
+		valueByte, err := jsons["value"].([]byte)
+		if err { //如果是byte
 			value = valueByte
-		} else {
+		}
+		if !err && actType == "push" {
 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
 			return
 		}

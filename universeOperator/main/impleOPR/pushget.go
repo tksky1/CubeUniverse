@@ -40,28 +40,29 @@ func PushGetObj(ctx *gin.Context) {
 	if valueStr, ok := jsons["value"].(string); ok {
 		value = []byte(valueStr)
 	} else {
-		if valueByte, err := jsons["value"].([]byte); err {
+		valueByte, err := jsons["value"].([]byte)
+		if err {
 			value = valueByte
-		} else {
+		}
+		if !err && actType == "push" {
 			Fail(ctx, nil, "value should be string or []byte") //返回错误反馈
 			return
 		}
 	}
 
 	switch strings.ToLower(actType) {
-	case "push":
-		if err := kit.PutObject(namespace, bucketClaimName, key, value); err != nil {
+	case "push":t.PutObject(namespace, bucketClaimName, key, value); err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}
-		Success(ctx, nil, "Put success")
+		Sccess(ctx, nil, "Put success")
 
-	case "get":
-		value, err := kit.GetObject(namespace, bucketClaimName, key)
+case "get":
+		value, err:= kit.GetObject(namespace, bucketClaimName, key)
 		if err != nil {
-			FailUnac(ctx, nil, err.Error())
+			FailUnac(ctx, il, err.Error())
 			return
 		}
-		Success(ctx, gin.H{"value": value}, "obj value")
+		Sccess(ctx, gin.H{"value": value}, "obj value")
 	}
 
-}
+
