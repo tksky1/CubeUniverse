@@ -1,39 +1,10 @@
-# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
-
-"""Simple image classification with Inception.
-
-Run image classification with Inception trained on ImageNet 2012 Challenge data
-set.
-
-This program creates a graph from a saved GraphDef protocol buffer,
-and runs inference on an input JPEG image. It outputs human readable
-strings of the top 5 predictions along with their probabilities.
-
-Change the --image_file argument to any jpg image to compute a
-classification of that image.
-
-Please see the tutorial and website for a detailed description of how
-to use this script to perform image recognition.
-
-https://tensorflow.org/tutorials/image_recognition/
-"""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+
+from kafka import KafkaConsumer, KafkaProducer
+import json
+import base64
 
 import argparse
 import os
@@ -116,13 +87,11 @@ class NodeLookup(object):
 
 def create_graph():
   """Creates a graph from saved GraphDef file and returns a saver."""
-  # Creates graph from saved graph_def.pb.
   with tf.gfile.FastGFile(os.path.join(
       FLAGS.model_dir, 'classify_image_graph_def.pb'), 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     _ = tf.import_graph_def(graph_def, name='')
-
 
 def run_inference_on_image(image):
   """Runs inference on an image.
@@ -136,21 +105,9 @@ def run_inference_on_image(image):
   if not tf.gfile.Exists(image):
     tf.logging.fatal('File does not exist %s', image)
   image_data = tf.gfile.FastGFile(image, 'rb').read()
-  # print(image_data)
-  # print('--------------')
-
-  # Creates graph from saved GraphDef.
   create_graph()
 
   with tf.Session() as sess:
-    # Some useful tensors:
-    # 'softmax:0': A tensor containing the normalized prediction across
-    #   1000 labels.
-    # 'pool_3:0': A tensor containing the next-to-last layer containing 2048
-    #   float description of the image.
-    # 'DecodeJpeg/contents:0': A tensor containing a string providing JPEG
-    #   encoding of the image.
-    # Runs the softmax tensor by feeding the image_data as input to the graph.
     softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
     predictions = sess.run(softmax_tensor,
                            {'DecodeJpeg/contents:0': image_data})
@@ -160,33 +117,35 @@ def run_inference_on_image(image):
     node_lookup = NodeLookup()
 
     top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
+    human_strs = []
     for node_id in top_k:
       human_string = node_lookup.id_to_string(node_id)
       score = predictions[node_id]
       print('%s (score = %.5f)' % (human_string, score))
-
+      human_strs.append(human_string)
+    return human_strs
 
 def main(_):
-  image = (FLAGS.image_file if FLAGS.image_file else
-           os.path.join(FLAGS.model_dir, 'cropped_panda.jpg'))
-  # print(image)
-  # print("------------")
-  # img = open(image, 'rb')
-  # res = base64.b64encode(img.read())
-  # image_str=res.decode('ascii')
-  # print(res)
-  # print("------------")
-  run_inference_on_image(image)
+  consumer = KafkaConsumer('picIn', group_id= 'group2', bootstrap_servers= ['localhost:9092'], api_version=(2,8,1))
+  producer = KafkaProducer(bootstrap_servers=['localhost:9092'], api_version=(0,11,5), value_serializer=lambda m: json.dumps(m).encode('utf-8'))
+  for msg in consumer:
+      # print(msg.value)
+      # 先转图片再用 tf api 读
+      k = msg.key
+      img = base64.b64decode(msg.value)
+      file = open('test.jpg','wb')
+      file.write(img)
+      file.close()
+
+      img_data = run_inference_on_image('test.jpg')
+      # print(img_data)
+      future = producer.send('dataOut' , key= k, value= img_data, partition= 0)
+      result = future.get(timeout= 10)
+      # print(result)
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  # classify_image_graph_def.pb:
-  #   Binary representation of the GraphDef protocol buffer.
-  # imagenet_synset_to_human_label_map.txt:
-  #   Map from synset ID to a human readable string.
-  # imagenet_2012_challenge_label_map_proto.pbtxt:
-  #   Text representation of a protocol buffer mapping a label to synset ID.
   parser.add_argument(
       '--model_dir',
       type=str,
@@ -206,7 +165,7 @@ if __name__ == '__main__':
   parser.add_argument( 
       '--num_top_predictions',
       type=int,
-      default=1,
+      default=3,
       help='Display this many predictions.'
   )
   FLAGS, unparsed = parser.parse_known_args()
