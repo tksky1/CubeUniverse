@@ -51,18 +51,20 @@ func PushGetObj(ctx *gin.Context) {
 	}
 
 	switch strings.ToLower(actType) {
-	case "push":t.PutObject(namespace, bucketClaimName, key, value); err != nil {
+	case "push":
+		err := kit.PutObject(namespace, bucketClaimName, key, value)
+		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}
-		Sccess(ctx, nil, "Put success")
+		Success(ctx, nil, "Put success")
 
-case "get":
-		value, err:= kit.GetObject(namespace, bucketClaimName, key)
+	case "get":
+		value, err := kit.GetObject(namespace, bucketClaimName, key)
 		if err != nil {
-			FailUnac(ctx, il, err.Error())
+			FailUnac(ctx, nil, err.Error())
 			return
 		}
-		Sccess(ctx, gin.H{"value": value}, "obj value")
+		//返回get得到到对象信息，这里附带其key namespace等，
+		Success(ctx, gin.H{"value": value, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
 	}
-
-
+}
