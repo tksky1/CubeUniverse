@@ -59,16 +59,78 @@ func ConstPushGet(ctx *gin.Context) {
 			} else { //如果value不为yes，则检查是需要调用什么方法
 				//调用事件处理函数
 				pushgetImple(jsons, ws)
-				if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-					//发送错误，记录到日志
-					log.Print(err.Error())
-				}
+
 			}
 		}
 
 	}
 }
 
+// // 测试方法:TODO
+// func pushgetImpleTest(jsons gin.H, ws *websocket.Conn) {
+// 	var namespace, bucketClaimName, key, actType string
+// 	var value []byte
+// 	if valueStr, ok := jsons["namespace"].(string); ok {
+// 		namespace = valueStr
+// 	} else {
+// 		ws.WriteMessage(websocket.TextMessage, []byte("namespace should be string")) //返回错误反馈
+// 		return
+// 	}
+// 	if valueStr, ok := jsons["name"].(string); ok {
+// 		bucketClaimName = valueStr
+// 	} else {
+// 		ws.WriteMessage(websocket.TextMessage, []byte("name should be string")) //返回错误反馈
+// 		return
+// 	}
+// 	if valueStr, ok := jsons["key"].(string); ok {
+// 		key = valueStr
+// 	} else {
+// 		ws.WriteMessage(websocket.TextMessage, []byte("key should be string")) //返回错误反馈
+// 		return
+// 	}
+// 	if valueStr, ok := jsons["X-action"].(string); ok {
+// 		actType = valueStr
+// 	} else {
+// 		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
+// 		return
+// 	}
+// 	//对于value数据，判断其为string还是[]byte
+// 	if valueStr, ok := jsons["value"].(string); ok {
+// 		value = []byte(valueStr)
+// 	} else {
+// 		valueByte, err := jsons["value"].([]byte)
+// 		if err { //如果是byte
+// 			value = valueByte
+// 		}
+// 		if !err && actType == "push" {
+// 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
+// 			return
+// 		}
+// 	}
+
+// 	switch strings.ToLower(actType) {
+// 	case "push":
+// 		fmt.Printf("%s-%s-%s-%s", namespace, bucketClaimName, key, string(value))
+// 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
+// 		return
+
+// 	case "get":
+// 		value := "this is test value"
+// 		fmt.Println([]byte(value))
+// 		valueMap := map[string][]byte{
+// 			"value":     []byte(value),
+// 			"key":       []byte(key),
+// 			"namespace": []byte(namespace),
+// 		}
+// 		valueJson, _ := json.Marshal(&valueMap)
+// 		fmt.Println(valueMap["value"])
+// 		ws.WriteMessage(websocket.TextMessage, valueJson)
+// 		return
+// 	}
+
+// }
+
+// // 记得删除
 func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	var namespace, bucketClaimName, key, actType string
 	var value []byte
@@ -100,9 +162,11 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	if valueStr, ok := jsons["value"].(string); ok {
 		value = []byte(valueStr)
 	} else {
-		if valueByte, err := jsons["value"].([]byte); err {
+		valueByte, err := jsons["value"].([]byte)
+		if err { //如果是byte
 			value = valueByte
-		} else {
+		}
+		if !err && actType == "push" {
 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
 			return
 		}
@@ -123,7 +187,9 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			return
 		}
 		valueMap := map[string][]byte{
-			"value": value,
+			"value":     []byte(value),
+			"key":       []byte(key),
+			"namespace": []byte(namespace),
 		}
 		valueJson, _ := json.Marshal(&valueMap)
 		ws.WriteMessage(websocket.TextMessage, valueJson)

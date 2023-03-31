@@ -40,9 +40,11 @@ func PushGetObj(ctx *gin.Context) {
 	if valueStr, ok := jsons["value"].(string); ok {
 		value = []byte(valueStr)
 	} else {
-		if valueByte, err := jsons["value"].([]byte); err {
+		valueByte, err := jsons["value"].([]byte)
+		if err {
 			value = valueByte
-		} else {
+		}
+		if !err && actType == "push" {
 			Fail(ctx, nil, "value should be string or []byte") //返回错误反馈
 			return
 		}
@@ -50,7 +52,8 @@ func PushGetObj(ctx *gin.Context) {
 
 	switch strings.ToLower(actType) {
 	case "push":
-		if err := kit.PutObject(namespace, bucketClaimName, key, value); err != nil {
+		err := kit.PutObject(namespace, bucketClaimName, key, value)
+		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}
 		Success(ctx, nil, "Put success")
@@ -61,7 +64,7 @@ func PushGetObj(ctx *gin.Context) {
 			FailUnac(ctx, nil, err.Error())
 			return
 		}
-		Success(ctx, gin.H{"value": value}, "obj value")
+		//返回get得到到对象信息，这里附带其key namespace等，
+		Success(ctx, gin.H{"value": value, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
 	}
-
 }
