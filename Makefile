@@ -31,7 +31,7 @@ SSH = ssh
 CAT = cat
 
 
-NODE = 192.168.79.12 192.168.79.13
+NODE = 192.168.177.202 192.168.177.203
 
 $(BUILDERTAR): $(BUILDERSRC)
 	$(GO) mod download
@@ -59,7 +59,7 @@ $(BACKENDTAR): $(BACKENDSRC)
 
 builder: $(BUILDERTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
-	rm -f dev-tmp/*.ta
+	rm -f dev-tmp/*.tar
 
 main: $(MAINTAR)
 	$(foreach node, $(NODE), $(CAT) $^ | $(SSH) $(node) 'docker load';)
@@ -96,11 +96,11 @@ reset:
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND)';)
 	$(KUBEADM) init --config $(HOME)/kubeadm.yaml --upload-certs | $(TEE) $(shell tty) | $(TAIL) -n2 > /tmp/kubeinit.sh
 	$(foreach node, $(NODE), $(SSH) $(node) < /tmp/kubeinit.sh;)
-	$(SCP) /etc/kubernetes/admin.conf 192.168.79.12:/etc/kubernetes/admin.conf
-	$(SCP) /etc/kubernetes/admin.conf 192.168.79.13:/etc/kubernetes/admin.conf
+	$(SCP) /etc/kubernetes/admin.conf 192.168.177.202:/etc/kubernetes/admin.conf
+	$(SCP) /etc/kubernetes/admin.conf 192.168.177.203:/etc/kubernetes/admin.conf
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND2)';)
 	$(RM) -f /tmp/kubeinit
-	$(KUBECTL) taint nodes master node-role.kubernetes.io/master-
-	$(KUBECTL) create -f /home/master/kube-flannel.yml
+	$(KUBECTL) taint nodes glimmer-node-1 node-role.kubernetes.io/master-
+	$(KUBECTL) create -f /root/kube-flannel.yml
 
 .PHONY: builder main reset operator backend

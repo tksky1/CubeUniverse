@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-data-claim
+  namespace: cubeuniverse
+  labels:
+    pvc-provider: cubeuniverse
+    pvc-type: block
+    auto-scale: auto
+spec:
+  storageClassName: cubeuniverse-block-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-secret-credentials
+  labels:
+    app: postgresdb
+data:
+  POSTGRES_DB: userDB
+  POSTGRES_USER: cubeuniverse
+  POSTGRES_PASSWORD: cubeuniverse
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: postgresdb
+  template:
+    metadata:
+      labels:
+        app: postgresdb
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: db-secret-credentials
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-persistent-volume-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sql
+  namespace: cubeuniverse
+  labels:
+    app: postgresdb
+spec:
+  type: NodePort
+  ports:
+    - port: 5432
+      targetPort: 30432
+  selector:
+    app: postgresdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: cubeuniverse
+  labels:
+    app: postgresdb
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: postgresdb
