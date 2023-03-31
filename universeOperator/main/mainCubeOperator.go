@@ -24,9 +24,9 @@ const UniverseVersion = "dev0.1"
 var UUID = uuid.New().String()
 
 func main() {
-	// //测试用:TODO
-	// webInit()
-	// //记得删除
+	//测试用:TODO
+	webInit()
+	//记得删除
 
 	kit.Init()
 

@@ -6,6 +6,7 @@ import (
 	"log"
 	kit "main/cubeOperatorKit"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -68,7 +69,8 @@ func ConstPushGet(ctx *gin.Context) {
 
 // // 测试方法:TODO
 // func pushgetImpleTest(jsons gin.H, ws *websocket.Conn) {
-// 	var namespace, bucketClaimName, key, actType string
+// 	var namespace, bucketClaimName, key, actType, blockStr string
+// 	var blockNum int = 1
 // 	var value []byte
 // 	if valueStr, ok := jsons["namespace"].(string); ok {
 // 		namespace = valueStr
@@ -94,6 +96,20 @@ func ConstPushGet(ctx *gin.Context) {
 // 		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
 // 		return
 // 	}
+// 	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
+// 		blockStr = valueStr
+// 	}
+// 	//对于分块数，如果没写的话默认为1
+// 	if blockStr == "" {
+// 		blockNum = 1
+// 	} else {
+// 		var err error = nil
+// 		blockNum, err = strconv.Atoi(blockStr)
+// 		if err != nil {
+// 			ws.WriteMessage(websocket.TextMessage, []byte("block should be string represent a number"))
+// 			return
+// 		}
+// 	}
 // 	//对于value数据，判断其为string还是[]byte
 // 	if valueStr, ok := jsons["value"].(string); ok {
 // 		value = []byte(valueStr)
@@ -117,14 +133,17 @@ func ConstPushGet(ctx *gin.Context) {
 // 	case "get":
 // 		value := "this is test value"
 // 		fmt.Println([]byte(value))
-// 		valueMap := map[string][]byte{
-// 			"value":     []byte(value),
-// 			"key":       []byte(key),
-// 			"namespace": []byte(namespace),
+// 		//根据block进行分组
+// 		for index, valueBytes := range splitArray([]byte(value), blockNum) {
+// 			valueMap := map[string][]byte{
+// 				"value" + strconv.Itoa(index): valueBytes,
+// 				"key":                         []byte(key),
+// 				"namespace":                   []byte(namespace),
+// 			}
+// 			valueJson, _ := json.Marshal(&valueMap)
+// 			fmt.Println(valueMap["value"])
+// 			ws.WriteMessage(websocket.TextMessage, valueJson)
 // 		}
-// 		valueJson, _ := json.Marshal(&valueMap)
-// 		fmt.Println(valueMap["value"])
-// 		ws.WriteMessage(websocket.TextMessage, valueJson)
 // 		return
 // 	}
 
@@ -132,7 +151,8 @@ func ConstPushGet(ctx *gin.Context) {
 
 // // 记得删除
 func pushgetImple(jsons gin.H, ws *websocket.Conn) {
-	var namespace, bucketClaimName, key, actType string
+	var namespace, bucketClaimName, key, actType, blockStr string
+	var blockNum int = 1
 	var value []byte
 	if valueStr, ok := jsons["namespace"].(string); ok {
 		namespace = valueStr
@@ -157,6 +177,20 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	} else {
 		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
 		return
+	}
+	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
+		blockStr = valueStr
+	}
+	//对于分块数，如果没写的话默认为1
+	if blockStr == "" {
+		blockNum = 1
+	} else {
+		var err error = nil
+		blockNum, err = strconv.Atoi(blockStr)
+		if err != nil {
+			ws.WriteMessage(websocket.TextMessage, []byte("block should be string represent a number"))
+			return
+		}
 	}
 	//对于value数据，判断其为string还是[]byte
 	if valueStr, ok := jsons["value"].(string); ok {
@@ -186,14 +220,39 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
 			return
 		}
-		valueMap := map[string][]byte{
-			"value":     []byte(value),
-			"key":       []byte(key),
-			"namespace": []byte(namespace),
+		//根据block进行分组
+		for index, valueBytes := range splitArray([]byte(value), blockNum) {
+			valueMap := map[string][]byte{
+				"value" + strconv.Itoa(index): valueBytes,
+				"key":                         []byte(key),
+				"namespace":                   []byte(namespace),
+			}
+			valueJson, _ := json.Marshal(&valueMap)
+			fmt.Println(valueMap["value"])
+			ws.WriteMessage(websocket.TextMessage, valueJson)
 		}
-		valueJson, _ := json.Marshal(&valueMap)
-		ws.WriteMessage(websocket.TextMessage, valueJson)
 		return
 	}
 
+}
+
+// 数组平分
+func splitArray(arr []byte, num int) [][]byte {
+	max := int(len(arr))
+	if max < num {
+		return nil
+	}
+	var segmens = make([][]byte, 0)
+	quantity := max / num
+	end := int(0)
+	for i := int(1); i <= num; i++ {
+		qu := i * quantity
+		if i != num {
+			segmens = append(segmens, arr[i-1+end:qu])
+		} else {
+			segmens = append(segmens, arr[i-1+end:])
+		}
+		end = qu - i
+	}
+	return segmens
 }
