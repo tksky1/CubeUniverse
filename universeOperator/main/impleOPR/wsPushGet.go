@@ -131,7 +131,7 @@ func ConstPushGet(ctx *gin.Context) {
 // 		return
 
 // 	case "get":
-// 		value := "this is test value"
+// 		value := "this is test value 23333"
 // 		fmt.Println([]byte(value))
 // 		//根据block进行分组
 // 		for index, valueBytes := range splitArray([]byte(value), blockNum) {
