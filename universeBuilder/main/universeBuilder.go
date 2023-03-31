@@ -147,24 +147,19 @@ func buildCeph() (ret bool) {
 	}
 
 	if !universalFuncs.CheckMysqlStat(clientSet) {
-		storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage", v1.GetOptions{})
+		storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage", v1.GetOptions{})
 		if storage == nil || err != nil {
-			err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
+			err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml",
 				"", clientSet, dynamicClient)
 			if err != nil {
 				log.Println("启动文件存储失败，请检查CubeUniverse项目文件是否完好！\n", err)
 			}
 			time.Sleep(1 * time.Second)
 		}
-		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql-pre.yaml",
-			"cubeuniverse", clientSet, dynamicClient)
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/postgresql.yaml",
+			"", clientSet, dynamicClient)
 		if err != nil {
-			log.Println("启动mysql-pre失败，请检查CubeUniverse项目文件是否完好！\n", err)
-		}
-		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/mysql.yaml",
-			"cubeuniverse", clientSet, dynamicClient)
-		if err != nil {
-			log.Println("启动mysql失败，请检查CubeUniverse项目文件是否完好！\n", err)
+			log.Println("启动sql服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 		return false
 	}

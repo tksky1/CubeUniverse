@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: cubeuniverse
+        component: control-backend
     spec:
       serviceAccount: universe-account
       containers:
@@ -19,3 +20,22 @@ spec:
           #image: tksky1/cubeuniverse-backend:dev0.1  # 发布版本
           image: backend-dev
           imagePullPolicy: Never #调试完成后  这里应该改成IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-backend
+  namespace: cubeuniverse # namespace:cluster
+  labels:
+    app: control-backend
+spec:
+  ports:
+    - name: dashboard
+      port: 8443
+      protocol: TCP
+      targetPort: 8443
+      nodePort: 30701
+  selector:
+    component: control-backend
+  sessionAffinity: None
+  type: NodePort
