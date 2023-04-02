@@ -144,6 +144,14 @@ func ConstSend(ctx *gin.Context) {
 		resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
 		resMap["CephPools"], _ = cubeControl.GetCephPool()
 		resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
+		//日志信息的结构体
+		if logStruct, err := cubeControl.GetLog(); err == nil {
+			resMap["Operatorlog"] = logStruct.Operator
+			resMap["Backendlog"] = logStruct.Backend
+		} else { //如果出错就将错误信息打印到log
+			resMap["Operatorlog"] = err.Error()
+			resMap["Backendlog"] = err.Error()
+		}
 		//将map入队
 		queue.PushBack(resMap)
 	}
@@ -176,13 +184,12 @@ func ConstSend(ctx *gin.Context) {
 	}()
 	//进入死循环
 	for {
-		time.Sleep(3 * time.Second)
 		//从缓存中拿数据
 		//缓存吃空了
 		if queue.Len() <= 0 {
 			time.Sleep(1 * time.Second) //歇一下
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(3 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		queue.Remove(queue.Front())   //删除队头，即出队
 
