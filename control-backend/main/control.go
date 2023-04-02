@@ -111,11 +111,11 @@ func watchDB(ch1 chan bool, srv *http.Server) {
 	}
 }
 func main() {
-
+	//TODO:记得恢复
 	// cubeControl.ClientSet = universalFuncs.GetClientSet()
 	// cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
 	// mutexInit()
-
+	//记得恢复
 	log.Println("正在加载control-backend..")
 	//先开启一个web服务告诉前端需要等待
 	router := gin.Default()

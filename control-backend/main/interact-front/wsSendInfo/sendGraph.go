@@ -64,9 +64,9 @@ func ConstSend(ctx *gin.Context) {
 		time.Sleep(100 * time.Millisecond)
 		resMap := make(gin.H)
 		resMap["CephHosts"] = "CephHost"
-		resMap["inQuorumMonitor"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
-		resMap["CephOSD"] = "CephOSD"
-		resMap["CephPool"] = "CephPool"
+		resMap["inQuorumMonitors"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
+		resMap["CephOSDs"] = "CephOSD"
+		resMap["CephPools"] = "CephPool"
 		resMap["CephPerformance"] = "CephPerformance"
 		//将map入队
 		queue.PushBack(resMap)
@@ -140,9 +140,9 @@ func ConstSend(ctx *gin.Context) {
 	for i := 1; i <= 10; i++ {
 		resMap := make(gin.H)
 		resMap["CephHosts"], _ = cubeControl.GetCephHosts()
-		resMap["inQuorumMonitor"], resMap["outQuorumMonitor"], _ = cubeControl.GetCephMonitor()
-		resMap["CephOSD"], _ = cubeControl.GetCephOSD()
-		resMap["CephPool"], _ = cubeControl.GetCephPool()
+		resMap["inQuorumMonitors"], resMap["outQuorumMonitor"], _ = cubeControl.GetCephMonitor()
+		resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
+		resMap["CephPools"], _ = cubeControl.GetCephPool()
 		resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
 		//将map入队
 		queue.PushBack(resMap)
@@ -151,8 +151,8 @@ func ConstSend(ctx *gin.Context) {
 	go func() {
 		for {
 			//如果链表过长休眠等待资源消耗
-			if queue.Len() >= 100 {
-				time.Sleep(5 * time.Second)
+			if queue.Len() >= 20 {
+				time.Sleep(2 * time.Second)
 			}
 			//500毫秒的间歇
 			time.Sleep(500 * time.Millisecond)
@@ -162,6 +162,14 @@ func ConstSend(ctx *gin.Context) {
 			resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
 			resMap["CephPools"], _ = cubeControl.GetCephPool()
 			resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
+			//日志信息的结构体
+			if logStruct, err := cubeControl.GetLog(); err == nil {
+				resMap["Operatorlog"] = logStruct.Operator
+				resMap["Backendlog"] = logStruct.Backend
+			} else { //如果出错就将错误信息打印到log
+				resMap["Operatorlog"] = err.Error()
+				resMap["Backendlog"] = err.Error()
+			}
 			//将map入队
 			queue.PushBack(resMap)
 		}

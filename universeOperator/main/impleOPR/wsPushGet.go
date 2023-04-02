@@ -3,6 +3,7 @@ package impleOPR
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	kit "main/cubeOperatorKit"
 	"net/http"
@@ -59,7 +60,7 @@ func ConstPushGetDeleteList(ctx *gin.Context) {
 				return //结束死循环
 			} else { //如果value不为yes，则检查是需要调用什么方法
 				//调用事件处理函数
-				pushgetImple(jsons, ws)
+				pushgetImpleTest(jsons, ws)
 
 			}
 		}
@@ -67,107 +68,107 @@ func ConstPushGetDeleteList(ctx *gin.Context) {
 	}
 }
 
-// // 测试方法:TODO
-// func pushgetImpleTest(jsons gin.H, ws *websocket.Conn) {
-// 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
-// 	var blockNum, indexNum int = 1, 0
-// 	var value []byte
-// 	if valueStr, ok := jsons["namespace"].(string); ok {
-// 		namespace = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("namespace should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["name"].(string); ok {
-// 		bucketClaimName = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("name should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["key"].(string); ok {
-// 		key = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("key should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["X-action"].(string); ok {
-// 		actType = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
-// 		blockStr = valueStr
-// 	}
-// 	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输
-// 		indexBlock = valueStr
-// 	}
-// 	//对于分块数，如果没写的话默认为1
-// 	if blockStr == "" {
-// 		blockNum = 1
-// 	} else {
-// 		var err error = nil
-// 		blockNum, err = strconv.Atoi(blockStr)
-// 		if err != nil {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("block should be string represent a number"))
-// 			return
-// 		}
-// 	}
-// 	//对于索引值，如果没写的话默认为0
-// 	if indexBlock == "" {
-// 		indexNum = 0
-// 	} else {
-// 		var err error = nil
-// 		indexNum, err = strconv.Atoi(indexBlock)
-// 		if err != nil {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("index should be string represent a number"))
-// 			return
-// 		}
-// 	}
-// 	//保证索引比分块小
-// 	if indexNum >= blockNum {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("index out of range"))
-// 		return
-// 	}
-// 	//对于value数据，判断其为string还是[]byte
-// 	if valueStr, ok := jsons["value"].(string); ok {
-// 		value = []byte(valueStr)
-// 	} else {
-// 		valueByte, err := jsons["value"].([]byte)
-// 		if err { //如果是byte
-// 			value = valueByte
-// 		}
-// 		if !err && actType == "push" {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
-// 			return
-// 		}
-// 	}
+// 测试方法:TODO
+func pushgetImpleTest(jsons gin.H, ws *websocket.Conn) {
+	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
+	var blockNum, indexNum int = 1, 0
+	var value []byte
+	if valueStr, ok := jsons["namespace"].(string); ok {
+		namespace = valueStr
+	} else {
+		ws.WriteMessage(websocket.TextMessage, []byte("namespace should be string")) //返回错误反馈
+		return
+	}
+	if valueStr, ok := jsons["name"].(string); ok {
+		bucketClaimName = valueStr
+	} else {
+		ws.WriteMessage(websocket.TextMessage, []byte("name should be string")) //返回错误反馈
+		return
+	}
+	if valueStr, ok := jsons["key"].(string); ok {
+		key = valueStr
+	} else {
+		ws.WriteMessage(websocket.TextMessage, []byte("key should be string")) //返回错误反馈
+		return
+	}
+	if valueStr, ok := jsons["X-action"].(string); ok {
+		actType = valueStr
+	} else {
+		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
+		return
+	}
+	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
+		blockStr = valueStr
+	}
+	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输
+		indexBlock = valueStr
+	}
+	//对于分块数，如果没写的话默认为1
+	if blockStr == "" {
+		blockNum = 1
+	} else {
+		var err error = nil
+		blockNum, err = strconv.Atoi(blockStr)
+		if err != nil {
+			ws.WriteMessage(websocket.TextMessage, []byte("block should be string represent a number"))
+			return
+		}
+	}
+	//对于索引值，如果没写的话默认为0
+	if indexBlock == "" {
+		indexNum = 0
+	} else {
+		var err error = nil
+		indexNum, err = strconv.Atoi(indexBlock)
+		if err != nil {
+			ws.WriteMessage(websocket.TextMessage, []byte("index should be string represent a number"))
+			return
+		}
+	}
+	//保证索引比分块小
+	if indexNum >= blockNum {
+		ws.WriteMessage(websocket.TextMessage, []byte("index out of range"))
+		return
+	}
+	//对于value数据，判断其为string还是[]byte
+	if valueStr, ok := jsons["value"].(string); ok {
+		value = []byte(valueStr)
+	} else {
+		valueByte, err := jsons["value"].([]byte)
+		if err { //如果是byte
+			value = valueByte
+		}
+		if !err && actType == "push" {
+			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
+			return
+		}
+	}
 
-// 	switch strings.ToLower(actType) {
-// 	case "push":
-// 		fmt.Printf("%s-%s-%s-%s", namespace, bucketClaimName, key, string(value))
-// 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
-// 		return
+	switch strings.ToLower(actType) {
+	case "push":
+		fmt.Printf("%s-%s-%s-%s", namespace, bucketClaimName, key, string(value))
+		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
+		return
 
-// 	case "get":
-// 		value, _ := ioutil.ReadFile("D:\\school_area\\glimmer_backend\\CubeUniverse\\universeOperator\\main\\impleOPR\\test1.txt")
+	case "get":
+		value, _ := ioutil.ReadFile("D:\\school_area\\glimmer_backend\\CubeUniverse\\universeOperator\\main\\impleOPR\\test1.txt")
 
-// 		//根据block进行分组
-// 		valueBytes := splitArray([]byte(value), blockNum)
-// 		valueMap := map[string][]byte{
-// 			"value" + strconv.Itoa(indexNum): valueBytes[indexNum],
-// 			"key":                            []byte(key),
-// 			"namespace":                      []byte(namespace),
-// 		}
-// 		valueJson, _ := json.Marshal(&valueMap)
-// 		ws.WriteMessage(websocket.TextMessage, valueJson)
+		//根据block进行分组
+		valueBytes := splitArray([]byte(value), blockNum)
+		valueMap := map[string][]byte{
+			"value" + strconv.Itoa(indexNum): valueBytes[indexNum],
+			"key":                            []byte(key),
+			"namespace":                      []byte(namespace),
+		}
+		valueJson, _ := json.Marshal(&valueMap)
+		ws.WriteMessage(websocket.TextMessage, valueJson)
 
-// 		return
-// 	}
+		return
+	}
 
-// }
+}
 
-// // 记得删除
+// 记得删除
 func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
 	var blockNum, indexNum int = 1, 0
