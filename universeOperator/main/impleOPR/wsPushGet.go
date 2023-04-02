@@ -257,14 +257,17 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 		}
 		//根据block进行分组
 		valueBytes := splitArray([]byte(value), blockNum)
-		valueMap := map[string][]byte{
-			"value" + strconv.Itoa(indexNum): valueBytes[indexNum],
-			"key":                            []byte(key),
-			"namespace":                      []byte(namespace),
-			"name":                           []byte(bucketClaimName),
+		//将数据转为string避免bytes数据被base64编码
+		value2Str := valueBytes[indexNum]
+		valueMap := map[string]string{
+			"value" + strconv.Itoa(indexNum): string(value2Str),
+			"key":                            key,
+			"namespace":                      namespace,
+			"name":                           bucketClaimName,
 		}
+		//转化为json
 		valueJson, _ := json.Marshal(&valueMap)
-		ws.WriteMessage(websocket.TextMessage, valueJson)
+		ws.WriteMessage(websocket.TextMessage, valueJson) //发送数据
 		return
 	case "delete":
 		if err := kit.DeleteObject(namespace, bucketClaimName, key); err != nil {
