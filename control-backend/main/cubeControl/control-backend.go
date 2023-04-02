@@ -44,6 +44,4 @@ func Init() {
 
 	// 后端内容...
 
-	//后端完成前先hold
-	select {}
 }

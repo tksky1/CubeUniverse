@@ -114,7 +114,9 @@ func main() {
 
 	cubeControl.ClientSet = universalFuncs.GetClientSet()
 	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
-	mutexInit()
+	mutexInit() // 等待pod锁释放
+
+	go cubeControl.GetLog()
 
 	log.Println("正在加载control-backend..")
 	//先开启一个web服务告诉前端需要等待
