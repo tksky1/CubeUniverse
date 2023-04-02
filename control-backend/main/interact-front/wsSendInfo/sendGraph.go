@@ -158,9 +158,9 @@ func ConstSend(ctx *gin.Context) {
 			time.Sleep(500 * time.Millisecond)
 			resMap := make(gin.H)
 			resMap["CephHosts"], _ = cubeControl.GetCephHosts()
-			resMap["inQuorumMonitor"], resMap["outQuorumMonitor"], _ = cubeControl.GetCephMonitor()
-			resMap["CephOSD"], _ = cubeControl.GetCephOSD()
-			resMap["CephPool"], _ = cubeControl.GetCephPool()
+			resMap["inQuorumMonitors"], resMap["outQuorumMonitors"], _ = cubeControl.GetCephMonitor()
+			resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
+			resMap["CephPools"], _ = cubeControl.GetCephPool()
 			resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
 			//将map入队
 			queue.PushBack(resMap)

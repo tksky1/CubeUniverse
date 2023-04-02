@@ -112,9 +112,9 @@ func watchDB(ch1 chan bool, srv *http.Server) {
 }
 func main() {
 
-	cubeControl.ClientSet = universalFuncs.GetClientSet()
-	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
-	mutexInit()
+	// cubeControl.ClientSet = universalFuncs.GetClientSet()
+	// cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
+	// mutexInit()
 
 	log.Println("正在加载control-backend..")
 	//先开启一个web服务告诉前端需要等待
