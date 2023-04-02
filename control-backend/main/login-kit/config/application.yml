@@ -3,9 +3,10 @@ server:
 
 datasource:
   driverName: mysql
-  host: mysql-in-cluster.cubeuniverse.svc.cluster.local
+  host: 127.0.0.1
   port: 3306
   database: cubeuniverse
+  defaultdatabase: mysql
   username: root
-  password: cubeuniverse
+  password: 721118Wm..
   charset: utf8
