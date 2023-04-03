@@ -145,13 +145,11 @@ func ConstSend(ctx *gin.Context) {
 		resMap["CephPools"], _ = cubeControl.GetCephPool()
 		resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
 		//日志信息的结构体
-		if logStruct, err := cubeControl.GetLog(); err == nil {
-			resMap["Operatorlog"] = logStruct.Operator
-			resMap["Backendlog"] = logStruct.Backend
-		} else { //如果出错就将错误信息打印到log
-			resMap["Operatorlog"] = err.Error()
-			resMap["Backendlog"] = err.Error()
-		}
+		cubeControl.LogMutex.Lock()
+		logStruct := cubeControl.CephLogNow
+		resMap["Operatorlog"] = logStruct.Operator
+		resMap["Backendlog"] = logStruct.Backend
+		cubeControl.LogMutex.Unlock()
 		//将map入队
 		queue.PushBack(resMap)
 	}
@@ -171,13 +169,11 @@ func ConstSend(ctx *gin.Context) {
 			resMap["CephPools"], _ = cubeControl.GetCephPool()
 			resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
 			//日志信息的结构体
-			if logStruct, err := cubeControl.GetLog(); err == nil {
-				resMap["Operatorlog"] = logStruct.Operator
-				resMap["Backendlog"] = logStruct.Backend
-			} else { //如果出错就将错误信息打印到log
-				resMap["Operatorlog"] = err.Error()
-				resMap["Backendlog"] = err.Error()
-			}
+			cubeControl.LogMutex.Lock()
+			logStruct := cubeControl.CephLogNow
+			resMap["Operatorlog"] = logStruct.Operator
+			resMap["Backendlog"] = logStruct.Backend
+			cubeControl.LogMutex.Unlock()
 			//将map入队
 			queue.PushBack(resMap)
 		}

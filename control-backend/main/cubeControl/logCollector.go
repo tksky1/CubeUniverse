@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-// 从这里读取log，记得先检查锁
-var cephLog CephLog = CephLog{}
-var logMutex sync.Mutex
+// CephLogNow 从这里读取log，记得先检查锁
+var CephLogNow CephLog = CephLog{}
+var LogMutex sync.Mutex
 
 // GetLog 循环刷新Operator和Backend的Log，展示给用户
 func GetLog() {
@@ -38,7 +38,7 @@ func GetLog() {
 			continue
 		}
 
-		logMutex.Lock()
+		LogMutex.Lock()
 
 		// 遍历每个Pod，获取其日志并打印到控制台
 		for _, pod := range pods.Items {
@@ -50,7 +50,7 @@ func GetLog() {
 					log.Println(err)
 				}
 				if string(outLog) != "" {
-					cephLog.Operator = getLast100Lines(string(outLog))
+					CephLogNow.Operator = getLast100Lines(string(outLog))
 				}
 			} else if strings.Contains(pod.Name, "backend") {
 				podReq := ClientSet.CoreV1().Pods("cubeuniverse").GetLogs(pod.Name, opts)
@@ -60,11 +60,11 @@ func GetLog() {
 					log.Println(err)
 				}
 				if string(outLog) != "" {
-					cephLog.Backend = getLast100Lines(string(outLog))
+					CephLogNow.Backend = getLast100Lines(string(outLog))
 				}
 			}
 		}
-		logMutex.Unlock()
+		LogMutex.Unlock()
 
 	}
 

@@ -6,6 +6,7 @@ import "C"
 	供外部调用的接口，接入缓存
 	-------------
 */
+
 // #cgo CXXFLAGS: -std=c++11
 // #cgo LDFLAGS: -lstdc++
 // #include "cache.h"

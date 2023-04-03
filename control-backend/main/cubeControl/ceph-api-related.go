@@ -25,8 +25,7 @@ import (
 
 var cephToken string
 
-// const CephApiBase = "https://ceph-dashboard-in-cluster.rook-ceph.svc.cluster.local:8443/"
-const CephApiBase = "https://192.168.79.11:30701/" //TODO: 调试后改回来
+const CephApiBase = "https://ceph-dashboard-in-cluster.rook-ceph.svc.cluster.local:8443/"
 
 // GetCephHosts 获取Ceph的Hosts状态
 func GetCephHosts() ([]CephHost, error) {
