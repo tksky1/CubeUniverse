@@ -20,6 +20,7 @@
     "@nextui-org/react": "^1.0.0-beta.12",
     "@nivo/bar": "^0.80.0",
     "@nivo/core": "^0.80.0",
+    "@nivo/line": "^0.80.0",
     "@nivo/pie": "^0.80.0",
     "@tabler/icons-react": "^2.11.0",
     "@tremor/react": "^2.0.2",

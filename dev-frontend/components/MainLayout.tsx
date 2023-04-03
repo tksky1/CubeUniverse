@@ -12,8 +12,8 @@ interface MainLayout {
 let items = [
     {
         title: "page1",
-        key: "/page1",
-        label: "page1"
+        key: "/",
+        label: "Dashboard"
     },
     {
         title: "page2",
@@ -109,7 +109,7 @@ export default function MainLayout({ children }: MainLayout) {
                     }}
                     type="scroll"
                 >
-                    <Link href={"/"}>
+                    {/* <Link href={"/"}>
                         <Title
                             order={4}
                             pl={"lg"}
@@ -117,7 +117,7 @@ export default function MainLayout({ children }: MainLayout) {
                         >
                             DashBoard
                         </Title>
-                    </Link>
+                    </Link> */}
                     <MyConfigProvider>
                         <Menu
                             theme="light"
@@ -137,6 +137,7 @@ export default function MainLayout({ children }: MainLayout) {
                     sx={_theme => ({
                         flexGrow: 1,
                         height: "100%",
+                        backgroundColor: "#f0f0f0"
                     })}
                     classNames={{
                         viewport: classes.scrollAreaViewport
