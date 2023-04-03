@@ -99,6 +99,7 @@ reset:
 	$(SCP) /etc/kubernetes/admin.conf 192.168.177.202:/etc/kubernetes/admin.conf
 	$(SCP) /etc/kubernetes/admin.conf 192.168.177.203:/etc/kubernetes/admin.conf
 	$(foreach node, $(NODE), $(SSH) $(node) '$(COMMAND2)';)
+	$(COMMAND2)
 	$(RM) -f /tmp/kubeinit
 	$(KUBECTL) taint nodes glimmer-node-1 node-role.kubernetes.io/master-
 	$(KUBECTL) create -f /root/kube-flannel.yml
