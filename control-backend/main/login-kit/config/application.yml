@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 30401
 
 datasource:
   driverName: postgres

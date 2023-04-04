@@ -21,8 +21,8 @@ func Init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载ControlBackend", UniverseVersion)
 
-	log.Println("等待文件存储和mysql启动..")
-	for { //等待mysql加载完成
+	log.Println("等待文件存储和sql服务启动..")
+	for { //等待postgresql加载完成
 		mysql := universalFuncs.CheckMysqlStat(ClientSet)
 		if mysql {
 			break

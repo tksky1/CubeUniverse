@@ -13,9 +13,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -65,7 +65,8 @@ func loginInit(ch1 chan bool) {
 	db := common.GetDB()
 
 	InitUsrAdmin()
-	defer db.Close()
+	dbSQL, _ := db.DB()
+	defer dbSQL.Close()
 	//表明初始化完成
 	ch1 <- true
 	//保证正好在下一次重开web服务前之前的关闭

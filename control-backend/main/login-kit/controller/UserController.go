@@ -8,8 +8,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 func Register(ctx *gin.Context) {

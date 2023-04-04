@@ -149,15 +149,17 @@ func buildCeph() (ret bool) {
 	if !universalFuncs.CheckMysqlStat(clientSet) {
 		storage, err := clientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage", v1.GetOptions{})
 		if storage == nil || err != nil {
-			err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml",
+			err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
 				"", clientSet, dynamicClient)
 			if err != nil {
 				log.Println("启动文件存储失败，请检查CubeUniverse项目文件是否完好！\n", err)
 			}
 			time.Sleep(1 * time.Second)
 		}
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/postgresql-pvc.yaml",
+			"cubeuniverse", clientSet, dynamicClient)
 		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/postgresql.yaml",
-			"", clientSet, dynamicClient)
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动sql服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}

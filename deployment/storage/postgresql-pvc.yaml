@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-data-claim
+  namespace: cubeuniverse
+  labels:
+    pvc-provider: cubeuniverse
+    pvc-type: filesystem
+    auto-scale: auto
+spec:
+  storageClassName: cubeuniverse-fs-storage
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
