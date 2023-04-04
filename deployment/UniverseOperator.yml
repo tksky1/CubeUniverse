@@ -7,11 +7,13 @@ spec:
   selector:
     matchLabels:
       app: cubeuniverse
+      component: operator
   replicas: 2
   template:
     metadata:
       labels:
         app: cubeuniverse
+        component: operator
     spec:
       serviceAccount: universe-account
       containers:
@@ -19,3 +21,40 @@ spec:
           #image: tksky1/cubeuniverse-operator:dev0.1  # 发布版本
           image: operator-dev
           imagePullPolicy: Never #调试完成后  这里应该改成IfNotPresent
+          ports:
+            - containerPort: 30402
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: object-storage
+  namespace: cubeuniverse # namespace:cluster
+  labels:
+    app: operator
+spec:
+  ports:
+    - name: dashboard
+      port: 8890
+      protocol: TCP
+      targetPort: 8890
+      nodePort: 30402
+  selector:
+    component: operator
+  sessionAffinity: None
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oss
+  namespace: cubeuniverse # namespace:cluster
+  labels:
+    app: operator
+spec:
+  ports:
+    - name: dashboard
+      port: 8890
+      protocol: TCP
+  selector:
+    component: operator
+  sessionAffinity: None

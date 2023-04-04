@@ -139,11 +139,26 @@ func ConstSend(ctx *gin.Context) {
 	//向缓存先填入10个信息
 	for i := 1; i <= 10; i++ {
 		resMap := make(gin.H)
-		resMap["CephHosts"], _ = cubeControl.GetCephHosts()
-		resMap["inQuorumMonitors"], resMap["outQuorumMonitor"], _ = cubeControl.GetCephMonitor()
-		resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
-		resMap["CephPools"], _ = cubeControl.GetCephPool()
-		resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
+		resMap["CephHosts"], err = cubeControl.GetCephHosts()
+		if err != nil {
+			log.Println("调用ceph数据出错：" + err.Error())
+		}
+		resMap["inQuorumMonitors"], resMap["outQuorumMonitor"], err = cubeControl.GetCephMonitor()
+		if err != nil {
+			log.Println("调用ceph数据出错：" + err.Error())
+		}
+		resMap["CephOSDs"], err = cubeControl.GetCephOSD()
+		if err != nil {
+			log.Println("调用ceph数据出错：" + err.Error())
+		}
+		resMap["CephPools"], err = cubeControl.GetCephPool()
+		if err != nil {
+			log.Println("调用ceph数据出错：" + err.Error())
+		}
+		resMap["CephPerformance"], err = cubeControl.GetCephPerformance()
+		if err != nil {
+			log.Println("调用ceph数据出错：" + err.Error())
+		}
 		//日志信息的结构体
 		cubeControl.LogMutex.Lock()
 		logStruct := cubeControl.CephLogNow
@@ -163,11 +178,26 @@ func ConstSend(ctx *gin.Context) {
 			//500毫秒的间歇
 			time.Sleep(500 * time.Millisecond)
 			resMap := make(gin.H)
-			resMap["CephHosts"], _ = cubeControl.GetCephHosts()
-			resMap["inQuorumMonitors"], resMap["outQuorumMonitors"], _ = cubeControl.GetCephMonitor()
-			resMap["CephOSDs"], _ = cubeControl.GetCephOSD()
-			resMap["CephPools"], _ = cubeControl.GetCephPool()
-			resMap["CephPerformance"], _ = cubeControl.GetCephPerformance()
+			resMap["CephHosts"], err = cubeControl.GetCephHosts()
+			if err != nil {
+				log.Println("调用ceph数据出错：" + err.Error())
+			}
+			resMap["inQuorumMonitors"], resMap["outQuorumMonitors"], err = cubeControl.GetCephMonitor()
+			if err != nil {
+				log.Println("调用ceph数据出错：" + err.Error())
+			}
+			resMap["CephOSDs"], err = cubeControl.GetCephOSD()
+			if err != nil {
+				log.Println("调用ceph数据出错：" + err.Error())
+			}
+			resMap["CephPools"], err = cubeControl.GetCephPool()
+			if err != nil {
+				log.Println("调用ceph数据出错：" + err.Error())
+			}
+			resMap["CephPerformance"], err = cubeControl.GetCephPerformance()
+			if err != nil {
+				log.Println("调用ceph数据出错：" + err.Error())
+			}
 			//日志信息的结构体
 			cubeControl.LogMutex.Lock()
 			logStruct := cubeControl.CephLogNow

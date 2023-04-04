@@ -24,6 +24,12 @@ func PvcCrea(ctx *gin.Context) {
 
 		json := make(map[string]interface{})
 		ctx.BindJSON(&json)
+		if value, ok := json["X-type"].(string); ok {
+			actType = value
+		} else {
+			Fail(ctx, nil, "type should be string") //返回错误反馈
+			return
+		}
 		if value, ok := json["name"].(string); ok {
 			name = value
 		} else {
@@ -36,18 +42,13 @@ func PvcCrea(ctx *gin.Context) {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
 			return
 		}
-		if value, ok := json["volume"].(string); ok {
+		if value, ok := json["volume"].(string); ok || strings.ToLower(actType) == "object" {
 			sVolume = value
 		} else {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
 			return
 		}
-		if value, ok := json["X-type"].(string); ok {
-			actType = value
-		} else {
-			Fail(ctx, nil, "type should be string") //返回错误反馈
-			return
-		}
+
 		if value, ok := json["autoscale"].(string); ok {
 			autoScales = value
 		} else {
@@ -142,6 +143,12 @@ func PvcPatch(ctx *gin.Context) {
 	if name == "" && namespace == "" && sVolume == "" && actType == "" && autoScales == "" {
 		json := make(map[string]interface{})
 		ctx.BindJSON(&json)
+		if value, ok := json["X-type"].(string); ok {
+			actType = value
+		} else {
+			Fail(ctx, nil, "type should be string") //返回错误反馈
+			return
+		}
 		if value, ok := json["name"].(string); ok {
 			name = value
 		} else {
@@ -155,18 +162,13 @@ func PvcPatch(ctx *gin.Context) {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
 			return
 		}
-		if value, ok := json["volume"].(string); ok {
+		if value, ok := json["volume"].(string); ok || strings.ToLower(actType) == "object" {
 			sVolume = value
 		} else {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
 			return
 		}
-		if value, ok := json["X-type"].(string); ok {
-			actType = value
-		} else {
-			Fail(ctx, nil, "type should be string") //返回错误反馈
-			return
-		}
+
 		if value, ok := json["autoscale"].(string); ok {
 			autoScales = value
 		} else {
