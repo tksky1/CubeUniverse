@@ -137,14 +137,14 @@ func ConstPushGetDeleteList(ctx *gin.Context) {
 // 		if err { //如果是byte
 // 			value = valueByte
 // 		}
-// 		if !err && actType == "push" {
+// 		if !err && actType == "put" {
 // 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
 // 			return
 // 		}
 // 	}
 
 // 	switch strings.ToLower(actType) {
-// 	case "push":
+// 	case "put":
 // 		fmt.Printf("%s-%s-%s-%s", namespace, bucketClaimName, key, string(value))
 // 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
 // 		return
@@ -200,6 +200,9 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
 		blockStr = valueStr
 	}
+	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输
+		indexBlock = valueStr
+	}
 	//对于分块数，如果没写的话默认为1
 	if blockStr == "" {
 		blockNum = 1
@@ -235,14 +238,14 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 		if err { //如果是byte
 			value = valueByte
 		}
-		if !err && actType == "push" {
+		if !err && actType == "put" {
 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
 			return
 		}
 	}
 
 	switch strings.ToLower(actType) {
-	case "push":
+	case "put":
 		if err := kit.PutObject(namespace, bucketClaimName, key, value); err != nil {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
 		}

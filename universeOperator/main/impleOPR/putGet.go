@@ -82,14 +82,14 @@ func PushGetDeleteListObj(ctx *gin.Context) {
 		if err {
 			value = valueByte
 		}
-		if !err && actType == "push" {
+		if !err && actType == "put" {
 			Fail(ctx, nil, "value should be string or []byte") //返回错误反馈
 			return
 		}
 	}
 
 	switch strings.ToLower(actType) {
-	case "push":
+	case "put":
 		err := kit.PutObject(namespace, bucketClaimName, key, value)
 		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
@@ -97,9 +97,6 @@ func PushGetDeleteListObj(ctx *gin.Context) {
 		Success(ctx, nil, "Put success")
 
 	case "get":
-		//TODO:测试用
-		// value, _ := ioutil.ReadFile("D:\\school_area\\glimmer_backend\\CubeUniverse\\universeOperator\\main\\impleOPR\\test.txt")
-		//记得删除
 
 		value, err := kit.GetObject(namespace, bucketClaimName, key)
 		if err != nil {

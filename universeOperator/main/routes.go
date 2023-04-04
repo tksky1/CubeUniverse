@@ -6,8 +6,8 @@ import (
 )
 
 func CollectRoute(r *gin.Engine) *gin.Engine {
-	r.POST("api/opr/pushget", impleOPR.PushGetDeleteListObj)
-	r.GET("api/opr/wspushget", impleOPR.ConstPushGetDeleteList)
+	r.POST("api/opr/putget", impleOPR.PushGetDeleteListObj)
+	r.GET("api/opr/wsputget", impleOPR.ConstPushGetDeleteList)
 
 	return r
 }
