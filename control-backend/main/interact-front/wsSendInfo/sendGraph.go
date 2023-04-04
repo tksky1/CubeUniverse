@@ -58,83 +58,83 @@ func ConstSend(ctx *gin.Context) {
 	ws.SetReadLimit(1024 * 10) // 设置读取缓冲区大小为1024字节
 	defer ws.Close()
 
-	//测试部分：TODO
-	for i := 1; i <= 10; i++ {
-		//100毫秒的间歇
-		time.Sleep(100 * time.Millisecond)
-		resMap := make(gin.H)
-		resMap["CephHosts"] = "CephHost"
-		resMap["inQuorumMonitors"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
-		resMap["CephOSDs"] = "CephOSD"
-		resMap["CephPools"] = "CephPool"
-		resMap["CephPerformance"] = "CephPerformance"
-		//将map入队
-		queue.PushBack(resMap)
-	}
-
-	for {
-		//从缓存中拿数据
-		resMap := queue.Front().Value //取出队头元素
-		//测试就不出队了
-		// queue.Remove(queue.Front())   //删除队头，即出队
-		time.Sleep(1 * time.Second)
-		println("working on sending")
-
-		//我这里就改变了，不设置读取时间，造成阻塞状态
-		// //设置读取用户请求时间，也能实现心跳
-		// ws.SetReadDeadline(time.Now().Add(4 * time.Second))
-		//读取用户返回数据，用于用户主动断开连接，以及长时间无用户响应而终止
-
-		// mt, msg, errRead := ws.ReadMessage()
-		// if errRead != nil {
-		// 	fmt.Println("err : " + errRead.Error())
-		// 	ws.WriteMessage(websocket.TextMessage, []byte("session over"))
-		// 	time.Sleep(500 * time.Millisecond)
-		// 	return
-		// }
-
-		//开启读取协程
-		go readMsg(ws, readInfo)
-
-		//通过select语句进行channel读取
-		select {
-		case msg1 := <-readInfo:
-			fmt.Println("in readInfo---" + string(msg1))
-			jsons := make(map[string]interface{})
-			//将json字符串解析
-			if errCtx := json.Unmarshal(msg1, &jsons); errCtx != nil {
-				log.Print(errCtx.Error())
-			}
-			//说明要结束
-			if value, ok := jsons["over"].(string); ok && value == "yes" {
-				ws.WriteMessage(websocket.TextMessage, []byte("bye"))
-				time.Sleep(500 * time.Millisecond)
-				//关闭连接
-				ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-				return //结束死循环
-			} else if ok { //如果value不为yes，但没有报错
-				//格式化json
-				msg, _ := json.Marshal(&resMap)
-				//发送数据
-				if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-					//发送错误，记录到日志
-					log.Print(err.Error())
-				}
-			}
-		default: //默认没有从管道接收到数据的情况下，发送数据
-			//格式化json
-			msg, _ := json.Marshal(&resMap)
-			//发送数据
-			if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
-				//发送错误，记录到日志
-				log.Print(err.Error())
-
-			}
-		}
-
-	}
-	return
-	//记得删除
+	////测试部分：TODO
+	//for i := 1; i <= 10; i++ {
+	//	//100毫秒的间歇
+	//	time.Sleep(100 * time.Millisecond)
+	//	resMap := make(gin.H)
+	//	resMap["CephHosts"] = "CephHost"
+	//	resMap["inQuorumMonitors"], resMap["outQuorumMonitor"] = "inQuorumMonitor", "outQuorumMonitor"
+	//	resMap["CephOSDs"] = "CephOSD"
+	//	resMap["CephPools"] = "CephPool"
+	//	resMap["CephPerformance"] = "CephPerformance"
+	//	//将map入队
+	//	queue.PushBack(resMap)
+	//}
+	//
+	//for {
+	//	//从缓存中拿数据
+	//	resMap := queue.Front().Value //取出队头元素
+	//	//测试就不出队了
+	//	// queue.Remove(queue.Front())   //删除队头，即出队
+	//	time.Sleep(1 * time.Second)
+	//	println("working on sending")
+	//
+	//	//我这里就改变了，不设置读取时间，造成阻塞状态
+	//	// //设置读取用户请求时间，也能实现心跳
+	//	// ws.SetReadDeadline(time.Now().Add(4 * time.Second))
+	//	//读取用户返回数据，用于用户主动断开连接，以及长时间无用户响应而终止
+	//
+	//	// mt, msg, errRead := ws.ReadMessage()
+	//	// if errRead != nil {
+	//	// 	fmt.Println("err : " + errRead.Error())
+	//	// 	ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+	//	// 	time.Sleep(500 * time.Millisecond)
+	//	// 	return
+	//	// }
+	//
+	//	//开启读取协程
+	//	go readMsg(ws, readInfo)
+	//
+	//	//通过select语句进行channel读取
+	//	select {
+	//	case msg1 := <-readInfo:
+	//		fmt.Println("in readInfo---" + string(msg1))
+	//		jsons := make(map[string]interface{})
+	//		//将json字符串解析
+	//		if errCtx := json.Unmarshal(msg1, &jsons); errCtx != nil {
+	//			log.Print(errCtx.Error())
+	//		}
+	//		//说明要结束
+	//		if value, ok := jsons["over"].(string); ok && value == "yes" {
+	//			ws.WriteMessage(websocket.TextMessage, []byte("bye"))
+	//			time.Sleep(500 * time.Millisecond)
+	//			//关闭连接
+	//			ws.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	//			return //结束死循环
+	//		} else if ok { //如果value不为yes，但没有报错
+	//			//格式化json
+	//			msg, _ := json.Marshal(&resMap)
+	//			//发送数据
+	//			if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+	//				//发送错误，记录到日志
+	//				log.Print(err.Error())
+	//			}
+	//		}
+	//	default: //默认没有从管道接收到数据的情况下，发送数据
+	//		//格式化json
+	//		msg, _ := json.Marshal(&resMap)
+	//		//发送数据
+	//		if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
+	//			//发送错误，记录到日志
+	//			log.Print(err.Error())
+	//
+	//		}
+	//	}
+	//
+	//}
+	//return
+	////记得删除
 
 	//向缓存先填入10个信息
 	for i := 1; i <= 10; i++ {

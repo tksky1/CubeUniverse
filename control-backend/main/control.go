@@ -136,14 +136,6 @@ func main() {
 	//在loginInit正式提供dashbord开始前先检测是否数据库被初始化了
 	//开启一个协程来检查
 	go watchDB(ch1, srv)
-	// //TODO：删除测试内容
-	// loginInit(ch1)
-	// //记得删除
-
-	//TODO：删除测试内容
-	// test()
-	//只是测试的时候先执行这个，正常情况下应该先执行cubeControl的init
-	//loginInit(ch1)
 
 	//测试websocket发送数据
 

@@ -195,10 +195,10 @@ func PvcPatch(ctx *gin.Context) {
 		FailUnac(ctx, nil, "format err")
 		return
 	}
-	// 开发完后删去,仅用于测试:TODO
-	Success(ctx, nil, "test done")
-	return
-	//记得删除
+	//// 开发完后删去,仅用于测试:TODO
+	//Success(ctx, nil, "test done")
+	//return
+	////记得删除
 
 	//判断调用方法
 	switch strings.ToLower(actType) {
