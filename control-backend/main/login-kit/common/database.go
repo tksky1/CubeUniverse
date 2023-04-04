@@ -5,19 +5,14 @@ import (
 	"control-backend/login-kit/util"
 	"fmt"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+
 	"github.com/spf13/viper"
 )
 
 var DB *gorm.DB
 
-// var DB *gorm.DB //TODO:调试后修改
-
 func InitDB() {
-
-	//TODO:调试加入等待操作，模拟数据库连接很慢10min
-	//time.Sleep(30 * time.Second)
-	//记得删除
 
 	util.InitConfig()
 	driverName := viper.GetString("datasource.driverName")

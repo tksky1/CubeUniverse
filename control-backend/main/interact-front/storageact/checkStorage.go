@@ -14,10 +14,10 @@ func CheckStorage(ctx *gin.Context) {
 	get_type = strings.ToLower(get_type)
 	get_action = strings.ToLower(get_action)
 
-	//测试用:TODO
-	Success(ctx, nil, strings.ToUpper(string(get_type[0]))+"CS") //返回创建成功 block/file created success缩写BCS,FCS
-	return
-	//记得删除
+	// //测试用:TODO
+	// Success(ctx, nil, strings.ToUpper(string(get_type[0]))+"CS") //返回创建成功 block/file created success缩写BCS,FCS
+	// return
+	// //记得删除
 
 	switch get_type {
 	//如果是块存储的请求

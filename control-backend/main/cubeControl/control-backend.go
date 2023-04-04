@@ -42,6 +42,4 @@ func Init() {
 		log.Println(err)
 	}
 
-	// 后端内容...
-
 }

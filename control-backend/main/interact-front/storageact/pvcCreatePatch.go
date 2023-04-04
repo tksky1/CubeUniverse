@@ -72,10 +72,10 @@ func PvcCrea(ctx *gin.Context) {
 		return
 	}
 
-	//测试用记得删除
-	Success(ctx, nil, "create done")
-	return
-	//:TODO
+	// //测试用记得删除
+	// Success(ctx, nil, "create done")
+	// return
+	// //:TODO
 
 	//判断调用方法
 	switch strings.ToLower(actType) {

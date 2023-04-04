@@ -1,6 +1,6 @@
 package cubeOperatorKit
 
-import "C"
+// import "C"
 
 /*	-------------
 	供外部调用的接口，接入缓存
@@ -10,8 +10,10 @@ import "C"
 // #cgo CXXFLAGS: -std=c++11
 // #cgo LDFLAGS: -lstdc++
 // #include "cache.h"
-import "C"
-import "encoding/json"
+import (
+	"C"
+	"encoding/json"
+)
 
 // GetObject 访问指定对象，返回对象的Value
 func GetObject(namespace, bucketClaimName, key string) (objectValue []byte, errors error) {

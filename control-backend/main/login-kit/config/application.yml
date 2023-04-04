@@ -2,11 +2,11 @@ server:
   port: 8888
 
 datasource:
-  driverName: mysql
-  host: 127.0.0.1
-  port: 3306
-  database: cubeuniverse
-  defaultdatabase: mysql
-  username: root
-  password: 721118Wm..
+  driverName: postgres
+  host: postgres.cubeuniverse.svc.cluster.local
+  port: 5432
+  database: cubeuniverseDB
+  defaultdatabase: userDB
+  username: cubeuniverse
+  password: cubeuniverse
   charset: utf8

@@ -30,10 +30,10 @@ func DeletePvc(ctx *gin.Context) {
 		return
 	}
 
-	//测试用:TODO
-	Success(ctx, nil, "delete done")
-	return
-	//记得删除
+	// //测试用:TODO
+	// Success(ctx, nil, "delete done")
+	// return
+	// //记得删除
 
 	switch strings.ToLower(actType) {
 	case "block", "file":
