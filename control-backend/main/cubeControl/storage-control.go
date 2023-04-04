@@ -219,8 +219,7 @@ func DeleteObjectBucket(name string, namespace string) error {
 // ListObjectBucketClaim 返回所有通过CubeUniverse创建的对象存储bucket-Claim列表，是数组的json格式
 func ListObjectBucketClaim() ([]CephOSDBucket, error) {
 	crdMeta := schema.GroupVersionResource{Group: "objectbucket.io", Version: "v1alpha1", Resource: "objectbucketclaims"}
-	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "object"})
-	list, err := DynamicClient.Resource(crdMeta).Namespace("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	list, err := DynamicClient.Resource(crdMeta).Namespace("").List(context.TODO(), v1.ListOptions{})
 	if err != nil {
 		return nil, errors.New("获取bucket-claim列表失败，" + err.Error())
 	}
@@ -230,13 +229,13 @@ func ListObjectBucketClaim() ([]CephOSDBucket, error) {
 	var buckets []CephOSDBucket
 	for i := 1; i < len(bucketArrayJson.MustArray()); i++ {
 		bucketJson := bucketArrayJson.GetIndex(i)
-		cephOSDBucketClaim := &CephOSDBucket{}
+		cephOSDBucketClaim := CephOSDBucket{}
 		cephOSDBucketClaim.Name = bucketJson.Get("metadata").Get("name").MustString()
 		cephOSDBucketClaim.Namespace = bucketJson.Get("metadata").Get("namespace").MustString()
 		additionConfigJson := bucketJson.Get("spec").Get("additionalConfig")
 		cephOSDBucketClaim.MaxObjects = additionConfigJson.Get("maxObjects").MustString()
 		cephOSDBucketClaim.MaxSize = additionConfigJson.Get("maxSize").MustString()
-		buckets = append(buckets, *cephOSDBucketClaim)
+		buckets = append(buckets, cephOSDBucketClaim)
 	}
 	return buckets, nil
 }

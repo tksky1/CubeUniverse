@@ -55,10 +55,11 @@ func GetLog() {
 			} else if strings.Contains(pod.Name, "backend") {
 				podReq := ClientSet.CoreV1().Pods("cubeuniverse").GetLogs(pod.Name, opts)
 				podLogs, err := podReq.Stream(context.Background())
-				outLog, _ := io.ReadAll(podLogs)
 				if err != nil {
 					log.Println(err)
+					continue
 				}
+				outLog, _ := io.ReadAll(podLogs)
 				if string(outLog) != "" {
 					CephLogNow.Backend = getLast100Lines(string(outLog))
 				}
