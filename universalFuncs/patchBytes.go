@@ -75,7 +75,7 @@ func PatchBytes(yamlBytes []byte, namespace string) error {
 
 // PatchCrdFromBytes 从Bytes格式的Yaml创建CRD资源
 // 也可以用于更新已存在资源
-func PatchCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
+func PatchCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) (returnErr error) {
 
 	config, _ := rest.InClusterConfig()
 	config.RateLimiter = flowcontrol.NewTokenBucketRateLimiter(1000, 1000)
@@ -127,12 +127,12 @@ func PatchCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes
 		}
 		obj2, err := dri.Patch(context.Background(), unstructuredObj.GetName(), types.ApplyPatchType, data, metav1.PatchOptions{FieldManager: "application/apply-patch"})
 		if err != nil {
-			return err
+			returnErr = err
 		} else {
 			log.Printf("CRD: %s/%s 已创建\n", obj2.GetKind(), obj2.GetName())
 		}
 	}
-	return nil
+	return returnErr
 }
 
 func checkNamespaceExist(nameSpace string, clientSet *kubernetes.Clientset) bool {

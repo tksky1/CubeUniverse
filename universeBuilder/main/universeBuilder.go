@@ -43,8 +43,6 @@ func main() {
 	log.Println("Ceph已正常运行.")
 }
 
-// TODO: 调试完需把buildCube的println改成panic
-
 // 启动CubeUniverse组件
 func buildCube() (ret bool) {
 
@@ -52,7 +50,8 @@ func buildCube() (ret bool) {
 	ret = true
 	if !operator {
 		log.Println("启动CubeUniverse-operator..")
-		err := universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/UniverseOperator.yml", "cubeuniverse")
+		err := universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/UniverseOperator.yml",
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动UniverseOperator失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -61,7 +60,8 @@ func buildCube() (ret bool) {
 
 	if !dashboard {
 		log.Println("启动CubeUniverse-DashBoard..")
-		err := universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/UniverseDashBoard.yml", "cubeuniverse")
+		err := universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/UniverseDashBoard.yml",
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动UniverseDashBoard失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -70,7 +70,8 @@ func buildCube() (ret bool) {
 
 	if !controlBackend {
 		log.Println("启动CubeUniverse-controlBackend..")
-		err := universalFuncs.CreateYaml(universalFuncs.GetParentDir()+"/deployment/ControlBackend.yml", "cubeuniverse")
+		err := universalFuncs.CreateCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/ControlBackend.yml",
+			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动controlBackend失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -162,6 +163,25 @@ func buildCeph() (ret bool) {
 			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动sql服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
+		return false
+	}
+
+	kafka, ml := universalFuncs.CheckMLStatus(clientSet)
+	if !ml && !kafka {
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafka.yaml",
+			"cubeuniverse", clientSet, dynamicClient)
+		if err != nil {
+			log.Println("启动kafka服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
+		return false
+	}
+
+	if !ml && kafka {
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/MachineLearning.yaml",
+			"cubeuniverse", clientSet, dynamicClient)
+		if err != nil {
+			log.Println("启动智能对象处理组件失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 		return false
 	}

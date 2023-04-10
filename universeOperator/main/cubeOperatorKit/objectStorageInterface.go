@@ -1,7 +1,7 @@
 package cubeOperatorKit
 
 /*	-------------
-	供外部调用的接口，接入缓存
+	供外部调用的接口，接入缓存和机器学习
 	-------------
 */
 
@@ -9,7 +9,11 @@ package cubeOperatorKit
 // #cgo LDFLAGS: -lstdc++
 // #include "cache.h"
 import "C"
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/bitly/go-simplejson"
+	"strings"
+)
 
 // GetObject 访问指定对象，返回对象的Value
 func GetObject(namespace, bucketClaimName, key string) (objectValue []byte, errors error) {
@@ -36,7 +40,27 @@ func PutObject(namespace, bucketClaimName, key string, value []byte) error {
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
 	C.insr(cacheKey, C.CString(string(value)))
-	C.del(cacheKey2)
+	//C.del(cacheKey2)
+	cacheOut := C.ask(cacheKey2)
+	outString := C.GoString(cacheOut)
+	if outString != "" {
+		if strings.Contains(outString, "\""+key+"\"") {
+			return nil
+		}
+		var cachedList []string
+		err = json.Unmarshal([]byte(outString), &cachedList)
+		if err != nil {
+			return err
+		}
+		cachedList = append(cachedList, key)
+		byteList, err := json.Marshal(cachedList)
+		C.insr(cacheKey, C.CString(string(byteList)))
+		if err != nil {
+			return err
+		}
+	}
+
+	go ProduceObject(*producer, namespace+"%"+bucketClaimName+":"+key, value)
 	return nil
 }
 
@@ -72,4 +96,15 @@ func ListObjectFromBucket(namespace, bucketClaimName string) (keys []string, err
 	}
 	err := json.Unmarshal([]byte(outString), &keys)
 	return keys, err
+}
+
+// ListObjectByTag 通过智能对象处理模块产出的tag查找对应对象，返回相关的key
+func ListObjectByTag(namespace, bucketClaimName, tag string) (keys []string, errors error) {
+	storedObject, err := GetObject(namespace, bucketClaimName, "cubeuniverse/"+tag)
+	if err != nil {
+		return nil, err
+	}
+	jsonStored, err := simplejson.NewJson(storedObject)
+	storedArray := jsonStored.MustStringArray()
+	return storedArray, err
 }

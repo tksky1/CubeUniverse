@@ -28,3 +28,16 @@ func CheckCubeUniverseComponent(clientSet *kubernetes.Clientset) (bool, bool, bo
 	}
 	return operator, dashboard, controlBackend, universeBuilder
 }
+
+// CheckMLStatus 检查机器学习组件状态
+func CheckMLStatus(clientSet *kubernetes.Clientset) (kafka bool, ml bool) {
+	pods, _ := clientSet.CoreV1().Pods("cubeuniverse").List(context.TODO(), metav1.ListOptions{})
+	for _, pod := range pods.Items {
+		if strings.Index(pod.Name, "kafka") != -1 && pod.Status.Phase == "Running" {
+			kafka = true
+		} else if strings.Index(pod.Name, "ml") != -1 && pod.Status.Phase == "Running" {
+			ml = true
+		}
+	}
+	return kafka, ml
+}
