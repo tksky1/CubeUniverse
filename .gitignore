@@ -1,7 +1,7 @@
 /node_modules
 /.vscode
 /.idea
-CubeUniverse.code-workspace
+*.code-workspace
 /ml/test
 /ml/classifier.py
 /node_modules
