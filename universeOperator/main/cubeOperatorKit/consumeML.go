@@ -1,12 +1,42 @@
 package cubeOperatorKit
 
 import (
+	"CubeUniverse/universalFuncs"
 	"encoding/json"
 	"github.com/bitly/go-simplejson"
 	"log"
 	"strings"
+	"time"
 )
 
+// StartML 用于轮询ML组件状况然后启动队列监听
+func StartML() {
+	for {
+		time.Sleep(3 * time.Second)
+		kafka, ml := universalFuncs.CheckMLStatus(ClientSet)
+		if kafka && ml {
+			break
+		}
+	}
+	var err error
+	producer, err = InitKafkaProducer()
+	if err != nil {
+		log.Println("准备ML出错：" + err.Error())
+		StartML()
+		return
+	}
+	consumer, err := InitKafkaConsumer()
+	if err != nil {
+		log.Println("准备ML出错：" + err.Error())
+		StartML()
+		return
+	}
+	err = ConsumerStartListening(*consumer, ConsumeML)
+	log.Println("准备ML出错：" + err.Error())
+	StartML()
+}
+
+// ConsumeML 作为参数提供给消息处理
 func ConsumeML(key string, value string) {
 	index1 := strings.IndexByte(key, '%')
 	namespace := key[:index1]
@@ -32,8 +62,13 @@ func ConsumeML(key string, value string) {
 					return
 				}
 			} else {
-				jsonStored, _ := simplejson.NewJson([]byte(storedObject))
+				jsonStored, _ := simplejson.NewJson(storedObject)
 				storedArray := jsonStored.MustStringArray()
+				for _, theKey := range storedArray {
+					if theKey == objectKey {
+						return
+					}
+				}
 				storedArray = append(storedArray, objectKey)
 				storeJsonByte, _ := json.Marshal(storedArray)
 				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, storeJsonByte)

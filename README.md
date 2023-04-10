@@ -24,7 +24,7 @@ kubectl create -f deployment/CubeUniverse.yml && watch -n 0.5 kubectl get pod -n
 
 集群至少包括三个工作节点和一个主节点；
 
-集群的每个工作节点应安装有一块**没有写入数据和文件系统**的卷或磁盘，其大小不小于3GB；
+集群的每个工作节点应安装有一块**没有写入数据和文件系统**的卷或磁盘，其大小不小于10GB；
 
 Linux**内核版本4.7以上**；**Kubernetes版本1.20以上**；关闭SELINUX和swap；
 
