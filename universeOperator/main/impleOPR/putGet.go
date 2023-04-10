@@ -10,7 +10,8 @@ import (
 
 func PushGetDeleteListObj(ctx *gin.Context) {
 	//根据post请求的body体来解析参数，仅支持json两种格式
-	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
+	var namespace, bucketClaimName, key, actType, blockStr, indexBlock, tag string
+	tag = ""                          //给tag一个默认值，更安全
 	var blockNum, indexNum int = 1, 0 //记录分块数量，默认为一
 
 	var value []byte
@@ -46,6 +47,9 @@ func PushGetDeleteListObj(ctx *gin.Context) {
 	}
 	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输索引值
 		indexBlock = valueStr
+	}
+	if valueStr, ok := jsons["tag"].(string); ok { //得到tag标签的值，此为可选参数
+		tag = valueStr
 	}
 	//对于分块数，如果没写的话默认为1
 	if blockStr == "" {
@@ -112,14 +116,27 @@ func PushGetDeleteListObj(ctx *gin.Context) {
 	case "delete":
 		if err := kit.DeleteObject(namespace, bucketClaimName, key); err != nil {
 			FailCrea(ctx, nil, "delete err: "+err.Error())
+			return
 		} else {
 			Success(ctx, nil, "delete success:namespace="+namespace+" name="+bucketClaimName+" key="+key)
+			return
 		}
 	case "list":
+		if tag != "" {
+			if valueArr, err := kit.ListObjectByTag(namespace, bucketClaimName, tag); err != nil {
+				FailCrea(ctx, nil, "list err: "+err.Error())
+				return
+			} else {
+				Success(ctx, gin.H{"keys": valueArr}, "list key success: namespace="+namespace+" name="+bucketClaimName)
+				return
+			}
+		}
 		if valueArr, err := kit.ListObjectFromBucket(namespace, bucketClaimName); err != nil {
 			FailCrea(ctx, nil, "list err: "+err.Error())
+			return
 		} else {
 			Success(ctx, gin.H{"keys": valueArr}, "list key success: namespace="+namespace+" name="+bucketClaimName)
+			return
 		}
 	}
 }

@@ -67,109 +67,9 @@ func ConstPushGetDeleteList(ctx *gin.Context) {
 	}
 }
 
-// // 测试方法:TODO
-// func pushgetImpleTest(jsons gin.H, ws *websocket.Conn) {
-// 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
-// 	var blockNum, indexNum int = 1, 0
-// 	var value []byte
-// 	if valueStr, ok := jsons["namespace"].(string); ok {
-// 		namespace = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("namespace should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["name"].(string); ok {
-// 		bucketClaimName = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("name should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["key"].(string); ok {
-// 		key = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("key should be string")) //返回错误反馈
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["X-action"].(string); ok {
-// 		actType = valueStr
-// 	} else {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("X-action should be string"))
-// 		return
-// 	}
-// 	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制，运行用户选择数据的分块运输
-// 		blockStr = valueStr
-// 	}
-// 	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输
-// 		indexBlock = valueStr
-// 	}
-// 	//对于分块数，如果没写的话默认为1
-// 	if blockStr == "" {
-// 		blockNum = 1
-// 	} else {
-// 		var err error = nil
-// 		blockNum, err = strconv.Atoi(blockStr)
-// 		if err != nil {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("block should be string represent a number"))
-// 			return
-// 		}
-// 	}
-// 	//对于索引值，如果没写的话默认为0
-// 	if indexBlock == "" {
-// 		indexNum = 0
-// 	} else {
-// 		var err error = nil
-// 		indexNum, err = strconv.Atoi(indexBlock)
-// 		if err != nil {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("index should be string represent a number"))
-// 			return
-// 		}
-// 	}
-// 	//保证索引比分块小
-// 	if indexNum >= blockNum {
-// 		ws.WriteMessage(websocket.TextMessage, []byte("index out of range"))
-// 		return
-// 	}
-// 	//对于value数据，判断其为string还是[]byte
-// 	if valueStr, ok := jsons["value"].(string); ok {
-// 		value = []byte(valueStr)
-// 	} else {
-// 		valueByte, err := jsons["value"].([]byte)
-// 		if err { //如果是byte
-// 			value = valueByte
-// 		}
-// 		if !err && actType == "put" {
-// 			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
-// 			return
-// 		}
-// 	}
-
-// 	switch strings.ToLower(actType) {
-// 	case "put":
-// 		fmt.Printf("%s-%s-%s-%s", namespace, bucketClaimName, key, string(value))
-// 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
-// 		return
-
-// 	case "get":
-// 		value, _ := ioutil.ReadFile("D:\\school_area\\glimmer_backend\\CubeUniverse\\universeOperator\\main\\impleOPR\\test1.txt")
-
-// 		//根据block进行分组
-// 		valueBytes := splitArray([]byte(value), blockNum)
-// 		valueMap := map[string][]byte{
-// 			"value" + strconv.Itoa(indexNum): valueBytes[indexNum],
-// 			"key":                            []byte(key),
-// 			"namespace":                      []byte(namespace),
-// 		}
-// 		valueJson, _ := json.Marshal(&valueMap)
-// 		ws.WriteMessage(websocket.TextMessage, valueJson)
-
-// 		return
-// 	}
-
-// }
-
-// // 记得删除
 func pushgetImple(jsons gin.H, ws *websocket.Conn) {
-	var namespace, bucketClaimName, key, actType, blockStr, indexBlock string
+	var namespace, bucketClaimName, key, actType, blockStr, indexBlock, tag string
+	tag = "" //给tag一个默认值
 	var blockNum, indexNum int = 1, 0
 	var value []byte
 	if valueStr, ok := jsons["X-action"].(string); ok { //确定方法
@@ -202,6 +102,9 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	}
 	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输
 		indexBlock = valueStr
+	}
+	if valueStr, ok := jsons["tag"].(string); ok { //得到tag标签的值，此为可选参数
+		tag = valueStr
 	}
 	//对于分块数，如果没写的话默认为1
 	if blockStr == "" {
@@ -277,10 +180,31 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail delete OBJ: "+err.Error()))
 		} else {
 			ws.WriteMessage(websocket.TextMessage, []byte("delete success"))
+			return
 		}
 	case "list":
+		if tag != "" { //在list调用时，如果传入了tag说明是调用的对象存储
+			if valueArr, err := kit.ListObjectByTag(namespace, bucketClaimName, tag); err != nil {
+				ws.WriteMessage(websocket.TextMessage, []byte("Fail list OBJ: "+err.Error()))
+				return
+			} else {
+				//将返回数据结构化为json格式
+				valueMap := gin.H{
+					"value":     valueArr,
+					"namespace": namespace,
+					"name":      bucketClaimName,
+				}
+				if valueJson, err := json.Marshal(&valueMap); err != nil {
+					log.Print("err json convert: " + err.Error())
+					return
+				} else {
+					ws.WriteMessage(websocket.TextMessage, valueJson)
+					return
+				}
+			}
+		}
 		if valueArr, err := kit.ListObjectFromBucket(namespace, bucketClaimName); err != nil {
-			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
+			ws.WriteMessage(websocket.TextMessage, []byte("Fail list OBJ: "+err.Error()))
 			return
 		} else {
 			//将返回数据结构化为json格式
@@ -289,8 +213,14 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 				"namespace": namespace,
 				"name":      bucketClaimName,
 			}
-			valueJson, _ := json.Marshal(&valueMap)
-			ws.WriteMessage(websocket.TextMessage, valueJson)
+			if valueJson, err := json.Marshal(&valueMap); err != nil {
+				log.Print("err json convert: " + err.Error())
+				return
+			} else {
+				ws.WriteMessage(websocket.TextMessage, valueJson)
+				return
+			}
+
 		}
 	}
 
