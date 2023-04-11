@@ -17,7 +17,6 @@ spec:
   gateway:
     sslCertificateRef:
     port: 80
-    # securePort: 443
     instances: 1
 ---
 apiVersion: storage.k8s.io/v1
@@ -30,6 +29,3 @@ parameters:
   objectStoreName: cubeuniverse-object
   objectStoreNamespace: rook-ceph
 allowVolumeExpansion: true
-
-
-

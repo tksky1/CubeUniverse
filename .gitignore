@@ -4,4 +4,7 @@
 *.code-workspace
 /ml/test
 /ml/classifier.py
+/CubeUniverse.code-workspace
+package-lock.json
+package.json
 /node_modules

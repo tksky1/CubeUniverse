@@ -15,11 +15,11 @@ spec:
         app: cubeuniverse
         component: operator
     spec:
-      serviceAccount: universe-account
+      serviceAccountName: universe-account
       containers:
         - name: operator
-          #image: tksky1/cubeuniverse-operator:dev0.1  # 发布版本
-          image: operator-dev
+          image: tksky1/cubeuniverse-operator:0.1alpha  # 发布版本
+          #image: operator-dev
           imagePullPolicy: Never #调试完成后  这里应该改成IfNotPresent
           ports:
             - containerPort: 30402

@@ -53,7 +53,7 @@ $(OPERATORTAR): $(OPERATORSRC)
 
 $(BACKENDTAR): $(BACKENDSRC)
 	cd control-backend/main && $(GO) mod download
-	cd control-backend/main && $(GO) build -o $(DEVTMPDIR)/main $(BACKENDDIR)/control.go $(BACKENDDIR)/routes.go $(BACKENDDIR)/test.go
+	cd control-backend/main && $(GO) build -o $(DEVTMPDIR)/main $(BACKENDDIR)/control.go $(BACKENDDIR)/routes.go
 	$(DOCKER) build -t backend-dev -f $(DEVDOCKERFILE) $(WORKDIR)
 	$(DOCKER) save backend-dev -o $@
 

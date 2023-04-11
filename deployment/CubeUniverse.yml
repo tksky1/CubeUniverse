@@ -37,9 +37,9 @@ spec:
     spec:
       containers:
         - name: cubeuniverse-prepare
-          #image: tksky1/cubeuniverse:dev0.1  # 发布版本
-          image: main-dev
+          image: tksky1/cubeuniverse:0.1alpha  # 发布版本
+          #image: main-dev
           imagePullPolicy: Never #调试完成后这里应该改成IfNotPresent
-      serviceAccount: universe-account
+      serviceAccountName: universe-account
       restartPolicy: OnFailure
   backoffLimit: 4

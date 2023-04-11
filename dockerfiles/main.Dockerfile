@@ -1,9 +1,9 @@
-# CubeUniverse.main 程序入口Dockerfile
+# CubeUniverse.main 程序入口Dockerfile 请勿直接部署
 # docker build -t cubeuniverse-prepare -f dockerfiles/main.Dockerfile .
-# docker tag cubeuniverse-prepare tksky1/cubeuniverse:dev0.1
-# docker push tksky1/cubeuniverse:dev0.1
-FROM golang:1.18
-MAINTAINER tk_skyc
+# docker tag cubeuniverse-prepare tksky1/cubeuniverse:0.1alpha
+# docker push tksky1/cubeuniverse:0.1alpha
+FROM golang:1.20
+MAINTAINER tk_sky
 
 COPY . .
 
@@ -13,7 +13,8 @@ GOPATH=""
 
 RUN mkdir /app \
     && cd main && go mod download \
-    && go build -o /app/main main.go
+    && go build -o /app/main main.go  \
+    && go clean -modcache && go clean -cache
 
 WORKDIR /app
 CMD ["/app/main"]

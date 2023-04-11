@@ -1,6 +1,6 @@
 ![](https://pic.imgdb.cn/item/6401b226f144a0100783a222.png)
 
-# CubeUniverse: 基于集群的云原生分布式海量数据存储平台
+# CubeUniverse: 基于集群和容器的云原生分布式海量数据存储平台
 
 ## 简介
 
@@ -16,7 +16,7 @@ CubeUniverse平台的部署使用云原生方式，操作简单方便，可以�
 在满足下述`部署条件`的kubernetes集群上，  在CubeUniverse目录并使用`root`用户执行指令：  
 
 ```shell
-kubectl create -f deployment/CubeUniverse.yml && watch -n 0.5 kubectl get pod -n cubeuniverse
+kubectl create -f deployment/CubeUniverse.yaml && watch -n 0.5 kubectl get pod -n cubeuniverse
 ```
 即可完成部署并持续显示组件部署情况。之后CubeUniverse组件会自动下载和部署，并视网速在30分钟内完成整个集群的构建。  
 
