@@ -206,7 +206,7 @@ if __name__ == '__main__':
   parser.add_argument( 
       '--num_top_predictions',
       type=int,
-      default=1,
+      default=3,
       help='Display this many predictions.'
   )
   FLAGS, unparsed = parser.parse_known_args()
