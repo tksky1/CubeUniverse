@@ -6,8 +6,12 @@ import (
 )
 
 func CollectRoute(r *gin.Engine) *gin.Engine {
-	r.POST("api/opr/putget", impleOPR.PushGetDeleteListObj)
-	r.GET("api/opr/wsputget", impleOPR.ConstPushGetDeleteList)
-
+	r.POST("/osspgdl", impleOPR.PutGetDeleteListObj)
+	r.GET("/osswspgdl", impleOPR.ConstPushGetDeleteList)
+	//传统restful请求
+	r.GET("/oss", impleOPR.OssGet)
+	r.POST("/oss", impleOPR.OssPut)
+	r.DELETE("/oss", impleOPR.OssDelete)
+	r.GET("/osslist", impleOPR.OssList)
 	return r
 }

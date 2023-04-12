@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func PushGetDeleteListObj(ctx *gin.Context) {
+func PutGetDeleteListObj(ctx *gin.Context) {
 	//根据post请求的body体来解析参数，仅支持json两种格式
 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock, tag string
 	tag = ""                          //给tag一个默认值，更安全
