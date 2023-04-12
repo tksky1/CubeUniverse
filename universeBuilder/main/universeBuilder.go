@@ -169,7 +169,7 @@ func buildCeph() (ret bool) {
 
 	kafka, ml := universalFuncs.CheckMLStatus(clientSet)
 	if !ml && !kafka {
-		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafka.yaml",
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafka.yml",
 			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动kafka服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
@@ -178,7 +178,7 @@ func buildCeph() (ret bool) {
 	}
 
 	if !ml && kafka {
-		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/MachineLearning.yaml",
+		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/MachineLearning.yml",
 			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动智能对象处理组件失败，请检查CubeUniverse项目文件是否完好！\n", err)

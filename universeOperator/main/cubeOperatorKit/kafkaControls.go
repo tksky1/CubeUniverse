@@ -12,9 +12,9 @@ import (
 /*
 用于管理Kafka客户端，处理与ML通信相关事务
 */
-const kafkaAddress = "127.0.0.1:30901"
-const kafkaProduceTopic = "produceTopic"
-const kafkaConsumeTopic = "consumeTopic"
+const kafkaAddress = "kafka.cubeuniverse.svc.cluster.local:9092"
+const kafkaProduceTopic = "picIn"
+const kafkaConsumeTopic = "dataOut"
 
 func InitKafkaProducer() (*sarama.SyncProducer, error) {
 	config := sarama.NewConfig()

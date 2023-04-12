@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cubeuniverse-ml
+  namespace: cubeuniverse
+spec:
+  selector:
+    matchLabels:
+      app: cubeuniverse
+      component: ml
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cubeuniverse
+        component: ml
+    spec:
+      containers:
+        - name: ml
+          image: zhaidea/kafka
+          imagePullPolicy: Always #调试完成后  这里应该改成IfNotPresent
+          ports:
+            - containerPort: 9092

@@ -6,7 +6,7 @@ services:
         ports:
             - 2181:2181
     kafka:
-        image: wurstmeister/kafka
+        image: ubuntu/kafka
         restart: always
         depends_on:
             - zookeeper

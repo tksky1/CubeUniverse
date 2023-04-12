@@ -126,8 +126,9 @@ def run_inference_on_image(image):
     return human_strs
 
 def main(_):
-  consumer = KafkaConsumer('picIn', group_id= 'group2', bootstrap_servers= ['localhost:9092'], api_version=(2,8,1))
-  producer = KafkaProducer(bootstrap_servers=['localhost:9092'], api_version=(0,11,5), value_serializer=lambda m: json.dumps(m).encode('utf-8'))
+  consumer = KafkaConsumer('picIn', group_id= 'group1', bootstrap_servers= ['kafka.cubeuniverse.svc.cluster.local:9092'], api_version=(2,8,1))
+  # consumer = KafkaConsumer('picIn', bootstrap_servers= ['localhost:9092'], api_version=(0,11,5))
+  producer = KafkaProducer(bootstrap_servers=['kafka.cubeuniverse.svc.cluster.local:9092'], api_version=(0,11,5), value_serializer=lambda m: json.dumps(m).encode('utf-8'))
   for msg in consumer:
       # print(msg.value)
       # 先转图片再用 tf api 读
