@@ -250,10 +250,3 @@ func splitArray(arr []byte, num int) [][]byte {
 	}
 	return segmens
 }
-
-// 常用的结构体
-type InfoNBK struct {
-	Namespace       string `json:"namespace"`
-	BucketclaimName string `json:"name"`
-	Key             string `json:"key"`
-}
