@@ -10,32 +10,39 @@ import (
 func OssGet(ctx *gin.Context) {
 	var namespace, bucketClaimName, key, blockStr, indexBlock string
 	var blockNum, indexNum int = 1, 0 //记录分块数量与用户所需的分块号，默认1、0
-	jsons := make(gin.H)
-	ctx.BindJSON(&jsons)
-	if valueStr, ok := jsons["namespace"].(string); ok {
-		namespace = valueStr
-	} else {
-		Fail(ctx, nil, "namespace should be string") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["name"].(string); ok {
-		bucketClaimName = valueStr
-	} else {
-		Fail(ctx, nil, "name should be string") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["key"].(string); ok {
-		key = valueStr
-	} else {
-		Fail(ctx, nil, "key should be string") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制的块数，运行用户选择数据的分块运输块数
-		blockStr = valueStr
-	}
-	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输索引值
-		indexBlock = valueStr
-	}
+
+	namespace = ctx.Query("namespace")
+	bucketClaimName = ctx.Query("name")
+	key = ctx.Query("key")
+	blockStr = ctx.Query("block")
+	indexBlock = ctx.Query("index")
+
+	// jsons := make(gin.H)
+	// ctx.BindJSON(&jsons)
+	// if valueStr, ok := jsons["namespace"].(string); ok {
+	// 	namespace = valueStr
+	// } else {
+	// 	Fail(ctx, nil, "namespace should be string") //返回错误反馈
+	// 	return
+	// }
+	// if valueStr, ok := jsons["name"].(string); ok {
+	// 	bucketClaimName = valueStr
+	// } else {
+	// 	Fail(ctx, nil, "name should be string") //返回错误反馈
+	// 	return
+	// }
+	// if valueStr, ok := jsons["key"].(string); ok {
+	// 	key = valueStr
+	// } else {
+	// 	Fail(ctx, nil, "key should be string") //返回错误反馈
+	// 	return
+	// }
+	// if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制的块数，运行用户选择数据的分块运输块数
+	// 	blockStr = valueStr
+	// }
+	// if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输索引值
+	// 	indexBlock = valueStr
+	// }
 
 	//对于分块数，如果没写的话默认为1
 	if blockStr == "" {
