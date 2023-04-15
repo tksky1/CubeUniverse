@@ -5,16 +5,17 @@
 FROM golang:1.20
 MAINTAINER tk_sky
 
-COPY . .
+RUN cd / && mkdir CubeUniverse
+COPY . /CubeUniverse
 
 ENV GO111MODULE=on \
 GOPROXY=https://goproxy.cn \
 GOPATH=""
 
-RUN mkdir /app \
+RUN cd /CubeUniverse && mkdir app/ \
     && cd main && go mod download \
-    && go build -o /app/main main.go  \
+    && go build -o /CubeUniverse/app/main main.go  \
     && go clean -modcache && go clean -cache
 
-WORKDIR /app
-CMD ["/app/main"]
+WORKDIR /CubeUniverse/app
+CMD ["/CubeUniverse/app/main"]

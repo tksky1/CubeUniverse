@@ -167,7 +167,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			return
 		}
 		//根据block进行分组
-		valueBytes := splitArray([]byte(value), blockNum)
+		valueBytes := splitArray([]byte(*value), blockNum)
 		//将数据转为string避免bytes数据被base64编码
 		value2Str := valueBytes[indexNum]
 		valueMap := map[string]string{

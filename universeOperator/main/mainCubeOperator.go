@@ -19,7 +19,7 @@ func webInit() {
 }
 
 // UniverseVersion CubeUniverse版本号
-const UniverseVersion = "dev0.1"
+const UniverseVersion = "0.1alpha"
 
 var UUID = uuid.New().String()
 
@@ -48,6 +48,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("正在加载UniverseOperator", UniverseVersion)
 
+	go kit.StartML() // 启用ML
 	//开启协程运行监听web
 	go webInit()
 

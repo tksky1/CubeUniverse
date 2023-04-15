@@ -9,11 +9,11 @@ import (
 // UniverseOperator 常驻运行 监测集群状态和自动维护
 
 var ClientSet *kubernetes.Clientset
-var producer *sarama.SyncProducer
+var Producer *sarama.SyncProducer
 
 func Init() {
 
 	ClientSet = universalFuncs.GetClientSet()
 	sessionCacheMap = make(map[[16]byte]*SessionAndBucketName)
-	go StartML() // 启用ML
+
 }

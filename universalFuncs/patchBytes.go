@@ -88,14 +88,18 @@ func PatchCrdFromBytes(yamlBytes []byte, nameSpace string, clientSet *kubernetes
 	}
 	mapper := restmapper.NewDiscoveryRESTMapper(gr)
 	var dri dynamic.ResourceInterface
-	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(yamlBytes), 1000)
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(yamlBytes), 100000)
 	for {
 		var rawObj runtime.RawExtension
 		if err = decoder.Decode(&rawObj); err != nil {
+			returnErr = err
 			break
 		}
 
 		obj, gvk, err := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme).Decode(rawObj.Raw, nil, nil)
+		if err != nil {
+			return err
+		}
 		unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(obj)
 		if err != nil {
 			return err

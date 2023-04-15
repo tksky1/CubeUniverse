@@ -18,8 +18,9 @@ func StartML() {
 			break
 		}
 	}
+	log.Println("ML加载完成，开始初始化与ML的交互..")
 	var err error
-	producer, err = InitKafkaProducer()
+	Producer, err = InitKafkaProducer()
 	if err != nil {
 		log.Println("准备ML出错：" + err.Error())
 		StartML()
@@ -38,6 +39,9 @@ func StartML() {
 
 // ConsumeML 作为参数提供给消息处理
 func ConsumeML(key string, value string) {
+
+	log.Println("开始处理消息" + key)
+
 	index1 := strings.IndexByte(key, '%')
 	namespace := key[:index1]
 	index2 := strings.IndexByte(key, ':')
@@ -50,19 +54,19 @@ func ConsumeML(key string, value string) {
 	}
 	for i := 1; i <= 3; i++ {
 		jsonNow := theJson.GetIndex(i)
-		count := len(jsonNow.MustArray())
-		for j := 0; j < count; j++ {
-			word := jsonNow.GetIndex(j).MustString()
+		stringNow := jsonNow.MustString()
+		outputs := strings.Split(stringNow, ", ")
+		for _, word := range outputs {
 			storedObject, err := GetObject(namespace, bucketClaim, "cubeuniverse/"+word)
 			if storedObject == nil || err != nil {
 				storeJsonByte, _ := json.Marshal([]string{objectKey})
-				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, storeJsonByte)
+				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, &storeJsonByte)
 				if err != nil {
 					log.Println("向对象存储桶声明"+bucketClaim+"写入索引失败：", err)
 					return
 				}
 			} else {
-				jsonStored, _ := simplejson.NewJson(storedObject)
+				jsonStored, _ := simplejson.NewJson(*storedObject)
 				storedArray := jsonStored.MustStringArray()
 				for _, theKey := range storedArray {
 					if theKey == objectKey {
@@ -71,7 +75,7 @@ func ConsumeML(key string, value string) {
 				}
 				storedArray = append(storedArray, objectKey)
 				storeJsonByte, _ := json.Marshal(storedArray)
-				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, storeJsonByte)
+				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, &storeJsonByte)
 				if err != nil {
 					log.Println("向对象存储桶声明"+bucketClaim+"写入索引失败：", err)
 					return
@@ -79,4 +83,7 @@ func ConsumeML(key string, value string) {
 			}
 		}
 	}
+
+	log.Println("处理" + key + "完成")
+
 }

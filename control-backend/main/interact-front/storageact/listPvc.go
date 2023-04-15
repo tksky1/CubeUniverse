@@ -47,7 +47,7 @@ func ListPvc(ctx *gin.Context) {
 			var responseStru info
 			responseStru.Name = pvcTar.Name
 			responseStru.Namespace = pvcTar.Namespace
-			storageSize := pvcTar.Spec.Resources.Requests["storage"]
+			storageSize := pvcTar.Spec.Resources.Requests[corev1.ResourceStorage]
 			responseStru.Volume = string(fmt.Sprintf("%f", float64(storageSize.Value())/(1024*1024*1024)))
 			responseStru.CreaTime = pvcTar.CreationTimestamp.Format("2006-01-02 15:04:05") //只展示年月日
 			key := fmt.Sprint(actType, index)                                              //产生Map的独特key
@@ -66,7 +66,8 @@ func ListPvc(ctx *gin.Context) {
 			var responseStru info
 			responseStru.Name = pvcTar.Name
 			responseStru.Namespace = pvcTar.Namespace
-			responseStru.Volume = string(pvcTar.Spec.Resources.Requests[corev1.ResourceStorage].Format)
+			storageSize := pvcTar.Spec.Resources.Requests[corev1.ResourceStorage]
+			responseStru.Volume = string(fmt.Sprintf("%f", float64(storageSize.Value())/(1024*1024*1024)))
 			responseStru.CreaTime = pvcTar.CreationTimestamp.Format("2006-01-02 15:04:05") //只展示年月日
 			key := fmt.Sprint(actType, index)                                              //产生Map的独特key
 			resMap[key] = responseStru

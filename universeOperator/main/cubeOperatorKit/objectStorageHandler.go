@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"errors"
 	"log"
 	"time"
 
@@ -33,7 +34,7 @@ var sessionCacheMap map[[16]byte]*SessionAndBucketName
 // <----------直接针对ceph的CRUD功能，外部不应该调用----------->
 
 // GetObjectS3 访问指定对象，返回对象的Value
-func GetObjectS3(namespace, bucketClaimName, key string) (objectValue []byte, errors error) {
+func GetObjectS3(namespace, bucketClaimName, key string) (objectValue *[]byte, errors error) {
 	sessWithBucketName, err := GetObjectStorageSession(namespace, bucketClaimName)
 	if err != nil {
 		return nil, err
@@ -46,11 +47,12 @@ func GetObjectS3(namespace, bucketClaimName, key string) (objectValue []byte, er
 			Bucket: aws.String(sessWithBucketName.bucketName),
 			Key:    aws.String(key),
 		})
-	return buf.Bytes(), err
+	out := buf.Bytes()
+	return &out, err
 }
 
 // PutObjectS3 发送对象Put请求到ceph
-func PutObjectS3(namespace, bucketClaimName, key string, value []byte) error {
+func PutObjectS3(namespace, bucketClaimName, key string, value *[]byte) error {
 	sessWithBucketName, err := GetObjectStorageSession(namespace, bucketClaimName)
 	if err != nil {
 		return err
@@ -60,7 +62,7 @@ func PutObjectS3(namespace, bucketClaimName, key string, value []byte) error {
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(sessWithBucketName.bucketName),
 		Key:    aws.String(key),
-		Body:   bytes.NewReader(value),
+		Body:   bytes.NewReader(*value),
 	})
 	return err
 }
@@ -175,7 +177,7 @@ func GetObjectStorageSession(namespace, bucketClaimName string) (*SessionAndBuck
 
 	cm, err := ClientSet.CoreV1().ConfigMaps(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
 	if err != nil {
-		panic("configMap获取失败：" + err.Error())
+		return nil, errors.New("对象获取失败，可能是命名空间和对象桶声明名称错误：" + err.Error())
 	}
 	bucketName := cm.Data["BUCKET_NAME"]
 	bucketHost := cm.Data["BUCKET_HOST"]

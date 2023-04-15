@@ -13,7 +13,7 @@ import (
 )
 
 // CephLogNow 从这里读取log，记得先检查锁
-var CephLogNow CephLog = CephLog{}
+var CephLogNow = CephLog{}
 var LogMutex sync.Mutex
 
 // GetLog 循环刷新Operator和Backend的Log，展示给用户
@@ -45,7 +45,11 @@ func GetLog() {
 			if strings.Contains(pod.Name, "operator") {
 				podReq := ClientSet.CoreV1().Pods("cubeuniverse").GetLogs(pod.Name, opts)
 				podLogs, err := podReq.Stream(context.Background())
-				outLog, _ := io.ReadAll(podLogs)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+				outLog, err := io.ReadAll(podLogs)
 				if err != nil {
 					log.Println(err)
 				}

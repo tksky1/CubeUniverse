@@ -10,7 +10,7 @@ import (
 )
 
 // UniverseVersion CubeUniverse版本号
-const UniverseVersion = "dev0.1"
+const UniverseVersion = "0.1alpha"
 
 var ClientSet *kubernetes.Clientset
 var DynamicClient *dynamic.DynamicClient

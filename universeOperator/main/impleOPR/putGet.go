@@ -94,7 +94,7 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 
 	switch strings.ToLower(actType) {
 	case "put":
-		err := kit.PutObject(namespace, bucketClaimName, key, value)
+		err := kit.PutObject(namespace, bucketClaimName, key, &value)
 		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}
@@ -109,7 +109,7 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 		}
 
 		//返回get得到到对象信息，这里附带其key namespace等，并进行分块
-		valueBytes := splitArray([]byte(value), blockNum)
+		valueBytes := splitArray([]byte(*value), blockNum)
 		//将bytes类型数据转为string避免base64转换
 		value2Str := string(valueBytes[indexNum])
 		Success(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
