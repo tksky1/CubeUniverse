@@ -3,8 +3,10 @@ package impleOPR
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	kit "main/cubeOperatorKit"
+	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -133,23 +135,26 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 		ws.WriteMessage(websocket.TextMessage, []byte("index out of range"))
 		return
 	}
-	//对于value数据，判断其为string还是[]byte
-	if valueStr, ok := jsons["value"].(string); ok {
-		value = []byte(valueStr)
-	} else {
-		valueByte, err := jsons["value"].([]byte)
-		if err { //如果是byte
-			value = valueByte
-		}
-		if !err && actType == "put" {
-			ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
-			return
-		}
-	}
+
+	// //对于value数据，判断其为string还是[]byte
+	// if valueStr, ok := jsons["value"].(string); ok {
+	// 	value = []byte(valueStr)
+	// } else {
+	// 	valueByte, err := jsons["value"].([]byte)
+	// 	if err { //如果是byte
+	// 		value = valueByte
+	// 	}
+	// 	if !err && actType == "put" {
+	// 		ws.WriteMessage(websocket.TextMessage, []byte("value should be string or []byte"))
+	// 		return
+	// 	}
+	// }
 
 	switch strings.ToLower(actType) {
 	case "put":
-		if err := kit.PutObject(namespace, bucketClaimName, key, value); err != nil {
+		//更换为流式传输
+		var reader io.Reader = ws.UnderlyingConn().(*net.TCPConn)
+		if err := kit.PutObject(namespace, bucketClaimName, key, reader); err != nil {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
 		}
 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
@@ -245,4 +250,11 @@ func splitArray(arr []byte, num int) [][]byte {
 		end = qu - i
 	}
 	return segmens
+}
+
+// 常用的结构体
+type InfoNBK struct {
+	Namespace       string `json:"namespace"`
+	BucketclaimName string `json:"name"`
+	Key             string `json:"key"`
 }
