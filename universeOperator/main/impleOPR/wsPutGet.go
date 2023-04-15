@@ -158,7 +158,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	case "get":
 		value, err := kit.GetObject(namespace, bucketClaimName, key)
 		if err != nil {
-			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
+			ws.WriteMessage(websocket.TextMessage, []byte("Fail Get OBJ: "+err.Error()))
 			return
 		}
 		//根据block进行分组
