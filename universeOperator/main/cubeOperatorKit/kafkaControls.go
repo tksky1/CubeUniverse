@@ -2,7 +2,6 @@ package cubeOperatorKit
 
 import (
 	"errors"
-	"fmt"
 	"github.com/Shopify/sarama"
 	"log"
 	"sync"
@@ -18,9 +17,7 @@ const kafkaConsumeTopic = "dataOut"
 func InitKafkaProducer() (*sarama.SyncProducer, error) {
 	config := sarama.NewConfig()
 	config.Producer.RequiredAcks = sarama.WaitForAll
-	config.Producer.Partitioner = sarama.NewRandomPartitioner //写到随机分区中，默认设置8个分区
 	config.Producer.Return.Successes = true
-
 	client, err := sarama.NewSyncProducer([]string{kafkaAddress}, config)
 	if err != nil {
 		return nil, err
@@ -29,20 +26,23 @@ func InitKafkaProducer() (*sarama.SyncProducer, error) {
 }
 
 // ProduceObject 向消息队列发送一个对象，其中value应该是raw二进制格式
-func ProduceObject(client sarama.SyncProducer, key string, value []byte) {
-	if producer == nil {
+func ProduceObject(client sarama.SyncProducer, key string, value *[]byte) {
+	if Producer == nil {
 		log.Println(errors.New("向ML发送信息失败：producer未初始化完成"))
 		return
 	}
-	msg := &sarama.ProducerMessage{}
+	msg := &sarama.ProducerMessage{
+		Partition: 0,
+	}
 	msg.Topic = kafkaProduceTopic
 	msg.Key = sarama.StringEncoder(key)
-	msg.Value = sarama.ByteEncoder(value)
-	_, _, err := client.SendMessage(msg)
+	msg.Value = sarama.ByteEncoder(*value)
+	partition, _, err := client.SendMessage(msg)
 	if err != nil {
-		fmt.Println("向ML Kafka发送信息失败, ", err)
+		log.Println("向ML Kafka发送信息失败, ", err)
 		return
 	}
+	log.Println(errors.New("向ML发送信息完成: partition " + string(partition)))
 }
 
 func InitKafkaConsumer() (*sarama.Consumer, error) {

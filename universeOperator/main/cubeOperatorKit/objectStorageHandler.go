@@ -34,7 +34,7 @@ var sessionCacheMap map[[16]byte]*SessionAndBucketName
 // <----------直接针对ceph的CRUD功能，外部不应该调用----------->
 
 // GetObjectS3 访问指定对象，返回对象的Value
-func GetObjectS3(namespace, bucketClaimName, key string) (objectValue []byte, errors error) {
+func GetObjectS3(namespace, bucketClaimName, key string) (objectValue *[]byte, errors error) {
 	sessWithBucketName, err := GetObjectStorageSession(namespace, bucketClaimName)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,8 @@ func GetObjectS3(namespace, bucketClaimName, key string) (objectValue []byte, er
 			Bucket: aws.String(sessWithBucketName.bucketName),
 			Key:    aws.String(key),
 		})
-	return buf.Bytes(), err
+	out := buf.Bytes()
+	return &out, err
 }
 
 // PutObjectS3 发送对象Put请求到ceph

@@ -149,7 +149,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 
 	switch strings.ToLower(actType) {
 	case "put":
-		if err := kit.PutObject(namespace, bucketClaimName, key, value); err != nil {
+		if err := kit.PutObject(namespace, bucketClaimName, key, &value); err != nil {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
 		}
 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
@@ -162,7 +162,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			return
 		}
 		//根据block进行分组
-		valueBytes := splitArray([]byte(value), blockNum)
+		valueBytes := splitArray([]byte(*value), blockNum)
 		//将数据转为string避免bytes数据被base64编码
 		value2Str := valueBytes[indexNum]
 		valueMap := map[string]string{

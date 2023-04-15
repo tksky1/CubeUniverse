@@ -17,7 +17,7 @@ import (
 )
 
 // GetObject 访问指定对象，返回对象的Value
-func GetObject(namespace, bucketClaimName, key string) (objectValue []byte, errors error) {
+func GetObject(namespace, bucketClaimName, key string) (objectValue *[]byte, errors error) {
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheOut := C.ask(cacheKey)
 	outString := C.GoString(cacheOut)
@@ -26,10 +26,11 @@ func GetObject(namespace, bucketClaimName, key string) (objectValue []byte, erro
 		if err != nil {
 			return nil, err
 		}
-		C.insr(cacheKey, C.CString(string(objectValue)))
+		C.insr(cacheKey, C.CString(string(*objectValue)))
 		return objectValue, nil
 	}
-	return []byte(outString), nil
+	outBytes := []byte(outString)
+	return &outBytes, nil
 }
 
 // PutObject 发送对象Put请求到ceph
@@ -39,13 +40,13 @@ func PutObject(namespace, bucketClaimName, key string, value *[]byte) error {
 		return err
 	}
 
-	if len(value) > 10485760 {
+	if len(*value) > 10485760 {
 		return nil
 	}
 
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
-	C.insr(cacheKey, C.CString(string(value)))
+	C.insr(cacheKey, C.CString(string(*value)))
 	//C.del(cacheKey2)
 	cacheOut := C.ask(cacheKey2)
 	outString := C.GoString(cacheOut)
@@ -68,7 +69,7 @@ func PutObject(namespace, bucketClaimName, key string, value *[]byte) error {
 
 	if strings.HasSuffix(key, ".jpg") || strings.HasSuffix(key, ".png") || strings.HasSuffix(key, ".jpeg") {
 		log.Println("发送到kafka: " + key) // TODO:
-		go ProduceObject(*producer, namespace+"%"+bucketClaimName+":"+key, value)
+		go ProduceObject(*Producer, namespace+"%"+bucketClaimName+":"+key, value)
 	}
 	return nil
 }
@@ -113,7 +114,7 @@ func ListObjectByTag(namespace, bucketClaimName, tag string) (keys []string, err
 	if err != nil {
 		return nil, err
 	}
-	jsonStored, err := simplejson.NewJson(storedObject)
+	jsonStored, err := simplejson.NewJson(*storedObject)
 	storedArray := jsonStored.MustStringArray()
 	return storedArray, err
 }

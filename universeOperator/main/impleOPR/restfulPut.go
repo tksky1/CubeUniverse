@@ -43,7 +43,7 @@ func OssPut(ctx *gin.Context) {
 		}
 	}
 	//实现put
-	err := kit.PutObject(namespace, bucketClaimName, key, value)
+	err := kit.PutObject(namespace, bucketClaimName, key, &value)
 	if err != nil {
 		FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 	}
