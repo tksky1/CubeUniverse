@@ -12,6 +12,7 @@ import "C"
 import (
 	"encoding/json"
 	"github.com/bitly/go-simplejson"
+	"io"
 	"log"
 	"strings"
 )
@@ -34,19 +35,20 @@ func GetObject(namespace, bucketClaimName, key string) (objectValue *[]byte, err
 }
 
 // PutObject 发送对象Put请求到ceph
-func PutObject(namespace, bucketClaimName, key string, value *[]byte) error {
-	err := PutObjectS3(namespace, bucketClaimName, key, value)
+func PutObject(namespace, bucketClaimName, key string, length int64, reader io.Reader) error {
+	err := PutObjectS3(namespace, bucketClaimName, key, reader)
 	if err != nil {
 		return err
 	}
 
-	if len(*value) > 10485760 {
+	if length > 10485760 {
 		return nil
 	}
 
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
-	C.insr(cacheKey, C.CString(string(*value)))
+	data, err := io.ReadAll(reader)
+	C.insr(cacheKey, C.CString(string(data)))
 	//C.del(cacheKey2)
 	cacheOut := C.ask(cacheKey2)
 	outString := C.GoString(cacheOut)
@@ -69,7 +71,7 @@ func PutObject(namespace, bucketClaimName, key string, value *[]byte) error {
 
 	if strings.HasSuffix(key, ".jpg") || strings.HasSuffix(key, ".png") || strings.HasSuffix(key, ".jpeg") {
 		log.Println("发送到kafka: " + key) // TODO:
-		go ProduceObject(*Producer, namespace+"%"+bucketClaimName+":"+key, value)
+		go ProduceObject(*Producer, namespace+"%"+bucketClaimName+":"+key, &data)
 	}
 	return nil
 }

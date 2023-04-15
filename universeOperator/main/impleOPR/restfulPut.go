@@ -5,18 +5,15 @@ import (
 	kit "main/cubeOperatorKit"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 )
 
 func OssPut(ctx *gin.Context) {
 	var namespace, bucketClaimName, key string
-	var value []byte
-	jsons := make(gin.H)
 
 	//将传入的描述信息转到表头了
-	namespace = ctx.GetHeader("namespace")
-	bucketClaimName = ctx.GetHeader("name")
-	key = ctx.GetHeader("key")
+	namespace = ctx.Query("namespace")
+	bucketClaimName = ctx.Query("name")
+	key = ctx.Query("key")
 
 	// ctx.ShouldBindBodyWith(&jsons,binding.JSON)
 	// if valueStr, ok := jsons["namespace"].(string); ok { //读取namspace

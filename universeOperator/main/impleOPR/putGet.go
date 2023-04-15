@@ -1,6 +1,7 @@
 package impleOPR
 
 import (
+	"io"
 	kit "main/cubeOperatorKit"
 	"strconv"
 	"strings"
@@ -14,43 +15,50 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 	tag = ""                          //给tag一个默认值，更安全
 	var blockNum, indexNum int = 1, 0 //记录分块数量，默认为一
 
-	var value []byte
-	jsons := make(gin.H)
-	ctx.BindJSON(&jsons)
-	if valueStr, ok := jsons["X-action"].(string); ok { //检测用户使用什么方法
-		actType = valueStr
-	} else {
-		Fail(ctx, nil, "X-action should be string and not nil") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["namespace"].(string); ok {
-		namespace = valueStr
-	} else {
-		Fail(ctx, nil, "namespace should be string") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["name"].(string); ok {
-		bucketClaimName = valueStr
-	} else {
-		Fail(ctx, nil, "name should be string") //返回错误反馈
-		return
-	}
-	if valueStr, ok := jsons["key"].(string); ok || strings.ToLower(actType) == "list" { //用户调用list方法的时候key可以为空
-		key = valueStr
-	} else {
-		Fail(ctx, nil, "key should be string") //返回错误反馈
-		return
-	}
+	//var value []byte
 
-	if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制的块数，运行用户选择数据的分块运输块数
-		blockStr = valueStr
-	}
-	if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输索引值
-		indexBlock = valueStr
-	}
-	if valueStr, ok := jsons["tag"].(string); ok { //得到tag标签的值，此为可选参数
-		tag = valueStr
-	}
+	actType = ctx.Query("X-action")
+	namespace = ctx.Query("namespace")
+	bucketClaimName = ctx.Query("name")
+	key = ctx.Query("key")
+	blockStr = ctx.Query("block")
+	indexBlock = ctx.Query("index")
+	tag = ctx.Query("tag")
+
+	//if valueStr, ok := jsons["X-action"].(string); ok { //检测用户使用什么方法
+	//	actType = valueStr
+	//} else {
+	//	Fail(ctx, nil, "X-action should be string and not nil") //返回错误反馈
+	//	return
+	//}
+	//if valueStr, ok := jsons["namespace"].(string); ok {
+	//	namespace = valueStr
+	//} else {
+	//	Fail(ctx, nil, "namespace should be string") //返回错误反馈
+	//	return
+	//}
+	//if valueStr, ok := jsons["name"].(string); ok {
+	//	bucketClaimName = valueStr
+	//} else {
+	//	Fail(ctx, nil, "name should be string") //返回错误反馈
+	//	return
+	//}
+	//if valueStr, ok := jsons["key"].(string); ok || strings.ToLower(actType) == "list" { //用户调用list方法的时候key可以为空
+	//	key = valueStr
+	//} else {
+	//	Fail(ctx, nil, "key should be string") //返回错误反馈
+	//	return
+	//}
+	//
+	//if valueStr, ok := jsons["block"].(string); ok { //加入分块的机制的块数，运行用户选择数据的分块运输块数
+	//	blockStr = valueStr
+	//}
+	//if valueStr, ok := jsons["index"].(string); ok { //加入分块的机制的索引，运行用户选择数据的分块运输索引值
+	//	indexBlock = valueStr
+	//}
+	//if valueStr, ok := jsons["tag"].(string); ok { //得到tag标签的值，此为可选参数
+	//	tag = valueStr
+	//}
 	//对于分块数，如果没写的话默认为1
 	if blockStr == "" {
 		blockNum = 1
@@ -78,23 +86,23 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 		Fail(ctx, nil, "index out of range") //返回错误反馈，block应该代表整数
 		return
 	}
-	//对于value数据，判断其为string还是[]byte
-	if valueStr, ok := jsons["value"].(string); ok {
-		value = []byte(valueStr)
-	} else {
-		valueByte, err := jsons["value"].([]byte)
-		if err {
-			value = valueByte
-		}
-		if !err && actType == "put" {
-			Fail(ctx, nil, "value should be string or []byte") //返回错误反馈
-			return
-		}
-	}
+	////对于value数据，判断其为string还是[]byte
+	//if valueStr, ok := jsons["value"].(string); ok {
+	//	value = []byte(valueStr)
+	//} else {
+	//	valueByte, err := jsons["value"].([]byte)
+	//	if err {
+	//		value = valueByte
+	//	}
+	//	if !err && actType == "put" {
+	//		Fail(ctx, nil, "value should be string or []byte") //返回错误反馈
+	//		return
+	//	}
+	//}
 
 	switch strings.ToLower(actType) {
 	case "put":
-		err := kit.PutObject(namespace, bucketClaimName, key, &value)
+		err := kit.PutObject(namespace, bucketClaimName, key, ctx.Request.ContentLength, ctx.Request.Body.(io.Reader))
 		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}

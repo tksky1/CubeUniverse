@@ -52,7 +52,7 @@ func InitUsrAdmin() {
 			Password: string(hashedPassword),
 		}
 		if err := db.Create(&newUser).Error; err != nil {
-			panic("createUser err" + err.Error())
+			log.Println("createUser err" + err.Error())
 		}
 	}
 

@@ -37,6 +37,7 @@ func InitDB() {
 			DSN: dsn, PreferSimpleProtocol: true,
 		}), &gorm.Config{})
 	}
+	log.Println("SQL连接完成..")
 	err = db.AutoMigrate(&model.User{}) //自动创建表
 	if err != nil {
 		log.Println(err.Error())

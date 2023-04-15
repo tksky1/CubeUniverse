@@ -73,7 +73,6 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock, tag string
 	tag = "" //给tag一个默认值
 	var blockNum, indexNum int = 1, 0
-	var value []byte
 	if valueStr, ok := jsons["X-action"].(string); ok { //确定方法
 		actType = valueStr
 	} else {
