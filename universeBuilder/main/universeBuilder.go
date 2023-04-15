@@ -12,7 +12,7 @@ import (
 )
 
 // UniverseVersion CubeUniverse版本号
-const UniverseVersion = "dev0.1"
+const UniverseVersion = "0.1alpha"
 
 var clientSet *kubernetes.Clientset
 var dynamicClient *dynamic.DynamicClient
@@ -100,6 +100,11 @@ func buildCeph() (ret bool) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/MachineLearning.yml",
+			"cubeuniverse")
+		if err != nil {
+			log.Println("启动智能对象处理组件失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
 		return false
 	}
 
@@ -115,7 +120,8 @@ func buildCeph() (ret bool) {
 			log.Println("启动ceph-toolbox失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
 
-		err = universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/storage/dashboard-external-https.yaml", "rook-ceph")
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/dashboard-external-https.yaml",
+			"rook-ceph", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动ceph-dashboard失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
@@ -168,7 +174,7 @@ func buildCeph() (ret bool) {
 	}
 
 	kafka, ml := universalFuncs.CheckMLStatus(clientSet)
-	if !ml && !kafka {
+	if !kafka {
 		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafka.yml",
 			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {

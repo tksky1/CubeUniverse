@@ -1,14 +1,13 @@
 package util
 
 import (
-	"CubeUniverse/universalFuncs"
 	// "CubeUniverse/universalFuncs"
 	"github.com/spf13/viper"
 	_ "os"
 )
 
 func InitConfig() {
-	workDir := universalFuncs.GetParentDir() + "/control-backend/main" //获取当前目录
+	workDir := "/CubeUniverse/control-backend/main" //获取当前目录
 	//测试用，记得删除和复原
 	//workDir, _ := os.Getwd() //获取当前目录
 	viper.SetConfigName("application")

@@ -22,7 +22,8 @@ import (
 //<-------块存储-------->
 
 func CheckBlockStorage() bool {
-	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-block-storage",
+		v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -33,7 +34,8 @@ func CreateBlockStorage() error {
 	if CheckBlockStorage() {
 		return errors.New("块存储已存在！")
 	}
-	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml", "", ClientSet, DynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/block-storageclass.yaml",
+		"", ClientSet, DynamicClient)
 	return err
 }
 
@@ -82,7 +84,8 @@ func PatchBlockPVC(name string, namespace string, volume int, autoScale bool) er
 // ListBlockSystemPVC 返回所有通过CubeUniverse创建的块存储PVC列表，内含名字、命名空间、容量等
 func ListBlockSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "block"})
-	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{
+		LabelSelector: selector.String()})
 	pvcs := listPVC.Items
 	return pvcs, err
 }
@@ -90,7 +93,8 @@ func ListBlockSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 //<--------文件存储--------->
 
 func CheckFileSystemStorage() bool {
-	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-fs-storage",
+		v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -101,7 +105,8 @@ func CreateFileSystemStorage() error {
 	if CheckFileSystemStorage() {
 		return errors.New("文件系统存储已存在！")
 	}
-	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml", "", ClientSet, DynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/filesystem-storageclass.yaml",
+		"", ClientSet, DynamicClient)
 	return err
 }
 
@@ -150,7 +155,8 @@ func PatchFileSystemPVC(name string, namespace string, volume int, autoScale boo
 // ListFileSystemPVC 返回所有通过CubeUniverse创建的文件存储PVC列表，内含名字、命名空间、容量等
 func ListFileSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 	selector := labels.SelectorFromSet(map[string]string{"pvc-provider": "cubeuniverse", "pvc-type": "filesystem"})
-	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{LabelSelector: selector.String()})
+	listPVC, err := ClientSet.CoreV1().PersistentVolumeClaims("").List(context.TODO(), v1.ListOptions{
+		LabelSelector: selector.String()})
 	pvcs := listPVC.Items
 	return pvcs, err
 }
@@ -158,7 +164,8 @@ func ListFileSystemPVC() ([]corev1.PersistentVolumeClaim, error) {
 //<--------对象存储-------->
 
 func CheckObjectStorage() bool {
-	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-obj-storage", v1.GetOptions{})
+	storage, err := ClientSet.StorageV1().StorageClasses().Get(context.Background(), "cubeuniverse-obj-storage",
+		v1.GetOptions{})
 	if storage == nil || err != nil {
 		return false
 	}
@@ -169,7 +176,8 @@ func CreateObjectStorage() error {
 	if CheckObjectStorage() {
 		return errors.New("对象存储已存在！")
 	}
-	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml", "", ClientSet, DynamicClient)
+	err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/object-storageclass.yaml",
+		"", ClientSet, DynamicClient)
 	return err
 }
 

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/md5"
+	"errors"
 	"log"
 	"time"
 
@@ -50,7 +51,7 @@ func GetObjectS3(namespace, bucketClaimName, key string) (objectValue []byte, er
 }
 
 // PutObjectS3 发送对象Put请求到ceph
-func PutObjectS3(namespace, bucketClaimName, key string, value []byte) error {
+func PutObjectS3(namespace, bucketClaimName, key string, value *[]byte) error {
 	sessWithBucketName, err := GetObjectStorageSession(namespace, bucketClaimName)
 	if err != nil {
 		return err
@@ -60,7 +61,7 @@ func PutObjectS3(namespace, bucketClaimName, key string, value []byte) error {
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(sessWithBucketName.bucketName),
 		Key:    aws.String(key),
-		Body:   bytes.NewReader(value),
+		Body:   bytes.NewReader(*value),
 	})
 	return err
 }
@@ -175,7 +176,7 @@ func GetObjectStorageSession(namespace, bucketClaimName string) (*SessionAndBuck
 
 	cm, err := ClientSet.CoreV1().ConfigMaps(namespace).Get(context.TODO(), bucketClaimName, v1.GetOptions{})
 	if err != nil {
-		panic("configMap获取失败：" + err.Error())
+		return nil, errors.New("对象获取失败，可能是命名空间和对象桶声明名称错误：" + err.Error())
 	}
 	bucketName := cm.Data["BUCKET_NAME"]
 	bucketHost := cm.Data["BUCKET_HOST"]

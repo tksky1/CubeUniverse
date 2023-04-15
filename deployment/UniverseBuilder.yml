@@ -13,7 +13,7 @@ spec:
         - name: universe-builder
           image: tksky1/cubeuniverse-builder:0.1alpha  # 发布版本
           #image: builder-dev
-          imagePullPolicy: Never #调试完成后这里应该改成IfNotPresent
+          imagePullPolicy: Always
       serviceAccountName: universe-account
       restartPolicy: Never
   backoffLimit: 4

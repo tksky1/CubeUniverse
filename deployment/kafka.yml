@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: cubeuniverse
       component: kafka
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -18,7 +18,7 @@ spec:
       containers:
         - name: kafka
           image: zhaidea/kafka
-          imagePullPolicy: Always #调试完成后  这里应该改成IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9092
 ---

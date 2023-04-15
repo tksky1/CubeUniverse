@@ -30,10 +30,17 @@ func InitDB() {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: dsn, PreferSimpleProtocol: true,
 	}), &gorm.Config{})
+
+	for err != nil {
+		log.Println(err.Error())
+		db, err = gorm.Open(postgres.New(postgres.Config{
+			DSN: dsn, PreferSimpleProtocol: true,
+		}), &gorm.Config{})
+	}
+	err = db.AutoMigrate(&model.User{}) //自动创建表
 	if err != nil {
 		log.Println(err.Error())
 	}
-	db.AutoMigrate(&model.User{}) //自动创建表
 	DB = db
 }
 

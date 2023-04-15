@@ -27,7 +27,7 @@ func PatchYaml(filename string, namespace string) error {
 // PatchCrdFromYaml 用于创建带CRD的yaml资源 使用PATCH方法
 func PatchCrdFromYaml(yamlFilePath string, nameSpace string, clientSet *kubernetes.Clientset, dd *dynamic.DynamicClient) error {
 
-	log.Println("准备ceph组件", yamlFilePath, "..")
+	log.Println("准备crd组件", yamlFilePath, "..")
 
 	fileBytes, err := os.ReadFile(yamlFilePath)
 	if err != nil {

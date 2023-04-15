@@ -15,5 +15,5 @@ func Init() {
 
 	ClientSet = universalFuncs.GetClientSet()
 	sessionCacheMap = make(map[[16]byte]*SessionAndBucketName)
-	go StartML() // 启用ML
+
 }

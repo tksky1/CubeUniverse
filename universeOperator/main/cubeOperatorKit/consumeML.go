@@ -18,6 +18,7 @@ func StartML() {
 			break
 		}
 	}
+	log.Println("ML加载完成，开始初始化与ML的交互..")
 	var err error
 	producer, err = InitKafkaProducer()
 	if err != nil {

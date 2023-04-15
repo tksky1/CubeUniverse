@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"log"
+	"os"
 	"time"
 )
 
@@ -35,6 +36,16 @@ func SetInUse(clientSet *kubernetes.Clientset, key string, uuid string) {
 			log.Println("设置pod互斥锁失败：", err1.Error(), err2.Error())
 		}
 	}
+	pod, err := GetPodNow(clientSet)
+	if err != nil {
+		log.Println("设置pod互斥锁失败：", err.Error())
+	}
+	pod.Labels["status"] = "ready"
+	_, err = clientSet.CoreV1().Pods(pod.Namespace).Update(context.Background(), pod, metav1.UpdateOptions{})
+	if err != nil {
+		log.Println("设置pod互斥锁失败：", err.Error())
+	}
+
 }
 
 // CheckInUse 检查key对应的互斥锁是否已被占用，如果已占用，返回占用者uuid、占用时间
@@ -51,4 +62,14 @@ func CheckInUse(clientSet *kubernetes.Clientset, key string) (locked bool, uuid 
 	timeString := cm.Data["time"]
 	lockTime, _ = time.Parse(time.RFC3339, timeString)
 	return locked, uuid, lockTime
+}
+
+// GetPodNow 返回运行本代码的pod
+func GetPodNow(clientset *kubernetes.Clientset) (*v1.Pod, error) {
+	pod, err := clientset.CoreV1().Pods("cubeuniverse").Get(context.Background(), os.Getenv("HOSTNAME"),
+		metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return pod, nil
 }

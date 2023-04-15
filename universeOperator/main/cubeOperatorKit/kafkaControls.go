@@ -1,7 +1,6 @@
 package cubeOperatorKit
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/Shopify/sarama"
@@ -38,8 +37,7 @@ func ProduceObject(client sarama.SyncProducer, key string, value []byte) {
 	msg := &sarama.ProducerMessage{}
 	msg.Topic = kafkaProduceTopic
 	msg.Key = sarama.StringEncoder(key)
-	encoded := base64.StdEncoding.EncodeToString(value)
-	msg.Value = sarama.StringEncoder(encoded)
+	msg.Value = sarama.ByteEncoder(value)
 	_, _, err := client.SendMessage(msg)
 	if err != nil {
 		fmt.Println("向ML Kafka发送信息失败, ", err)
@@ -64,6 +62,8 @@ func ConsumerStartListening(consumer sarama.Consumer, handler func(key string, v
 		log.Println("获取Kafka partition失败:, ", err)
 		return err
 	}
+
+	log.Println("开始监听kafka队列..")
 
 	for partition := range partitionList {
 		pc, err := consumer.ConsumePartition(kafkaConsumeTopic, int32(partition), sarama.OffsetNewest)

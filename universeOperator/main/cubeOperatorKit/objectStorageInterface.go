@@ -12,6 +12,7 @@ import "C"
 import (
 	"encoding/json"
 	"github.com/bitly/go-simplejson"
+	"log"
 	"strings"
 )
 
@@ -32,11 +33,16 @@ func GetObject(namespace, bucketClaimName, key string) (objectValue []byte, erro
 }
 
 // PutObject 发送对象Put请求到ceph
-func PutObject(namespace, bucketClaimName, key string, value []byte) error {
+func PutObject(namespace, bucketClaimName, key string, value *[]byte) error {
 	err := PutObjectS3(namespace, bucketClaimName, key, value)
 	if err != nil {
 		return err
 	}
+
+	if len(value) > 10485760 {
+		return nil
+	}
+
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
 	C.insr(cacheKey, C.CString(string(value)))
@@ -60,7 +66,10 @@ func PutObject(namespace, bucketClaimName, key string, value []byte) error {
 		}
 	}
 
-	go ProduceObject(*producer, namespace+"%"+bucketClaimName+":"+key, value)
+	if strings.HasSuffix(key, ".jpg") || strings.HasSuffix(key, ".png") || strings.HasSuffix(key, ".jpeg") {
+		log.Println("发送到kafka: " + key) // TODO:
+		go ProduceObject(*producer, namespace+"%"+bucketClaimName+":"+key, value)
+	}
 	return nil
 }
 

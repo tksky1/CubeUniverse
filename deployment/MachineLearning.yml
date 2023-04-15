@@ -8,7 +8,7 @@ spec:
     matchLabels:
       app: cubeuniverse
       component: ml
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -17,7 +17,5 @@ spec:
     spec:
       containers:
         - name: ml
-          image: zhaidea/kafka
-          imagePullPolicy: Always #调试完成后  这里应该改成IfNotPresent
-          ports:
-            - containerPort: 9092
+          image: zhaidea/cubeml
+          imagePullPolicy: Always
