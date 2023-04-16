@@ -166,7 +166,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			return
 		}
 		//根据block进行分组
-		valueBytes := splitArray([]byte(*value), blockNum)
+		valueBytes := splitArray(value, blockNum)
 		//将数据转为string避免bytes数据被base64编码
 		value2Str := valueBytes[indexNum]
 		valueMap := map[string]string{
@@ -231,8 +231,8 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 }
 
 // 数组平分
-func splitArray(arr []byte, num int) [][]byte {
-	max := int(len(arr))
+func splitArray(arr *[]byte, num int) [][]byte {
+	max := int(len(*arr))
 	if max < num {
 		return nil
 	}
@@ -242,9 +242,9 @@ func splitArray(arr []byte, num int) [][]byte {
 	for i := int(1); i <= num; i++ {
 		qu := i * quantity
 		if i != num {
-			segmens = append(segmens, arr[i-1+end:qu])
+			segmens = append(segmens, (*arr)[i-1+end:qu])
 		} else {
-			segmens = append(segmens, arr[i-1+end:])
+			segmens = append(segmens, (*arr)[i-1+end:])
 		}
 		end = qu - i
 	}

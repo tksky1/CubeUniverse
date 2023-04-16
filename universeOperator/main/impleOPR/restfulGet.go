@@ -79,7 +79,7 @@ func OssGet(ctx *gin.Context) {
 		return
 	}
 	//返回get得到到对象信息，这里附带其key namespace等，并进行分块
-	valueBytes := splitArray([]byte(*value), blockNum)
+	valueBytes := splitArray(value, blockNum)
 	//将bytes类型数据转为string避免base64转换
 	value2Str := string(valueBytes[indexNum])
 	Success(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
