@@ -83,11 +83,11 @@ func OssGet(ctx *gin.Context) {
 	//将bytes类型数据转为string避免base64转换)
 	max := int(len(*value))
 	quantity := max / blockNum
-	var value2Str string 
-	if (indexNum == blockNum-1){ 
-		value2Sr = string((*value)[indexNum*quantity:])
+	var value2Str string
+	if indexNum == blockNum-1 {
+		value2Str = string((*value)[indexNum*quantity:])
 	} else {
-		alue2Str = string((*value)[indexNum*quantity : quantity*(indexNum+1)])
+		value2Str = string((*value)[indexNum*quantity : quantity*(indexNum+1)])
 	}
 	uccess(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
 }

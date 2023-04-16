@@ -49,7 +49,7 @@ func PvcCrea(ctx *gin.Context) {
 			return
 		}
 
-		if value, ok := json["autoscale"].(string); ok {
+		if value, ok := json["autoscale"].(string); ok || strings.ToLower(actType) == "object" {
 			autoScales = value
 		} else {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
@@ -57,6 +57,12 @@ func PvcCrea(ctx *gin.Context) {
 		}
 	}
 	//
+	//如果有autoscale 转化为bool
+	if autoScales != "" && strings.ToLower(autoScales) == "true" {
+		autoScale = true //如果为true则改为真
+	} else {
+		autoScale = false //其余情况---为空和为false均改为false
+	}
 	//如果有volume参数要进行格式转化
 	if sVolume != "" {
 		volumeCp, err := strconv.Atoi(sVolume)
@@ -132,11 +138,12 @@ func PvcCrea(ctx *gin.Context) {
 }
 
 func PvcPatch(ctx *gin.Context) {
+	var autoScales string = ""
 	//根据post请求body体参数来解析数据,支持postform和json两种格式
 	name := ctx.PostForm("name")
 	namespace := ctx.PostForm("namespace")
 	sVolume := ctx.PostForm("volume")
-	autoScales := ctx.PostForm("autoscale")
+	autoScales = ctx.PostForm("autoscale")
 	actType := ctx.PostForm("X-type")
 	var autoScale bool //自动扩容选项
 	var volume int     //用于后面volume参数格式转化
@@ -169,7 +176,7 @@ func PvcPatch(ctx *gin.Context) {
 			return
 		}
 
-		if value, ok := json["autoscale"].(string); ok {
+		if value, ok := json["autoscale"].(string); ok || strings.ToLower(actType) == "object" {
 			autoScales = value
 		} else {
 			Fail(ctx, nil, "type should be string") //返回错误反馈
