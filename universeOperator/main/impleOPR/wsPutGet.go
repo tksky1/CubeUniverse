@@ -165,10 +165,19 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Get OBJ: "+err.Error()))
 			return
 		}
-		//根据block进行分组
-		valueBytes := splitArray(value, blockNum)
-		//将数据转为string避免bytes数据被base64编码
-		value2Str := valueBytes[indexNum]
+		// //根据block进行分组
+		// valueBytes := splitArray(value, blockNum, indexNum)
+		// //将数据转为string避免bytes数据被base64编码
+		// value2Str := string(*valueBytes)
+
+		max := int(len(*value))
+		quantity := max / blockNum
+		var value2Str string
+		if indexNum == blockNum-1 {
+			value2Str = string((*value)[indexNum*quantity:])
+		} else {
+			value2Str = string((*value)[indexNum*quantity : quantity*(indexNum+1)])
+		}
 		valueMap := map[string]string{
 			"value" + strconv.Itoa(indexNum): string(value2Str),
 			"key":                            key,
@@ -230,23 +239,23 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 
 }
 
-// 数组平分
-func splitArray(arr *[]byte, num int) [][]byte {
-	max := int(len(*arr))
-	if max < num {
-		return nil
-	}
-	var segmens = make([][]byte, 0)
-	quantity := max / num
-	end := int(0)
-	for i := int(1); i <= num; i++ {
-		qu := i * quantity
-		if i != num {
-			segmens = append(segmens, (*arr)[i-1+end:qu])
-		} else {
-			segmens = append(segmens, (*arr)[i-1+end:])
-		}
-		end = qu - i
-	}
-	return segmens
-}
+// // 数组平分
+// func splitArray(arr *[]byte, num int, indexnum int) *[]byte {
+// 	max := int(len(*arr))
+// 	if max < num {
+// 		return nil
+// 	}
+// 	var segmens = make([][]byte, 0)
+// 	quantity := max / num
+// 	end := int(0)
+// 	for i := int(1); i <= num; i++ {
+// 		qu := i * quantity
+// 		if i == indexnum+1 {
+// 			return &((*arr)[i-1+end : qu])
+// 		} else {
+// 			segmens = append(segmens, (*arr)[i-1+end:])
+// 		}
+// 		end = qu - i
+// 	}
+// 	return &segmens[indexnum]
+// }

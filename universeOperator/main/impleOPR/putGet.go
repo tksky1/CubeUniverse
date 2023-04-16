@@ -116,10 +116,15 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 			return
 		}
 
-		//返回get得到到对象信息，这里附带其key namespace等，并进行分块
-		valueBytes := splitArray(value, blockNum)
-		//将bytes类型数据转为string避免base64转换
-		value2Str := string(valueBytes[indexNum])
+		max := int(len(*value))
+		quantity := max / blockNum
+		var value2Str string
+		if indexNum == blockNum-1 {
+			value2Str = string((*value)[indexNum*quantity:])
+		} else {
+			value2Str = string((*value)[indexNum*quantity : quantity*(indexNum+1)])
+		}
+
 		Success(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
 	case "delete":
 		if err := kit.DeleteObject(namespace, bucketClaimName, key); err != nil {
