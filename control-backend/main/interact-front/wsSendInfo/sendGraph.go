@@ -214,6 +214,7 @@ func ConstSend(ctx *gin.Context) {
 		//缓存吃空了
 		if queue.Len() <= 0 {
 			time.Sleep(1 * time.Second) //歇一下
+			continue
 		}
 		time.Sleep(3 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
