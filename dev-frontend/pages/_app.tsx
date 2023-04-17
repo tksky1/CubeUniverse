@@ -5,7 +5,6 @@ import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
 import { emotionCache } from '@/emotionCache'
 import DataProvider from '@/components/DataProvider'
-import { data, DataContext } from '@/components/DataContext'
 import { Notifications } from '@mantine/notifications'
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
