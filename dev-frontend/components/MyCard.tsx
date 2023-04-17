@@ -18,7 +18,12 @@ export default function MyCard({title, children, href}: MyCard) {
             shadow={"xs"}
             p={"xl"}
             h={"100%"}
-            withBorder
+            // withBorder
+            sx={theme => ({
+                backgroundColor: "#f7f8fb"
+                // backgroundColor: theme.fn.darken(theme.colors.indigo[9], 0.85),
+                // borderColor: theme.fn.darken(theme.colors.indigo[9], 0.85)
+            })}
         >
             <Card.Section 
                 mb={"xs"} 
@@ -31,6 +36,7 @@ export default function MyCard({title, children, href}: MyCard) {
                             size={"xs"}
                             weight={"bold"}
                             underline
+                            color="#0e201a"
                         >
                             {title}
                         </Text>
@@ -38,6 +44,7 @@ export default function MyCard({title, children, href}: MyCard) {
                     : (<Text 
                         size={"xs"}
                         weight={"bold"}
+                        color="#0e201a"
                     >
                         {title}
                     </Text>)}

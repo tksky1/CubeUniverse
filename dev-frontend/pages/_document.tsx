@@ -1,7 +1,6 @@
 // _document.tsx
 import Document, { DocumentContext, Html, Head, Main, NextScript } from 'next/document';
 import { ServerStyles, createStylesServer } from '@mantine/next';
-import { CssBaseline } from "@nextui-org/react"
 import { emotionCache } from '../emotionCache';
 
 const stylesServer = createStylesServer(emotionCache);
@@ -21,7 +20,9 @@ export default class _Document extends Document {
   render() {
     return (
       <Html lang="en">
-        <Head>{CssBaseline.flush()}</Head>
+        <Head>
+          <title>CubeUniverse</title>
+        </Head>
         <body>
           <Main />
           <NextScript />
