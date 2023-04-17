@@ -35,21 +35,23 @@ func GetObject(namespace, bucketClaimName, key string) (objectValue *[]byte, err
 }
 
 // PutObject 发送对象Put请求到ceph
-func PutObject(namespace, bucketClaimName, key string, length int64, reader io.Reader) error {
+func PutObject(namespace, bucketClaimName, key string, length int64, reader *io.Reader) error {
 	err := PutObjectS3(namespace, bucketClaimName, key, reader)
 	if err != nil {
 		return err
 	}
 
 	if length > 10485760 {
+		cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
+		C.insr(cacheKey2, C.CString(""))
 		return nil
 	}
 
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
-	data, err := io.ReadAll(reader)
+	data, err := io.ReadAll(*reader)
 	C.insr(cacheKey, C.CString(string(data)))
-	//C.del(cacheKey2)
+
 	cacheOut := C.ask(cacheKey2)
 	outString := C.GoString(cacheOut)
 	if outString != "" {

@@ -52,7 +52,7 @@ func GetObjectS3(namespace, bucketClaimName, key string) (objectValue *[]byte, e
 }
 
 // PutObjectS3 发送对象Put请求到ceph
-func PutObjectS3(namespace, bucketClaimName, key string, reader io.Reader) error {
+func PutObjectS3(namespace, bucketClaimName, key string, reader *io.Reader) error {
 	sessWithBucketName, err := GetObjectStorageSession(namespace, bucketClaimName)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func PutObjectS3(namespace, bucketClaimName, key string, reader io.Reader) error
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(sessWithBucketName.bucketName),
 		Key:    aws.String(key),
-		Body:   reader,
+		Body:   *reader,
 	})
 	return err
 }

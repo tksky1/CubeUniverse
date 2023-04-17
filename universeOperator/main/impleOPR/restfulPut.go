@@ -51,7 +51,8 @@ func OssPut(ctx *gin.Context) {
 	//读取value数据采用流式存储
 
 	//实现put
-	err := kit.PutObject(namespace, bucketClaimName, key, ctx.Request.ContentLength, ctx.Request.Body.(io.Reader))
+	reader, _ := ctx.Request.Body.(io.Reader)
+	err := kit.PutObject(namespace, bucketClaimName, key, ctx.Request.ContentLength, &reader)
 	if err != nil {
 		FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 	}

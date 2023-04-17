@@ -12,8 +12,8 @@ import (
 func PutGetDeleteListObj(ctx *gin.Context) {
 	//根据post请求的body体来解析参数，仅支持json两种格式
 	var namespace, bucketClaimName, key, actType, blockStr, indexBlock, tag string
-	tag = ""                          //给tag一个默认值，更安全
-	var blockNum, indexNum int = 1, 0 //记录分块数量，默认为一
+	tag = ""                      //给tag一个默认值，更安全
+	var blockNum, indexNum = 1, 0 //记录分块数量，默认为一
 
 	//var value []byte
 
@@ -102,7 +102,8 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 
 	switch strings.ToLower(actType) {
 	case "put":
-		err := kit.PutObject(namespace, bucketClaimName, key, ctx.Request.ContentLength, ctx.Request.Body.(io.Reader))
+		reader := ctx.Request.Body.(io.Reader)
+		err := kit.PutObject(namespace, bucketClaimName, key, ctx.Request.ContentLength, &reader)
 		if err != nil {
 			FailUnac(ctx, nil, "Fail Put OBJ: "+err.Error())
 		}
@@ -116,7 +117,7 @@ func PutGetDeleteListObj(ctx *gin.Context) {
 			return
 		}
 
-		max := int(len(*value))
+		max := len(*value)
 		quantity := max / blockNum
 		var value2Str string
 		if indexNum == blockNum-1 {

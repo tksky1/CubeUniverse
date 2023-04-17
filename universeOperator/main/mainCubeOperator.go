@@ -24,9 +24,6 @@ const UniverseVersion = "0.1alpha"
 var UUID = uuid.New().String()
 
 func main() {
-	// //测试用:TODO
-	// webInit()
-	// //记得删除
 
 	kit.Init()
 
@@ -37,7 +34,7 @@ func main() {
 			universalFuncs.SetInUse(kit.ClientSet, "operator-mutex", UUID)
 			break
 		}
-		time.Sleep(3 * time.Second)
+		time.Sleep(30 * time.Second) //TODO: 记得改回3秒
 	}
 	// 启动心跳go程
 	go universalFuncs.HeartBeat(kit.ClientSet, "operator-mutex", UUID)

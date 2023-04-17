@@ -125,6 +125,11 @@ func buildCeph() (ret bool) {
 		if err != nil {
 			log.Println("启动ceph-dashboard失败，请检查CubeUniverse项目文件是否完好！\n", err)
 		}
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/storage/dashboard-incluster.yaml",
+			"rook-ceph", clientSet, dynamicClient)
+		if err != nil {
+			log.Println("启动ceph-dashboard-incluster失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
 
 		return false
 	}
@@ -176,6 +181,11 @@ func buildCeph() (ret bool) {
 	kafka, ml := universalFuncs.CheckMLStatus(clientSet)
 	if !kafka {
 		err := universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafka.yml",
+			"cubeuniverse", clientSet, dynamicClient)
+		if err != nil {
+			log.Println("启动kafka服务失败，请检查CubeUniverse项目文件是否完好！\n", err)
+		}
+		err = universalFuncs.PatchCrdFromYaml(universalFuncs.GetParentDir()+"/deployment/kafkaService.yml",
 			"cubeuniverse", clientSet, dynamicClient)
 		if err != nil {
 			log.Println("启动kafka服务失败，请检查CubeUniverse项目文件是否完好！\n", err)

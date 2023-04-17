@@ -2,8 +2,10 @@ package cubeOperatorKit
 
 import (
 	"CubeUniverse/universalFuncs"
+	"bytes"
 	"encoding/json"
 	"github.com/bitly/go-simplejson"
+	"io"
 	"log"
 	"strings"
 	"time"
@@ -60,7 +62,9 @@ func ConsumeML(key string, value string) {
 			storedObject, err := GetObject(namespace, bucketClaim, "cubeuniverse/"+word)
 			if storedObject == nil || err != nil {
 				storeJsonByte, _ := json.Marshal([]string{objectKey})
-				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, &storeJsonByte)
+				reader := bytes.NewReader(storeJsonByte)
+				reader2 := io.Reader(reader)
+				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, 0, &reader2)
 				if err != nil {
 					log.Println("向对象存储桶声明"+bucketClaim+"写入索引失败：", err)
 					return
@@ -75,7 +79,9 @@ func ConsumeML(key string, value string) {
 				}
 				storedArray = append(storedArray, objectKey)
 				storeJsonByte, _ := json.Marshal(storedArray)
-				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, &storeJsonByte)
+				reader := bytes.NewReader(storeJsonByte)
+				reader2 := io.Reader(reader)
+				err := PutObject(namespace, bucketClaim, "cubeuniverse/"+word, 0, &reader2)
 				if err != nil {
 					log.Println("向对象存储桶声明"+bucketClaim+"写入索引失败：", err)
 					return

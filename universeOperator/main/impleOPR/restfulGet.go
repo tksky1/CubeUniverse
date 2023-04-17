@@ -9,7 +9,7 @@ import (
 
 func OssGet(ctx *gin.Context) {
 	var namespace, bucketClaimName, key, blockStr, indexBlock string
-	var blockNum, indexNum int = 1, 0 //记录分块数量与用户所需的分块号，默认1、0
+	var blockNum, indexNum = 1, 0 //记录分块数量与用户所需的分块号，默认1、0
 
 	namespace = ctx.Query("namespace")
 	bucketClaimName = ctx.Query("name")
@@ -81,7 +81,7 @@ func OssGet(ctx *gin.Context) {
 	//返回get得到到对象信息，这里附带其key namespace等，并进行分块
 	//valueBytes := splitArray(value, blockNum, indexNu)
 	//将bytes类型数据转为string避免base64转换)
-	max := int(len(*value))
+	max := len(*value)
 	quantity := max / blockNum
 	var value2Str string
 	if indexNum == blockNum-1 {
@@ -89,5 +89,5 @@ func OssGet(ctx *gin.Context) {
 	} else {
 		value2Str = string((*value)[indexNum*quantity : quantity*(indexNum+1)])
 	}
-	uccess(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
+	Success(ctx, gin.H{"value" + strconv.Itoa(indexNum): value2Str, "key": key, "namespace": namespace, "name": bucketClaimName}, "obj value")
 }

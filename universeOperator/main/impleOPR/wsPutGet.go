@@ -153,7 +153,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 	case "put":
 		//更换为流式传输
 		var reader io.Reader = ws.UnderlyingConn().(*net.TCPConn)
-		if err := kit.PutObject(namespace, bucketClaimName, key, 0, reader); err != nil {
+		if err := kit.PutObject(namespace, bucketClaimName, key, 0, &reader); err != nil {
 			ws.WriteMessage(websocket.TextMessage, []byte("Fail Put OBJ: "+err.Error()))
 		}
 		ws.WriteMessage(websocket.TextMessage, []byte("put success"))
