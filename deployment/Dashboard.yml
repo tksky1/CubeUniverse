@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universe-dashboard
+  namespace: cubeuniverse
+spec:
+  selector:
+    matchLabels:
+      app: cubeuniverse
+      component: dashboard
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cubeuniverse
+        component: dashboard
+        status: not-ready
+    spec:
+      serviceAccountName: universe-account
+      containers:
+        - name: operator
+          image: tksky1/cubeuniverse-operator:0.1alpha  # 发布版本
+          #image: operator-dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 30402
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: object-storage
+  namespace: cubeuniverse
+  labels:
+    app: operator
+spec:
+  ports:
+    - name: dashboard
+      port: 8890
+      protocol: TCP
+      targetPort: 8890
+      nodePort: 30402
+  selector:
+    component: operator
+    status: ready
+  sessionAffinity: None
+  type: NodePort
