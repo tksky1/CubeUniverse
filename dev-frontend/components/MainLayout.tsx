@@ -1,9 +1,12 @@
 import { ReactElement, useRef, useState } from "react";
+import MyConfigProvider from "./MyConfigProvider";
 import { Menu } from "antd";
-import styles from "@/styles/components/MainLayout.module.scss"
 import { useRouter } from "next/router";
 import Link from "next/link";
-import clsx from "clsx";
+import { Title, createStyles, ScrollArea, Flex, Container, Text, useMantineTheme, Image, Group, Button } from "@mantine/core"
+import { logo } from "@/utils/logostr";
+import { token } from "@/utils/token";
+import { login } from "@/apis";
 
 interface MainLayout {
     children: ReactElement
@@ -11,107 +14,142 @@ interface MainLayout {
 
 let items = [
     {
-        title: "page1",
-        key: "/page1",
-        label: "page1"
+        title: "仪表盘",
+        key: "/",
+        label: "仪表盘"
     },
     {
-        title: "page2",
-        key: "/page2",
-        label: "page2"
+        title: "存储池",
+        key: "/cephPool",
+        label: "存储池"
     },
     {
-        children: [
-            {
-                title: "page3",
-                key: "/nest/page3",
-                label: "page3"
-            },
-            {
-                title: "page4",
-                key: "/nest/page4",
-                label: "page4"
-            },
-        ],
-        key: "/nest",
-        label: "nest"
+        title: "节点",
+        key: "/node",
+        label: "节点"
+    },
+    {
+        title: "日志",
+        key: "/log",
+        label: "日志"
     },
     {
         type: "group" as const,
-        label: "group",
+        label: " 存储 ",
         children: [
             {
-                title: "page5",
-                key: "/group/page5",
-                label: "page5"
+                title: "文件存储",
+                key: "/fileStorage",
+                label: "文件存储"
             },
             {
-                title: "page6",
-                key: "/group/page6",
-                label: "page6"
+                title: "块存储",
+                key: "/blockStorage",
+                label: "块存储"
+            },
+            {
+                title: "对象存储",
+                key: "/objectStorage",
+                label: "对象存储"
             },
         ]
     }
 ]
 
-export default function MainLayout({children}: MainLayout) {
-    let router = useRouter();
-    
-    let [isScrolling, setIsScrolling] = useState(false);
-    
-    let scrollClass: {[key: string]: boolean} = {};
-    scrollClass[styles.scrolling] = isScrolling;
-    
-    let timeoutId = useRef<null | ReturnType<typeof setTimeout>>(null);
-    let scrollDisappearTime = 1500;
-    
-    function handleScroll() {
-        setIsScrolling(true);
-        if (timeoutId.current) {
-            clearTimeout(timeoutId.current);
+const useStyles = createStyles(theme => {
+    return {
+        outerContainer: {
+            height: "100vh",
+        },
+        bottomContainer: {
+            height: "calc(100vh - 50px)",
+            display: "flex"
+        },
+        scrollAreaViewport: {
+            ' > div': {
+                height: "100%"
+            }
         }
-        timeoutId.current = setTimeout(() => {
-            setIsScrolling(false);
-        }, scrollDisappearTime);
     }
+})
+
+export default function MainLayout({ children }: MainLayout) {
+    let { classes } = useStyles();
+    let router = useRouter();
+    let theme = useMantineTheme();
     return (
-        <div className={styles.outerContainer}>
-            <div className={styles.header}>
-                <Link href={"/"}>
-                    <p>
-                        CubeUniverse
-                    </p>
-                </Link>
-            </div>
-            <div className={styles.bottomContainer}>
-                <div 
-                    className={clsx(
-                        styles.sider,
-                        scrollClass
-                    )} 
-                    onScroll={() => handleScroll()}
+        (
+            <div
+                className={
+                    classes.outerContainer
+                }
+            >
+                <Flex
+                    sx={theme => ({
+                        height: 50,
+                        boxShadow: `inset 0 -7px 7px -5px ${theme.colors.blue[4]}`,
+                        backgroundColor: "#000000"
+                    })}
+                    justify="flex-start"
+                    align="center"
+                    pl={10}
                 >
-                    <Menu 
-                        theme="light"
-                        selectedKeys={[router.asPath]}
-                        items={items}
-                        mode="inline"
-                        onClick={(clickedItem) => router.push(clickedItem.key)}
-                        style={{
+                    <Link href={"/"}>
+                        <Group spacing={5}>
+                            <Image
+                                height={30}
+                                width={30}
+                                fit="contain"
+                                src={logo()} />
+                            <Title
+                                order={1}
+                                variant="gradient"
+                                gradient={{ from: "#4fb9e3", to: "#032d81", deg: 30 }}
+                            >CubeUniverse</Title>
+                        </Group>
+                    </Link>
+                </Flex>
+                <div className={classes.bottomContainer}>
+                    <ScrollArea
+                        sx={theme => ({
                             height: "100%",
-                            width: "100%",
+                            minWidth: "200px",
+                        })}
+                        classNames={{
+                            viewport: classes.scrollAreaViewport
                         }}
-                    />
-                </div>
-                <div 
-                    className={clsx(
-                        styles.contentContainer,
-                        scrollClass
-                    )} 
-                >
-                    {children}
+                        type="scroll"
+                    >
+                        <MyConfigProvider>
+                            <Menu
+                                theme="light"
+                                selectedKeys={[router.asPath]}
+                                items={items}
+                                mode="inline"
+                                defaultOpenKeys={["/objectStorageGroup"]}
+                                onClick={(clickedItem) => router.push(clickedItem.key)}
+                                style={{
+                                    height: "100%",
+                                    width: "100%",
+                                    borderStyle: "none",
+                                }}
+                            />
+                        </MyConfigProvider>
+                    </ScrollArea>
+                    <ScrollArea
+                        sx={_theme => ({
+                            flexGrow: 1,
+                            height: "100%",
+                        })}
+                        classNames={{
+                            viewport: classes.scrollAreaViewport
+                        }}
+                        type="scroll"
+                    >
+                        {children}
+                    </ScrollArea>
                 </div>
             </div>
-        </div>
+        )
     )
 }
