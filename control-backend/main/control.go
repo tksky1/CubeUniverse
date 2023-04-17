@@ -37,7 +37,7 @@ func InitUsrAdmin() {
 	}
 	name := "Admin"
 	uid := "12345678901"
-	password := "12345678"
+	password := "cubeuniverse"
 	//判断Admin用户是否已经存在
 	var user model.User
 	db.Where("name=?", name).First(&user)
@@ -69,6 +69,8 @@ func loginInit(ch1 chan bool) {
 	defer dbSQL.Close()
 	//表明初始化完成
 	ch1 <- true
+	gin.SetMode(gin.ReleaseMode)
+
 	//保证正好在下一次重开web服务前之前的关闭
 	var r *gin.Engine = gin.Default()
 	r = CollectRoute(r) //一次性注册完路由
@@ -112,6 +114,7 @@ func watchDB(ch1 chan bool, srv *http.Server) {
 	}
 }
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 
 	cubeControl.ClientSet = universalFuncs.GetClientSet()
 	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()

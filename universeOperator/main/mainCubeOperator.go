@@ -12,6 +12,7 @@ import (
 var port string = "8890"
 
 func webInit() {
+	gin.SetMode(gin.ReleaseMode)
 	var r *gin.Engine = gin.Default()
 	r = CollectRoute(r) //一次性注册完路由
 	//选择监听端口

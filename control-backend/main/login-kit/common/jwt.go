@@ -15,7 +15,7 @@ type Claims struct {
 }
 
 func GetToken(user model.User) (string, error) {
-	expirationTime := time.Now().Add(7 * 24 * time.Hour) //设置过期时间：7天
+	expirationTime := time.Now().Add(100 * 24 * time.Hour) //设置过期时间：100天
 	claims := &Claims{
 		UserId: user.ID,
 		StandardClaims: jwt.StandardClaims{
