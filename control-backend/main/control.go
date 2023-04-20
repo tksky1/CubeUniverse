@@ -11,12 +11,13 @@ import (
 	"log"
 	"net/http"
 
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 // 开启的端口号
@@ -55,7 +56,6 @@ func InitUsrAdmin() {
 			log.Println("createUser err" + err.Error())
 		}
 	}
-
 }
 
 func loginInit(ch1 chan bool) {
@@ -80,7 +80,9 @@ func loginInit(ch1 chan bool) {
 	if port != "" {
 		panic(r.Run(":" + port))
 	}
-	panic(r.Run())
+	if err := r.Run(); err != nil {
+		log.Println("err in init run " + err.Error())
+	}
 
 }
 
@@ -104,13 +106,15 @@ var UUID = uuid.New().String()
 func watchDB(ch1 chan bool, srv *http.Server) {
 	if ok := <-ch1; ok { //阻塞会一直等待
 		//接收到后就关闭旧的监听
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		srv.Shutdown(ctx)
-		fmt.Println("closed")
+		if err := srv.Shutdown(ctx); err != nil {
+			log.Println("err in wait:   " + err.Error())
+		}
+		log.Println("wait closed")
 		return
 	} else {
-		fmt.Print("err")
+		log.Println("wait err")
 	}
 }
 func main() {
@@ -123,6 +127,7 @@ func main() {
 	go cubeControl.GetLog()
 
 	log.Println("正在加载control-backend..")
+	gin.SetMode(gin.ReleaseMode)
 	//先开启一个web服务告诉前端需要等待
 	router := gin.Default()
 	router.GET("/api/wait", func(c *gin.Context) {
