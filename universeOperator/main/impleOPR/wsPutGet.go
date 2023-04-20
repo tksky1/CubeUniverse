@@ -50,7 +50,7 @@ func ConstPushGetDeleteList(ctx *gin.Context) {
 			jsons := make(map[string]interface{})
 			//将json字符串解析
 			if errCtx := json.Unmarshal(msg, &jsons); errCtx != nil {
-				log.Print(errCtx.Error())
+				log.Println(errCtx.Error())
 			}
 			//说明要结束
 			if value, ok := jsons["over"].(string); ok && value == "yes" {
@@ -208,7 +208,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 					"name":      bucketClaimName,
 				}
 				if valueJson, err := json.Marshal(&valueMap); err != nil {
-					log.Print("err json convert: " + err.Error())
+					log.Println("err json convert: " + err.Error())
 					return
 				} else {
 					ws.WriteMessage(websocket.TextMessage, valueJson)
@@ -227,7 +227,7 @@ func pushgetImple(jsons gin.H, ws *websocket.Conn) {
 				"name":      bucketClaimName,
 			}
 			if valueJson, err := json.Marshal(&valueMap); err != nil {
-				log.Print("err json convert: " + err.Error())
+				log.Println("err json convert: " + err.Error())
 				return
 			} else {
 				ws.WriteMessage(websocket.TextMessage, valueJson)
