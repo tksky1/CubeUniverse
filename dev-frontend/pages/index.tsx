@@ -193,7 +193,7 @@ export default function Home() {
 
 function MyOprLine() {
   let dataLength = 20;
-  let { lastMessage } = useWebSocket("ws://192.168.177.201:30401/api/storage/pvcws");
+  let { lastMessage } = useWebSocket("ws://control-backend.cubeuniverse.svc.cluster.local:30401/api/storage/pvcws");
   let [data, setData] = useState<{ id: string, data: { x: number, y: number }[] }[]>([
     {
       id: "读操作数",
@@ -311,7 +311,7 @@ function MyOprLine() {
 
 function MyByteLine() {
   let dataLength = 20;
-  let { lastMessage } = useWebSocket("ws://192.168.177.201:30401/api/storage/pvcws");
+  let { lastMessage } = useWebSocket("ws://control-backend.cubeuniverse.svc.cluster.local:30401/api/storage/pvcws");
   let [data, setData] = useState<{ id: string, data: { x: number, y: number }[] }[]>([
     {
       id: "读比特数",
