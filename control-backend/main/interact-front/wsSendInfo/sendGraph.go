@@ -17,6 +17,14 @@ import (
 // 不能放在循环体里面，不然每次都会被初始化丢失数据,我这里为了方便就直接放在全局变量了
 var readInfo chan []byte = make(chan []byte, 10)
 
+type drawData struct {
+	ReadBytesPerSec       int `json:"ReadBytesPerSec"`       // 每秒读的bytes
+	ReadOperationsPerSec  int `json:"ReadOperationsPerSec"`  // 每秒读操作数
+	WriteBytesPerSec      int `json:"WriteBytesPerSec"`      // 每秒写的bytes
+	WriteOperationPerSec  int `json:"WriteOperationPerSec"`  // 每秒写操作数
+	RecoveringBytesPerSec int `json:"RecoveringBytesPerSec"` // 每秒恢复数据流量
+}
+
 // 做一个map的缓存队列,最大存储1000个map信息
 var queue = list.New()
 
@@ -81,6 +89,25 @@ func ConstSend(ctx *gin.Context) {
 		if err != nil {
 			log.Println("调用ceph数据出错：" + err.Error())
 		}
+		var dataArray [11]drawData
+		for times := 0; times < 10; {
+			performanceArray, err := cubeControl.GetCephPerformance()
+			if err != nil {
+				log.Println("调用getCephPerformace err: " + err.Error())
+				continue
+			}
+			var data drawData
+			data.ReadBytesPerSec = performanceArray.ReadBytesPerSec
+			data.ReadOperationsPerSec = performanceArray.ReadOperationsPerSec
+			data.RecoveringBytesPerSec = performanceArray.RecoveringBytesPerSec
+			data.WriteBytesPerSec = performanceArray.WriteBytesPerSec
+			data.WriteOperationPerSec = performanceArray.WriteOperationPerSec
+			dataArray[times] = data
+			times++
+		}
+		//加入一个画数据表所用的数据
+		resMap["CephDrawData"] = dataArray
+
 		//日志信息的结构体
 		cubeControl.LogMutex.Lock()
 		logStruct := cubeControl.CephLogNow
@@ -120,6 +147,26 @@ func ConstSend(ctx *gin.Context) {
 			if err != nil {
 				log.Println("调用ceph数据出错：" + err.Error())
 			}
+
+			var dataArray [11]drawData
+			for times := 0; times < 10; {
+				performanceArray, err := cubeControl.GetCephPerformance()
+				if err != nil {
+					log.Println("调用getCephPerformace err: " + err.Error())
+					continue
+				}
+				var data drawData
+				data.ReadBytesPerSec = performanceArray.ReadBytesPerSec
+				data.ReadOperationsPerSec = performanceArray.ReadOperationsPerSec
+				data.RecoveringBytesPerSec = performanceArray.RecoveringBytesPerSec
+				data.WriteBytesPerSec = performanceArray.WriteBytesPerSec
+				data.WriteOperationPerSec = performanceArray.WriteOperationPerSec
+				dataArray[times] = data
+				times++
+			}
+			//加入一个画数据表所用的数据
+			resMap["CephDrawData"] = dataArray
+
 			//日志信息的结构体
 			cubeControl.LogMutex.Lock()
 			logStruct := cubeControl.CephLogNow
@@ -138,7 +185,7 @@ func ConstSend(ctx *gin.Context) {
 			time.Sleep(1 * time.Second) //歇一下
 			continue
 		}
-		time.Sleep(3 * time.Second)
+		time.Sleep(2 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		queue.Remove(queue.Front())   //删除队头，即出队
 
