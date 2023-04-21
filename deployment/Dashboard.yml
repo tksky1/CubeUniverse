@@ -8,39 +8,35 @@ spec:
     matchLabels:
       app: cubeuniverse
       component: dashboard
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
         app: cubeuniverse
         component: dashboard
-        status: not-ready
     spec:
-      serviceAccountName: universe-account
       containers:
-        - name: operator
-          image: tksky1/cubeuniverse-operator:0.1alpha  # 发布版本
-          #image: operator-dev
+        - name: dashboard
+          image: tksky1/cubeuniverse-dashboard:0.1alpha  # 发布版本
           imagePullPolicy: Always
           ports:
-            - containerPort: 30402
+            - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: object-storage
+  name: universe-dashboard
   namespace: cubeuniverse
   labels:
     app: operator
 spec:
   ports:
     - name: dashboard
-      port: 8890
+      port: 3000
       protocol: TCP
-      targetPort: 8890
-      nodePort: 30402
+      targetPort: 3000
+      nodePort: 30400
   selector:
-    component: operator
-    status: ready
+    component: dashboard
   sessionAffinity: None
   type: NodePort

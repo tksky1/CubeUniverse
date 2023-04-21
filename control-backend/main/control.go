@@ -21,7 +21,7 @@ import (
 )
 
 // 开启的端口号
-var portaddress string = ":8888"
+var portaddress = ":" + viper.GetString("server.port")
 
 type User struct {
 	gorm.Model
