@@ -52,12 +52,10 @@ func main() {
 
 	for {
 		time.Sleep(5 * time.Second)
-		operator, dashboard, controlBackend, builder := universalFuncs.CheckCubeUniverseComponent(kit.ClientSet)
-		if builder {
-			continue
-		}
+		operator, dashboard, controlBackend, _ := universalFuncs.CheckCubeUniverseComponent(kit.ClientSet)
 		cephOperator, rbdplugin, mon, mgr, osd := universalFuncs.CheckCephComponent(kit.ClientSet)
-		if !(operator && dashboard && controlBackend && cephOperator && rbdplugin && mon && mgr && osd) {
+		pgsql := universalFuncs.CheckMysqlStat(kit.ClientSet)
+		if !(operator && dashboard && controlBackend && cephOperator && rbdplugin && mon && mgr && osd && pgsql) {
 			log.Println("监测到集群未完全运行，启动UniverseBuilder..")
 			err := universalFuncs.PatchYaml(universalFuncs.GetParentDir()+"/deployment/UniverseBuilder.yml", "cubeuniverse")
 			if err != nil {

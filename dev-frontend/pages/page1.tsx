@@ -1,11 +1,15 @@
+import MyTable from "@/components/MyTable";
 import { commonLayout } from "@/utils/commonLayout"
+import { Box } from "@mantine/core";
 
 export default function Page1() {
     return (
-        <div className="flex justify-center items-center h-full">
-            page1
-        </div>
+        <Box
+            p={"md"}
+            sx={theme => ({
+            })}>
+            <MyTable/>
+        </Box>
     )
 }
-
 Page1.getLayout = commonLayout;

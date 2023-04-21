@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: universe-dashboard
+  namespace: cubeuniverse
+spec:
+  selector:
+    matchLabels:
+      app: cubeuniverse
+      component: dashboard
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cubeuniverse
+        component: dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: tksky1/cubeuniverse-dashboard:0.1alpha  # 发布版本
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: universe-dashboard
+  namespace: cubeuniverse
+  labels:
+    app: operator
+spec:
+  ports:
+    - name: dashboard
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+      nodePort: 30400
+  selector:
+    component: dashboard
+  sessionAffinity: None
+  type: NodePort

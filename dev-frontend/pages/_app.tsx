@@ -1,8 +1,11 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ConfigProvider, theme } from 'antd'
+import { MantineProvider } from "@mantine/core"
 import { NextPage } from 'next'
 import { ReactElement, ReactNode } from 'react'
+import { emotionCache } from '@/emotionCache'
+import DataProvider from '@/components/DataProvider'
+import { Notifications } from '@mantine/notifications'
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -23,8 +26,19 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
 
   return (
-    <ConfigProvider theme={myTheme}>
-      {getLayout(<Component {...pageProps} />)}
-    </ConfigProvider>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      emotionCache={emotionCache}
+      theme={{
+        colorScheme: "light",
+        colors: {
+        }
+      }}>
+      <Notifications />
+      <DataProvider>
+        {getLayout(<Component {...pageProps} />)}
+      </DataProvider>
+    </MantineProvider>
   )
 }
