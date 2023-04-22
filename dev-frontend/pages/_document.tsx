@@ -21,7 +21,6 @@ export default class _Document extends Document {
     return (
       <Html lang="en">
         <Head>
-          <title>CubeUniverse</title>
         </Head>
         <body>
           <Main />

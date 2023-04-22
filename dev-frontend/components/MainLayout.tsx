@@ -5,8 +5,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Title, createStyles, ScrollArea, Flex, Container, Text, useMantineTheme, Image, Group, Button } from "@mantine/core"
 import { logo } from "@/utils/logostr";
-import { token } from "@/utils/token";
-import { login } from "@/apis";
 
 interface MainLayout {
     children: ReactElement

@@ -1,15 +1,10 @@
-import { token } from "@/utils/token";
-import { react } from "signia";
-
-let realToken = "";
-react("setToken", () => {
-    realToken = token.value;
-})
+import { authentication } from "@/storage";
 
 function addAuthentication(headers: Headers) {
-    headers.append(
-        "Authorization",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEsImV4cCI6MTY4MjE1NzgwNiwiaWF0IjoxNjgxNTUzMDA2fQ.oKyrHMEe3DRAfpRIKPG_bCe-hycVeLHeU-PU1kTbBf0");
+    headers.append("Authorization", authentication.value);
+    // headers.append(
+    //     "Authorization",
+    //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySWQiOjEsImV4cCI6MTY4MjE1NzgwNiwiaWF0IjoxNjgxNTUzMDA2fQ.oKyrHMEe3DRAfpRIKPG_bCe-hycVeLHeU-PU1kTbBf0");
 }
 
 export function checkStorageOpen(type: string) {
@@ -113,12 +108,14 @@ export function createPvc(props: createPvcInterface) {
     });
 }
 
-export function login() {
+export function login(username: string, password: string) {
     return fetch("joe/api/auth/login", {
         method: "POST",
         body: JSON.stringify({
-            "uid": "12345678901",
-            "password": "12345678"
+            "uid": username,
+            "password": password
+            // "uid": "12345678901",
+            // "password": "cubeuniverse"
         })
     });
 }
