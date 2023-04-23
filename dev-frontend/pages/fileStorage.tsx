@@ -11,7 +11,12 @@ import {
     Tooltip,
     ActionIcon,
     Loader,
-    Group
+    Group,
+    Paper,
+    Text,
+    Spoiler,
+    Highlight,
+    useMantineTheme
 } from "@mantine/core";
 import { useEffect, useState, useCallback } from "react";
 import { checkStorageOpen, createPvc, deletePvc, getPvcInfo, openStorage, updatePvcVolume } from "@/apis";
@@ -23,6 +28,8 @@ import { IconX, IconCheck, IconEdit, IconTrash } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import { v4 } from "uuid";
+import fileStorage from "../public/fileStorage.jpg";
+import Image from "next/image";
 
 export default function FileStorage() {
     let [storageOpen, setStorageOpen] = useState<"loading" | false | true>("loading");
@@ -72,7 +79,10 @@ export default function FileStorage() {
                         p={"md"}
                         sx={theme => ({
                         })}>
-                        <FilePVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        <Stack>
+                            <FileStorageInfo />
+                            <FilePVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        </Stack>
                     </Box>
                 )
                 : (
@@ -434,5 +444,48 @@ function DeleteModal({ name, namespace, afterSubmit, opened, close }: DeleteModa
                 </Group>
             </Stack>
         </Modal>
+    )
+}
+
+function FileStorageInfo() {
+    let theme = useMantineTheme();
+    return (
+        <Center>
+            <Paper
+                p={"xl"}
+                sx={theme => ({
+                    borderRadius: 1,
+                    boxShadow: "0px 2px 5px 1px rgba(74,122,222,0.75)",
+                    border: "1px solid #c0e7ff"
+                })}>
+                <Stack>
+                    <Box mr={100} ml={30} mt={20}>
+                        <Image
+                            height={200}
+                            src={fileStorage}
+                            style={{
+                                float: "left",
+                            }}
+                            alt="FileStorage" />
+                        <Title
+                            align="left"
+                            order={3}
+                            mb={"md"}
+                        >文件存储</Title>
+                        <Highlight
+                            size={"md"}
+                            highlight={['文件存储', 'Kubernetes', "持久化卷"]}
+                            highlightStyles={(theme) => ({
+                                backgroundImage: theme.fn.linearGradient(45, theme.colors.cyan[5], theme.colors.indigo[5]),
+                                fontWeight: 700,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            })}>
+                            文件存储是一种基于文件元数据和二进制数据组织形成的由文件系统维护的存储形式。由于有统一的文件系统维护，挂载后容器不需要考虑如何管理磁盘空间，并且支持多个应用同时使用一片空间。在 Kubernetes 中以持久化卷的形式提供，常用于需要多个容器应用共享一个持久化卷的情况。在控制面板创建PVC后，为集群应用pod绑定该PVC即可挂载。
+                        </Highlight>
+                    </Box>
+                </Stack>
+            </Paper>
+        </Center>
     )
 }

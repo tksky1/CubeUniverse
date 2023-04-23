@@ -11,7 +11,11 @@ import {
     Tooltip,
     ActionIcon,
     Loader,
-    Group
+    Group,
+    Paper,
+    Text,
+    Highlight,
+    useMantineTheme
 } from "@mantine/core";
 import { useEffect, useState, useCallback } from "react";
 import { checkStorageOpen, createPvc, deletePvc, getPvcInfo, openStorage, updatePvcVolume } from "@/apis";
@@ -24,6 +28,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import { v4 } from "uuid";
 import { noti } from "@/utils/noti";
+import blockStorage from "../public/block.png"
+import Image from "next/image";
 
 interface BlockPVC {
     name: string,
@@ -80,30 +86,22 @@ export default function BlockStorage() {
                         p={"md"}
                         sx={theme => ({
                         })}>
-                        <BlockPVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        <Stack>
+                            <BlockStorageInfo />
+                            <BlockPVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        </Stack>
                     </Box>
                 )
                 : (
-                    <Center
-                        h={"100%"}
-                    >
-                        <Stack>
-                            <Title order={3}>
-                                Not Open
-                            </Title>
-                            <Button onClick={() => {
-                                openStorage("block")
-                                    .then(r => r.json())
-                                    .then(r => r.code === 200
-                                        ? Promise.resolve(r) : Promise.reject(r))
-                                    .then(r => noti("Success", "Success", "Open Storage"))
-                                    .catch(r => noti("Error", "Error", r.msg))
-                                    .finally(() => updateStorageOpen());
-                            }}>
-                                Open Me
-                            </Button>
-                        </Stack>
-                    </Center>
+                    <BlockNotOpen openIt={() => {
+                        openStorage("block")
+                            .then(r => r.json())
+                            .then(r => r.code === 200
+                                ? Promise.resolve(r) : Promise.reject(r))
+                            .then(r => noti("Success", "Success", "Open Storage"))
+                            .catch(r => noti("Error", "Error", r.msg))
+                            .finally(() => updateStorageOpen());
+                    }} />
                 )
     )
 }
@@ -254,18 +252,18 @@ function BlockPVCTable({ pvcs, afterSubmit }: BlockPVCTableInterface) {
                     <Stack>
                         <TextInput
                             withAsterisk
-                            label="Name"
+                            label="存储卷声明"
                             {...form.getInputProps("name")} />
                         <TextInput
                             withAsterisk
-                            label="NameSpace"
+                            label="命名空间"
                             {...form.getInputProps("namespace")} />
                         <NumberInput
                             min={1}
-                            label="Volume"
+                            label="存储卷容量"
                             {...form.getInputProps("volume")} />
                         <Switch
-                            label="Autoscale"
+                            label="自动扩容"
                             {...form.getInputProps("autoscale")} />
                         <Button
                             variant="gradient"
@@ -365,7 +363,7 @@ function EditModal({ name, namespace, afterSubmit, opened, close }: EditModalInt
                     <NumberInput
                         size="md"
                         min={1}
-                        label="Volume"
+                        label="存储卷容量"
                         {...form.getInputProps("volume")} />
                     <Button
                         variant="gradient"
@@ -439,5 +437,96 @@ function DeleteModal({ name, namespace, afterSubmit, opened, close }: DeleteModa
                 </Group>
             </Stack>
         </Modal>
+    )
+}
+function BlockNotOpen({ openIt }: { openIt: any }) {
+    let theme = useMantineTheme();
+    return (
+        <Box h={"100%"}>
+            <Center h={"100%"}>
+                <Paper
+                    radius={"xl"}
+                    shadow="xl"
+                    w={"60%"}
+                    p={"xl"}>
+                    <Stack>
+                        <Box>
+                            <Image
+                                src={blockStorage}
+                                height={100}
+                                style={{
+                                    float: "left",
+                                    margin: 10
+                                }}
+                                alt="BlockStorage" />
+                            <Highlight
+                                size={"md"}
+                                highlight={['块存储', '数据分块', "一对一"]}
+                                highlightStyles={(theme) => ({
+                                    backgroundImage: theme.fn.linearGradient(45, theme.colors.grape[5], theme.colors.orange[5]),
+                                    fontWeight: 700,
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                })}
+                            >
+                                块存储是一种直接基于底层物理设备直接提供存储的技术。它将数据分块并建立快速访问索引，避免大量的元数据传输从而提高存储性能并降低延迟。因此，基于块存储的存储卷能提供比基于文件存储的存储卷更快的访问速度，但不支持多个应用同时访问。在 Kubernetes中以持久化卷的形式提供，常用于高存储性能要求的应用，仅支持一对一绑定。在控制面板创建PVC后，为集群应用pod绑定该PVC即可挂载。
+                            </Highlight>
+                        </Box>
+                        <Center>
+                            <Button
+                                onClick={() => openIt()}
+                                variant="gradient"
+                                gradient={{ from: theme.colors.grape[5], to: theme.colors.orange[5], deg: 45 }}>开启块存储</Button>
+                        </Center>
+                    </Stack>
+                </Paper>
+            </Center>
+        </Box>
+    )
+}
+
+function BlockStorageInfo() {
+    let theme = useMantineTheme();
+    return (
+        <Center>
+            <Paper
+                p={"xl"}
+                sx={theme => ({
+                    borderRadius: 1,
+                    boxShadow: "0px 2px 5px 1px rgba(196,74,24,0.75)",
+                    border: "1px solid #e67c2c"
+                })}>
+                <Stack>
+                    <Box mr={100} ml={50} mt={20}>
+                        <Image
+                            height={100}
+                            src={blockStorage}
+                            style={{
+                                float: "left",
+                                marginRight: 30,
+                            }}
+                            alt="FileStorage" />
+                        <Title
+                            align="left"
+                            order={3}
+                            mb={"md"}
+                        >块存储</Title>
+                        <Highlight
+                            size={"md"}
+                            highlight={['块存储', '数据分块', "一对一"]}
+                            highlightStyles={(theme) => ({
+                                backgroundImage: theme.fn.linearGradient(45, theme.colors.grape[5], theme.colors.orange[5]),
+                                fontWeight: 700,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            })}
+                        >
+                            块存储是一种直接基于底层物理设备直接提供存储的技术。它将数据分块并建立快速访问索引，避免大量的元数据传输从而提高存储性能并降低延迟。因此，基于块存储的存储卷能提供比基于文件存储的存储卷更快的访问速度，但不支持多个应用同时访问。在 Kubernetes中以持久化卷的形式提供，常用于高存储性能要求的应用，仅支持一对一绑定。在控制面板创建PVC后，为集群应用pod绑定该PVC即可挂载。
+                        </Highlight>
+                    </Box>
+                </Stack>
+            </Paper>
+        </Center>
+
     )
 }

@@ -6,9 +6,12 @@ import { DataContext } from "@/components/DataContext";
 import EChartsReact from "echarts-for-react";
 import { graphic } from "echarts";
 import { bytesRData, bytesWData, oprRData, oprWData } from "@/components/DataProvider";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Home() {
     let data = useContext(DataContext);
+    data && console.log((data as any).CephPerformance);
+    console.log(bytesRData.value, bytesWData.value, oprRData.value, ...oprWData.value);
     return (
         <Box p={"lg"}>
             <Grid grow gutter={5} gutterXs="md" gutterMd="xl" gutterXl={50} align={"stretch"}>
@@ -20,17 +23,20 @@ export default function Home() {
                 >
                     <NewOprLine />
                 </Grid.Col>
-                <Grid.Col span={6}>
-                    <NewBytePie />
-                    {/* <ByteUsagePie /> */}
-                </Grid.Col>
                 <Grid.Col
                     span={6}
                     sx={theme => ({
-                        height: "350px"
+                        height: "400px"
                     })}
                 >
+                    <NewBytePie />
+                </Grid.Col>
+                <Grid.Col span={6}
+                    sx={theme => ({
+                        height: "400px"
+                    })}>
                     <NewByteLine />
+                    {/* <NewNewOprLine /> */}
                 </Grid.Col>
                 <Grid.Col span={6}>
                     <NewObjectPie />
@@ -46,12 +52,40 @@ export default function Home() {
                     >
                         <MyCard title="状态总览">
                             <Badge
-                                color={"yellow"}
+                                color={!(data && (data as any).CephPerformance)
+                                    ? "blue"
+                                    : (data as any).CephPerformance.HealthStatus === "HEALTH_WARN"
+                                        ? "yellow"
+                                        : (data as any).CephPerformance.HealthStatus === "HEALTH_OK"
+                                            ? "green"
+                                            : (data as any).CephPerformance.HealthStatus === "HEALTH_ERROR"
+                                                ? "red"
+                                                : "blue"}
                                 size="xl"
                                 radius="xs"
                             >
                                 {(data && (data as any).CephPerformance) ? (data as any).CephPerformance.HealthStatus : "暂无数据"}
                             </Badge>
+                        </MyCard>
+                    </Paper>
+                </Grid.Col>
+                <Grid.Col
+                    span={4}
+                >
+                    <Paper
+                        shadow={"xl"}
+                        sx={theme => ({
+                            height: "100%"
+                        })}
+                    >
+                        <MyCard title="健康状况详情">
+                            <Stack spacing={"xs"}>
+                                <Title order={3} align="center">
+                                    {data && (data as any).CephPerformance
+                                        ? (data as any).CephPerformance.HealthStatusDetailed.map((t: any) => <>{t}</>)
+                                        : "暂无数据"}
+                                </Title>
+                            </Stack>
                         </MyCard>
                     </Paper>
                 </Grid.Col>
@@ -92,7 +126,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={3}
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -110,7 +144,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={3}
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -130,7 +164,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={3}
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -150,7 +184,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={3}
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -163,6 +197,26 @@ export default function Home() {
                                 <Title order={3}>
                                     {data && (data as any).CephPerformance
                                         ? `${(data as any).CephPerformance.RecoveringBytesPerSec} bytes/s`
+                                        : "暂无数据"}
+                                </Title>
+                            </Stack>
+                        </MyCard>
+                    </Paper>
+                </Grid.Col>
+                <Grid.Col
+                    span={4}
+                >
+                    <Paper
+                        shadow={"xl"}
+                        sx={theme => ({
+                            height: "100%"
+                        })}
+                    >
+                        <MyCard title="就绪OSD数量">
+                            <Stack spacing={"xs"}>
+                                <Title order={3}>
+                                    {data && (data as any).CephPerformance
+                                        ? `${(data as any).CephPerformance.OSDNotReadyNum}`
                                         : "暂无数据"}
                                 </Title>
                             </Stack>
@@ -232,6 +286,104 @@ function NewOprLine() {
         </Paper>
     )
 }
+
+const data = [
+    {
+        name: "Page A",
+        uv: 4000,
+        pv: 2400,
+        amt: 2400
+    },
+    {
+        name: "Page B",
+        uv: 3000,
+        pv: 1398,
+        amt: 2210
+    },
+    {
+        name: "Page C",
+        uv: 2000,
+        pv: 9800,
+        amt: 2290
+    },
+    {
+        name: "Page D",
+        uv: 2780,
+        pv: 3908,
+        amt: 2000
+    },
+    {
+        name: "Page E",
+        uv: 1890,
+        pv: 4800,
+        amt: 2181
+    },
+    {
+        name: "Page F",
+        uv: 2390,
+        pv: 3800,
+        amt: 2500
+    },
+    {
+        name: "Page G",
+        uv: 3490,
+        pv: 4300,
+        amt: 2100
+    }
+];
+
+function NewNewOprLine() {
+    return (
+        <Paper
+            shadow={"md"}
+            sx={theme => ({
+                backgroundColor: "#f7f8fb",
+                height: "100%",
+                width: "100%",
+            })}
+            p={"md"}
+        >
+            <ResponsiveContainer>
+                <AreaChart
+                    data={oprRData.value.map((x, index) => {
+                        let w = oprWData.value;
+                        return {
+                            x: x.x,
+                            write: w[index].y,
+                            read: x.y
+                        }
+                    })}
+                    margin={{
+                        top: 10,
+                        right: 30,
+                        left: 0,
+                        bottom: 0
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="x" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area
+                        type="monotone"
+                        dataKey="read"
+                        stackId="1"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="write"
+                        stackId="1"
+                        stroke="#82ca9d"
+                        fill="#82ca9d"
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
+        </Paper>
+    )
+}
+
 
 function NewByteLine() {
     return (
@@ -309,17 +461,17 @@ function NewByteLine() {
                             smooth: true,
                             sampling: 'lttb',
                             itemStyle: {
-                                color: 'rgb(106 90 205)'
+                                color: 'rgb(106, 90, 205)'
                             },
                             areaStyle: {
                                 color: new graphic.LinearGradient(0, 0, 0, 1, [
                                     {
                                         offset: 0,
-                                        color: 'rgb(132 112 255)'
+                                        color: 'rgb(132, 112, 255)'
                                     },
                                     {
                                         offset: 1,
-                                        color: 'rgb(106 90 205)'
+                                        color: 'rgb(106, 90, 205)'
                                     }
                                 ])
                             },
@@ -340,6 +492,7 @@ function NewBytePie() {
             sx={theme => ({
                 backgroundColor: "#f7f8fb",
                 height: "100%",
+                width: "100%"
             })}
         >
             <EChartsReact

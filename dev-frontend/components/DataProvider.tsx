@@ -3,16 +3,16 @@ import { atom } from "signia";
 import { DataContext } from "./DataContext"
 import useWebSocket from "react-use-websocket";
 
-export let bytesWData = atom<{ x: number, y: number }[]>("bytesData", []);
-export let bytesRData = atom<{ x: number, y: number }[]>("bytesData", []);
-export let oprWData = atom<{ x: number, y: number }[]>("oprData", []);
-export let oprRData = atom<{ x: number, y: number }[]>("oprData", []);
+export let bytesWData = atom<{ x: number, y: number }[]>("bytesWData", []);
+export let bytesRData = atom<{ x: number, y: number }[]>("bytesRData", []);
+export let oprWData = atom<{ x: number, y: number }[]>("oprWData", []);
+export let oprRData = atom<{ x: number, y: number }[]>("oprRData", []);
 
 export default function DataProvider({ children }: { children: ReactNode }) {
     let [myData, setMyData] = useState(null);
     let { lastMessage } = useWebSocket("ws://192.168.177.201:30401/api/storage/pvcws");
     useEffect(() => {
-        if (lastMessage) {
+        if (lastMessage && lastMessage.data[0] === "{") {
             let newData = JSON.parse(lastMessage.data) as typeof myData;
             setMyData(newData);
             let dataLength = 20;
