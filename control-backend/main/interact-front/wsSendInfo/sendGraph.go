@@ -32,13 +32,6 @@ var queue = list.New()
 func readMsg(ws *websocket.Conn, readInfo chan []byte) {
 	flag := 0
 	for flag == 0 {
-		//检查连接状态
-		if _, _, err := ws.NextReader(); err != nil {
-			log.Println("err no read: " + err.Error())
-			//关闭websocket
-			ws.Close()
-			return
-		}
 		mt, msg, errRead := ws.ReadMessage()
 		if errRead != nil {
 			flag++
