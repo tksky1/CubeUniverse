@@ -1,31 +1,11 @@
-import { Badge, Box, Grid, LoadingOverlay, Paper, Title, Stack, Center, Text, useMantineTheme, Loader } from "@mantine/core";
-import { linearGradientDef } from '@nivo/core'
-import dynamic from "next/dynamic";
-import { useState, useEffect, useRef } from "react"
+import { Badge, Box, Grid, Paper, Title, Stack, Center, Loader } from "@mantine/core";
 import { commonLayout } from "@/utils/commonLayout";
 import { useContext } from "react"
 import MyCard from "@/components/MyCard";
 import { DataContext } from "@/components/DataContext";
-import { atom } from "signia";
 import EChartsReact from "echarts-for-react";
 import { graphic } from "echarts";
 import { bytesRData, bytesWData, oprRData, oprWData } from "@/components/DataProvider";
-
-const ResponsiveLine = dynamic(
-    () => import('../components/re-exports').then(module => module.ResponsiveLine),
-    {
-        loading: () => <LoadingOverlay visible={true} overlayBlur={2} />,
-        ssr: false
-    }
-)
-
-const ResponsivePie = dynamic(
-    () => import('../components/re-exports').then(module => module.ResponsivePie),
-    {
-        loading: () => <LoadingOverlay visible={true} overlayBlur={2} />,
-        ssr: false
-    }
-)
 
 export default function Home() {
     let data = useContext(DataContext);
@@ -332,16 +312,16 @@ function NewByteLine() {
                                 color: 'rgb(106 90 205)'
                             },
                             areaStyle: {
-                              color: new graphic.LinearGradient(0, 0, 0, 1, [
-                                {
-                                  offset: 0,
-                                  color: 'rgb(132 112 255)'
-                                },
-                                {
-                                  offset: 1,
-                                  color: 'rgb(106 90 205)'
-                                }
-                              ])
+                                color: new graphic.LinearGradient(0, 0, 0, 1, [
+                                    {
+                                        offset: 0,
+                                        color: 'rgb(132 112 255)'
+                                    },
+                                    {
+                                        offset: 1,
+                                        color: 'rgb(106 90 205)'
+                                    }
+                                ])
                             },
                             data: bytesWData.value.map(x => x.y)
                         }
@@ -390,73 +370,6 @@ function NewBytePie() {
                         }
                     ]
                 }}
-            />
-        </Paper>
-    ) : (
-        <Paper
-            shadow={"md"}
-            sx={theme => ({
-                backgroundColor: "#f7f8fb",
-                height: "100%",
-                width: "100%",
-            })}
-        >
-            <Center
-                h={"100%"}
-            >
-                <Loader />
-            </Center>
-        </Paper>
-    )
-}
-
-function ByteUsagePie() {
-    let data = useContext(DataContext);
-    return data && (data as any).CephPerformance ? (
-        <Paper
-            shadow={"md"}
-            sx={theme => ({
-                backgroundColor: "#f7f8fb",
-                height: "100%",
-                width: "100%",
-            })}
-        >
-            <ResponsivePie
-                data={
-                    [
-                        {
-                            id: "已用容量",
-                            value: (data as any).CephPerformance.TotalUsedBytes
-                        },
-                        {
-                            id: "可用容量",
-                            value: (data as any).CephPerformance.TotalBytes - (data as any).CephPerformance.TotalUsedBytes
-                        }
-                    ]
-                }
-                margin={{ top: 0, right: 160, bottom: 20, left: 60 }}
-                innerRadius={0.6}
-                padAngle={3}
-                cornerRadius={3}
-                borderWidth={1}
-                arcLinkLabelsStraightLength={0}
-                activeOuterRadiusOffset={8}
-                arcLinkLabelsSkipAngle={5}
-                arcLabelsSkipAngle={5}
-                legends={[
-                    {
-                        anchor: 'right',
-                        direction: 'column',
-                        justify: false,
-                        translateX: 160,
-                        translateY: 0,
-                        itemWidth: 100,
-                        itemHeight: 20,
-                        itemsSpacing: 10,
-                        symbolSize: 20,
-                        itemDirection: 'left-to-right'
-                    }
-                ]}
             />
         </Paper>
     ) : (

@@ -6,13 +6,11 @@ import {
     useMantineTheme,
     Group,
     ThemeIcon,
-    Badge,
     LoadingOverlay
 } from "@mantine/core"
-import { IconExclamationCircle, IconAlertTriangle } from "@tabler/icons-react";
+import { IconExclamationCircle } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import MyCard from "../MyCard";
-import { useState } from "react";
 
 const ResponsivePie = dynamic(() => import('../re-exports').then(module => module.ResponsivePie), {
     loading: () => <LoadingOverlay visible={true} overlayBlur={2} />,
