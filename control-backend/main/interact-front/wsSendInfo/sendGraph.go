@@ -30,11 +30,13 @@ var queue = list.New()
 
 // 用于在协程中完成读取websocket的操作
 func readMsg(ws *websocket.Conn, readInfo chan []byte) {
-	for {
+	flag := 0
+	for flag == 0 {
 		mt, msg, errRead := ws.ReadMessage()
 		if errRead != nil {
-			fmt.Println("err : " + errRead.Error())
-			ws.WriteMessage(websocket.TextMessage, []byte("session over"))
+			flag++
+			log.Println("err : " + errRead.Error())
+			log.Println(flag)
 			//关闭websocket
 			ws.Close()
 			return
