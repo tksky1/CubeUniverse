@@ -171,3 +171,9 @@ interface updateObjectPvcInterface {
 function updateObjectPvc(props: updateObjectPvcInterface) {
 
 }
+
+export function checkShouldWait() {
+    return fetch("joe/api/wait", {
+        method: "GET"
+    });
+}

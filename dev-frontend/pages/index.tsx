@@ -8,7 +8,8 @@ import MyCard from "@/components/MyCard";
 import { DataContext } from "@/components/DataContext";
 import { atom } from "signia";
 import EChartsReact from "echarts-for-react";
-import echarts from "echarts";
+import { graphic } from "echarts";
+import { bytesRData, bytesWData, oprRData, oprWData } from "@/components/DataProvider";
 
 const ResponsiveLine = dynamic(
     () => import('../components/re-exports').then(module => module.ResponsiveLine),
@@ -26,29 +27,36 @@ const ResponsivePie = dynamic(
     }
 )
 
-let bytesWData = atom<{ x: number, y: number }[]>("bytesData", []);
-let bytesRData = atom<{ x: number, y: number }[]>("bytesData", []);
-let oprWData = atom<{ x: number, y: number }[]>("oprData", []);
-let oprRData = atom<{ x: number, y: number }[]>("oprData", []);
-
 export default function Home() {
     let data = useContext(DataContext);
     return (
         <Box p={"lg"}>
             <Grid grow gutter={5} gutterXs="md" gutterMd="xl" gutterXl={50} align={"stretch"}>
                 <Grid.Col
-                    span={4}
+                    span={6}
                     sx={theme => ({
-                        height: "350px"
+                        height: "400px"
                     })}
                 >
                     <NewOprLine />
                 </Grid.Col>
-                <Grid.Col span={4}>
-                    <ByteUsagePie />
+                <Grid.Col span={6}>
+                    <NewBytePie />
+                    {/* <ByteUsagePie /> */}
                 </Grid.Col>
                 <Grid.Col
-                    span={3}
+                    span={6}
+                    sx={theme => ({
+                        height: "350px"
+                    })}
+                >
+                    <NewByteLine />
+                </Grid.Col>
+                <Grid.Col span={6}>
+                    <NewObjectPie />
+                </Grid.Col>
+                <Grid.Col
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -69,17 +77,6 @@ export default function Home() {
                 </Grid.Col>
                 <Grid.Col
                     span={4}
-                    sx={theme => ({
-                        height: "350px"
-                    })}
-                >
-                    <NewByteLine />
-                </Grid.Col>
-                <Grid.Col span={4}>
-                    <NewObjectPie />
-                </Grid.Col>
-                <Grid.Col
-                    span={3}
                 >
                     <Paper
                         shadow={"xl"}
@@ -99,7 +96,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={2}
+                    span={4}
                 >
                     <Paper
                         shadow={"xl"}
@@ -115,7 +112,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={2}
+                    span={3}
                 >
                     <Paper
                         shadow={"xl"}
@@ -133,7 +130,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={2}
+                    span={3}
                 >
                     <Paper
                         shadow={"xl"}
@@ -152,9 +149,8 @@ export default function Home() {
                         </MyCard>
                     </Paper>
                 </Grid.Col>
-
                 <Grid.Col
-                    span={2}
+                    span={3}
                 >
                     <Paper
                         shadow={"xl"}
@@ -174,7 +170,7 @@ export default function Home() {
                     </Paper>
                 </Grid.Col>
                 <Grid.Col
-                    span={2}
+                    span={3}
                 >
                     <Paper
                         shadow={"xl"}
@@ -199,46 +195,6 @@ export default function Home() {
 }
 
 function NewOprLine() {
-    let dataLength = 20;
-    let fatherData = useContext(DataContext);
-    useEffect(() => {
-        if (fatherData) {
-            let msgData = fatherData as any;
-            if (msgData.CephPerformance) {
-                console.log(msgData.CephPerformance.ReadOperationsPerSec, msgData.CephPerformance.WriteOperationPerSec)
-                let read = oprRData.value;
-                let write = oprWData.value;
-                if (read.length === 0) {
-                    read = [{
-                        x: 1,
-                        y: msgData.CephPerformance.ReadOperationsPerSec
-                    }]
-                } else {
-                    let shouldShift = read.length >= dataLength;
-                    read.push({
-                        x: read[read.length - 1].x + 1,
-                        y: msgData.CephPerformance.ReadOperationsPerSec
-                    });
-                    shouldShift && read.shift();
-                }
-                if (write.length === 0) {
-                    write = [{
-                        x: 1,
-                        y: msgData.CephPerformance.WriteOperationPerSec
-                    }];
-                } else {
-                    let shouldShift = write.length >= dataLength;
-                    write.push({
-                        x: write[write.length - 1].x + 1,
-                        y: msgData.CephPerformance.WriteOperationPerSec
-                    });
-                    shouldShift && write.shift();
-                };
-                oprRData.set(read);
-                oprWData.set(write);
-            }
-        }
-    }, [fatherData]);
     return (
         <Paper
             shadow={"md"}
@@ -250,6 +206,7 @@ function NewOprLine() {
             p={"md"}
         >
             <EChartsReact
+                style={{ height: '100%', width: '100%' }}
                 option={{
                     title: {
                         text: 'CubeUniverse I/O 操作数'
@@ -297,46 +254,6 @@ function NewOprLine() {
 }
 
 function NewByteLine() {
-    let dataLength = 20;
-    let fatherData = useContext(DataContext);
-    useEffect(() => {
-        if (fatherData) {
-            let msgData = fatherData as any;
-            if (msgData.CephPerformance) {
-                console.log(msgData.CephPerformance.ReadBytesPerSec, msgData.CephPerformance.ReadBytesPerSec)
-                let read = bytesRData.value;
-                let write = bytesWData.value;
-                if (read.length === 0) {
-                    read = [{
-                        x: 1,
-                        y: msgData.CephPerformance.ReadBytesPerSec
-                    }];
-                } else {
-                    let shouldShift = read.length >= dataLength;
-                    read.push({
-                        x: read[read.length - 1].x + 1,
-                        y: msgData.CephPerformance.ReadBytesPerSec
-                    });
-                    shouldShift && read.shift();
-                }
-                if (write.length === 0) {
-                    write = [{
-                        x: 1,
-                        y: msgData.CephPerformance.WriteBytesPerSec
-                    }];
-                } else {
-                    let shouldShift = write.length >= dataLength;
-                    write.push({
-                        x: write[write.length - 1].x + 1,
-                        y: msgData.CephPerformance.WriteBytesPerSec
-                    });
-                    shouldShift && write.shift();
-                }
-                bytesRData.set(read);
-                bytesWData.set(write);
-            }
-        }
-    }, [fatherData]);
     return (
         <Paper
             shadow={"md"}
@@ -391,6 +308,18 @@ function NewByteLine() {
                             itemStyle: {
                                 color: 'rgb(255, 70, 131)'
                             },
+                            areaStyle: {
+                                color: new graphic.LinearGradient(0, 0, 0, 1, [
+                                    {
+                                        offset: 0,
+                                        color: 'rgb(255, 158, 68)'
+                                    },
+                                    {
+                                        offset: 1,
+                                        color: 'rgb(255, 70, 131)'
+                                    }
+                                ])
+                            },
                             data: bytesRData.value.map(x => x.y)
                         },
                         {
@@ -402,11 +331,81 @@ function NewByteLine() {
                             itemStyle: {
                                 color: 'rgb(106 90 205)'
                             },
+                            areaStyle: {
+                              color: new graphic.LinearGradient(0, 0, 0, 1, [
+                                {
+                                  offset: 0,
+                                  color: 'rgb(132 112 255)'
+                                },
+                                {
+                                  offset: 1,
+                                  color: 'rgb(106 90 205)'
+                                }
+                              ])
+                            },
                             data: bytesWData.value.map(x => x.y)
                         }
                     ]
                 }}
             />
+        </Paper>
+    )
+}
+
+function NewBytePie() {
+    let data = useContext(DataContext);
+    return data && (data as any).CephPerformance ? (
+        <Paper
+            shadow={"md"}
+            sx={theme => ({
+                backgroundColor: "#f7f8fb",
+                height: "100%",
+            })}
+        >
+            <EChartsReact
+                style={{ height: '100%', width: '100%' }}
+                option={{
+                    tooltip: {
+                        formatter: '{a} <br/>{b} : {c}%'
+                    },
+                    series: [
+                        {
+                            name: 'Pressure',
+                            type: 'gauge',
+                            max: Math.trunc(((data as any).CephPerformance.TotalBytes / 1024 / 1024 / 1024) * 10) / 10,
+                            // max: 4,
+                            progress: {
+                                show: true
+                            },
+                            detail: {
+                                valueAnimation: true,
+                                formatter: '{value} GB'
+                            },
+                            data: [
+                                {
+                                    value: Math.trunc((((data as any).CephPerformance.TotalBytes - (data as any).CephPerformance.TotalUsedBytes) / 1024 / 1024 / 1024) * 10) / 10,
+                                    name: '可用容量'
+                                }
+                            ]
+                        }
+                    ]
+                }}
+            />
+        </Paper>
+    ) : (
+        <Paper
+            shadow={"md"}
+            sx={theme => ({
+                backgroundColor: "#f7f8fb",
+                height: "100%",
+                width: "100%",
+            })}
+        >
+            <Center
+                h={"100%"}
+            >
+                <Loader />
+            </Center>
         </Paper>
     )
 }

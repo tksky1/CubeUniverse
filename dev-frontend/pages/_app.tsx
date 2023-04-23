@@ -11,14 +11,15 @@ import {
     SimpleGrid,
     Stack,
     PasswordInput,
+    Loader,
 } from "@mantine/core"
 import { NextPage } from 'next'
-import { ReactElement, ReactNode, useState } from 'react'
+import { ReactElement, ReactNode, useEffect, useRef, useState } from 'react'
 import { emotionCache } from '@/emotionCache'
 import DataProvider from '@/components/DataProvider'
 import { Notifications } from '@mantine/notifications'
 import Head from 'next/head'
-import { login } from '@/apis'
+import { checkShouldWait, login } from '@/apis'
 import { noti } from '@/utils/noti'
 import { authentication } from '@/storage'
 import Image from 'next/image'
@@ -37,6 +38,23 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     // Use the layout defined at the page level, if available
     const getLayout = Component.getLayout ?? ((page) => page);
     let [isLogin, setIsLogin] = useState(false);
+    let [shouldWait, setShouldWait] = useState(true);
+    let intervalId = useRef<null | NodeJS.Timer>(null);
+    useEffect(() => {
+        intervalId.current = setInterval(() => {
+            checkShouldWait()
+                .then(e => e.status === 404 ? Promise.resolve() : Promise.reject()
+                )
+                .then(() => {
+                    intervalId.current && clearInterval(intervalId.current)
+                    setShouldWait(false);
+                })
+                .catch(() => { });
+        }, 1000);
+        return () => {
+            intervalId.current && clearInterval(intervalId.current)
+        };
+    }, []);
 
     return (
         <>
@@ -53,13 +71,14 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
                     }
                 }}>
                 <Notifications />
-                {isLogin
-                    ? (
-                        <DataProvider>
-                            {getLayout(<Component {...pageProps} />)}
-                        </DataProvider>
-                    )
-                    : <Login setLogin={(x: boolean) => setIsLogin(x)} />}
+                {shouldWait ? <Wait />
+                    : isLogin
+                        ? (
+                            <DataProvider>
+                                {getLayout(<Component {...pageProps} />)}
+                            </DataProvider>
+                        )
+                        : <Login setLogin={(x: boolean) => setIsLogin(x)} />}
             </MantineProvider>
         </>
     )
@@ -159,6 +178,23 @@ function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
                         </Box>
                     </SimpleGrid>
                 </Paper>
+            </Center>
+        </Box>
+    )
+}
+
+function Wait() {
+    return (
+        <Box h={"100vh"} sx={{
+            background: "linear-gradient(135deg, hsla(209, 79%, 81%, 1) 2%, hsla(266, 7%, 53%, 1) 99%)",
+        }}>
+            <Center h={"100%"}>
+                <Stack>
+                    <Title>等待集群建立……</Title>
+                    <Center>
+                        <Loader size={'xl'} />
+                    </Center>
+                </Stack>
             </Center>
         </Box>
     )
