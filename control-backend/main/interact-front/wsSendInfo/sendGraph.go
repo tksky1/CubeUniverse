@@ -32,6 +32,13 @@ var queue = list.New()
 func readMsg(ws *websocket.Conn, readInfo chan []byte) {
 	flag := 0
 	for flag == 0 {
+		//检查连接状态
+		if _, _, err := ws.NextReader(); err != nil {
+			log.Println("err no read: " + err.Error())
+			//关闭websocket
+			ws.Close()
+			return
+		}
 		mt, msg, errRead := ws.ReadMessage()
 		if errRead != nil {
 			flag++
@@ -179,7 +186,11 @@ func ConstSend(ctx *gin.Context) {
 			queue.PushBack(resMap)
 		}
 	}()
+
+	//开启读取协程,应该在循环外开启，只会开启一次，内部是一个死循环读取数据
+	go readMsg(ws, readInfo)
 	//进入死循环
+
 	for {
 		//从缓存中拿数据
 		//缓存吃空了
@@ -190,9 +201,6 @@ func ConstSend(ctx *gin.Context) {
 		time.Sleep(2 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		queue.Remove(queue.Front())   //删除队头，即出队
-
-		//开启读取协程
-		go readMsg(ws, readInfo)
 
 		//通过select语句进行channel读取
 		select {
