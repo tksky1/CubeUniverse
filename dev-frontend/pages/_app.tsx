@@ -7,7 +7,6 @@ import {
     MantineProvider,
     Title,
     Paper,
-    TextInput,
     SimpleGrid,
     Stack,
     PasswordInput,
@@ -88,11 +87,9 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
     let form = useForm({
         initialValues: {
-            account: "",
             password: "",
         },
         validate: {
-            account: val => val === "" ? "请输入账号" : null,
             password: val => val === "" ? "请输入密码" : null,
         }
     })
@@ -133,14 +130,11 @@ function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
                             </Center>
                         </Box>
                         <Box
-                            h={"100%"}
-                            sx={theme => ({
-                                // borderLeft: `solid 1px ${theme.colors.blue[1]}`
-                            })}>
+                            h={"100%"}>
                             <Stack h={"100%"} justify='center'>
                                 <form
                                     onSubmit={form.onSubmit(vals => {
-                                        login(vals.account, vals.password)
+                                        login(vals.password)
                                             .then(e => e.json())
                                             .then(e => e.code === 200 ? Promise.resolve(e) : Promise.reject(e))
                                             .then(e => {
@@ -159,10 +153,6 @@ function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
                                             });
                                     })}>
                                     <Stack p={"xs"} h={"100%"} justify='center'>
-                                        <TextInput
-                                            {...form.getInputProps("account")}
-                                            label={<Title order={6} italic>账号</Title>}
-                                        />
                                         <PasswordInput
                                             {...form.getInputProps("password")}
                                             label={<Title order={6} italic>密码</Title>} />

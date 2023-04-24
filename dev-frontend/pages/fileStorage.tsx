@@ -13,8 +13,6 @@ import {
     Loader,
     Group,
     Paper,
-    Text,
-    Spoiler,
     Highlight,
     useMantineTheme
 } from "@mantine/core";
@@ -258,18 +256,18 @@ function FilePVCTable({ pvcs, afterSubmit }: FilePVCTableInterface) {
                     <Stack>
                         <TextInput
                             withAsterisk
-                            label="Name"
+                            label="存储卷声明"
                             {...form.getInputProps("name")} />
                         <TextInput
                             withAsterisk
-                            label="NameSpace"
+                            label="命名空间"
                             {...form.getInputProps("namespace")} />
                         <NumberInput
                             min={1}
-                            label="Volume"
+                            label="存储卷容量"
                             {...form.getInputProps("volume")} />
                         <Switch
-                            label="Autoscale"
+                            label="自动扩容"
                             // checked={autoscale}
                             {...form.getInputProps("autoscale")} />
                         <Button

@@ -108,11 +108,11 @@ export function createPvc(props: createPvcInterface) {
     });
 }
 
-export function login(username: string, password: string) {
+export function login(password: string) {
     return fetch("joe/api/auth/login", {
         method: "POST",
         body: JSON.stringify({
-            "uid": username,
+            "uid": "12345678901",
             "password": password
             // "uid": "12345678901",
             // "password": "cubeuniverse"
