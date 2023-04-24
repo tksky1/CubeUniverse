@@ -5,8 +5,8 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { Title, createStyles, ScrollArea, Flex, Container, Text, useMantineTheme, Image, Group, Button } from "@mantine/core"
 import { logo } from "@/utils/logostr";
-import { token } from "@/utils/token";
-import { login } from "@/apis";
+import NextImage from "next/image";
+import title from "../public/title.png"
 
 interface MainLayout {
     children: ReactElement
@@ -88,24 +88,25 @@ export default function MainLayout({ children }: MainLayout) {
                     sx={theme => ({
                         height: 50,
                         boxShadow: `inset 0 -7px 7px -5px ${theme.colors.blue[4]}`,
-                        backgroundColor: "#000000"
+                        // backgroundColor: "#000000"
                     })}
                     justify="flex-start"
                     align="center"
-                    pl={10}
                 >
                     <Link href={"/"}>
                         <Group spacing={5}>
-                            <Image
+                            <NextImage
+                                src={title}
+                                alt="Cube Universe"
+                                height={60} 
+                                style={{
+                                    objectFit: "contain",
+                                    zIndex: -1
+                                }}/>
+                            {/* <Image
                                 height={30}
-                                width={30}
                                 fit="contain"
-                                src={logo()} />
-                            <Title
-                                order={1}
-                                variant="gradient"
-                                gradient={{ from: "#4fb9e3", to: "#032d81", deg: 30 }}
-                            >CubeUniverse</Title>
+                                src={title} /> */}
                         </Group>
                     </Link>
                 </Flex>
@@ -114,6 +115,9 @@ export default function MainLayout({ children }: MainLayout) {
                         sx={theme => ({
                             height: "100%",
                             minWidth: "200px",
+                            // borderRight: "solid 1px #41c8f8",
+                            boxShadow: `0px 0px 2px 1px ${theme.colors.blue[4]}`,
+                            borderRadius: "0 2px 0 0"
                         })}
                         classNames={{
                             viewport: classes.scrollAreaViewport

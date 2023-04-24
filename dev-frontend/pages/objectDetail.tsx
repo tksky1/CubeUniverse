@@ -106,7 +106,7 @@ function Detail({ name, namespace }: DetailInterface) {
             .then(e => e.json())
             .then(e => e.code === 200 ? Promise.resolve(e) : Promise.reject(e))
             .then(e => {
-                setKeys(e.data.keys);
+                e.data.keys && setKeys(e.data.keys);
             })
             .catch(e => {
                 setKeys([]);
