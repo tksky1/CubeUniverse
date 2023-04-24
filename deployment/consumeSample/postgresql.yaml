@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-sql
+  namespace: cubeuniverse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresdba
+  template:
+    metadata:
+      labels:
+        app: postgresdba
+    spec:
+      containers:
+        - name: postgresdba
+          image: postgres
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: db-secret-credentials
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: pgsql-data
+      volumes:
+        - name: pgsql-data
+          persistentVolumeClaim:
+            claimName: pgsql-data
