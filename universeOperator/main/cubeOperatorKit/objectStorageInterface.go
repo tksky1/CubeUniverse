@@ -10,6 +10,7 @@ package cubeOperatorKit
 // #include "cache.h"
 import "C"
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/bitly/go-simplejson"
 	"io"
@@ -36,20 +37,32 @@ func GetObject(namespace, bucketClaimName, key string) (objectValue *[]byte, err
 
 // PutObject 发送对象Put请求到ceph
 func PutObject(namespace, bucketClaimName, key string, length int64, reader *io.Reader) error {
-	err := PutObjectS3(namespace, bucketClaimName, key, reader)
+	var err error
+	var data []byte
+	if length > 10485760 {
+		err = PutObjectS3(namespace, bucketClaimName, key, reader)
+		cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
+		C.insr(cacheKey2, C.CString(""))
+		return err
+	} else {
+		data, err = io.ReadAll(*reader)
+		if err != nil {
+			return err
+		}
+		theReader := bytes.NewReader(data)
+		var ioReader io.Reader = theReader
+		err := PutObjectS3(namespace, bucketClaimName, key, &ioReader)
+		if err != nil {
+			return err
+		}
+	}
+
 	if err != nil {
 		return err
 	}
 
-	if length > 10485760 {
-		cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
-		C.insr(cacheKey2, C.CString(""))
-		return nil
-	}
-
 	cacheKey := C.CString(namespace + bucketClaimName + key)
 	cacheKey2 := C.CString("list:" + namespace + bucketClaimName)
-	data, err := io.ReadAll(*reader)
 	C.insr(cacheKey, C.CString(string(data)))
 
 	cacheOut := C.ask(cacheKey2)

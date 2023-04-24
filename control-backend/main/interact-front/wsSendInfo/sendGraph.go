@@ -233,7 +233,7 @@ func ConstSend(ctx *gin.Context) {
 			//发送数据
 			if err := ws.WriteMessage(websocket.TextMessage, msg); err != nil {
 				//发送错误，记录到日志
-				log.Println(err.Error())
+				//log.Println(err.Error())
 				ws.Close()
 			}
 		}

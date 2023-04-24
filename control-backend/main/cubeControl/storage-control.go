@@ -243,6 +243,7 @@ func ListObjectBucketClaim() ([]CephOSDBucket, error) {
 		additionConfigJson := bucketJson.Get("spec").Get("additionalConfig")
 		cephOSDBucketClaim.MaxObjects = additionConfigJson.Get("maxObjects").MustString()
 		cephOSDBucketClaim.MaxSize = additionConfigJson.Get("maxSize").MustString()
+		cephOSDBucketClaim.CreateTime = bucketJson.Get("metadata").Get("creationTimestamp").MustString()
 		buckets = append(buckets, cephOSDBucketClaim)
 	}
 	return buckets, nil
