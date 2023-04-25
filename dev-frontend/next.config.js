@@ -11,7 +11,7 @@ const nextConfig = {
       {
         source: "/joe2/:path*",
         // destination: 'http://192.168.177.201:30402/:path*'
-        destination: 'http://object-storage.cubeuniverse.svc.cluster.local:30402/:path*'
+        destination: 'http://oss.cubeuniverse.svc.cluster.local:8890/:path*'
       }
     ]
   }
