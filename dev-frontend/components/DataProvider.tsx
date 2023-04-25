@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from "react"
 import { atom } from "signia";
 import { DataContext } from "./DataContext"
 import useWebSocket from "react-use-websocket";
+import { wsUrl } from "@/pages/_app";
 
 export let bytesWData = atom<{ x: number, y: number }[]>("bytesWData", []);
 export let bytesRData = atom<{ x: number, y: number }[]>("bytesRData", []);
@@ -10,7 +11,7 @@ export let oprRData = atom<{ x: number, y: number }[]>("oprRData", []);
 
 export default function DataProvider({ children }: { children: ReactNode }) {
     let [myData, setMyData] = useState(null);
-    let { lastMessage } = useWebSocket("ws://control-backend.cubeuniverse.svc.cluster.local:30401/api/storage/pvcws");
+    let { lastMessage } = useWebSocket(wsUrl.value);
     // let { lastMessage } = useWebSocket("ws://192.168.177.201:30401/api/storage/pvcws");
     useEffect(() => {
         if (lastMessage && lastMessage.data[0] === "{") {
