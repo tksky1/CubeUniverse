@@ -193,7 +193,10 @@ func ConstSend(ctx *gin.Context) {
 		}
 		time.Sleep(2 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
-		queue.Remove(queue.Front())   //删除队头，即出队
+		if resMap == nil {
+			continue
+		}
+		queue.Remove(queue.Front()) //删除队头，即出队
 
 		//通过select语句进行channel读取
 		select {
