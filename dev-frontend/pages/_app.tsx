@@ -24,6 +24,9 @@ import { authentication } from '@/storage'
 import Image from 'next/image'
 import cubeUniverse from "../public/logo.png"
 import { useForm } from '@mantine/form'
+import { atom } from "signia";
+
+export let wsUrl = atom("ws", "");
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: (page: ReactElement) => ReactNode
@@ -135,7 +138,13 @@ function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
                                 <form
                                     onSubmit={form.onSubmit(vals => {
                                         login(vals.password)
-                                            .then(e => e.json())
+                                            .then(e => {
+                                                let url = e.url.replace("http", "ws");
+                                                let arr = url.split("30400");
+                                                url = [arr[0], "30401/api/storage/pvcws"].join();
+                                                wsUrl.set(url);
+                                                return e.json();
+                                            })
                                             .then(e => e.code === 200 ? Promise.resolve(e) : Promise.reject(e))
                                             .then(e => {
                                                 authentication.set(e.data.token);
