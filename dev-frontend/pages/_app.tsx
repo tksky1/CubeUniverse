@@ -141,7 +141,7 @@ function Login({ setLogin }: { setLogin: (x: boolean) => void }) {
                                             .then(e => {
                                                 let url = e.url.replace("http", "ws");
                                                 let arr = url.split("30400");
-                                                url = [arr[0], "30401/api/storage/pvcws"].join();
+                                                url = [arr[0], "30401/api/storage/pvcws"].join("");
                                                 wsUrl.set(url);
                                                 return e.json();
                                             })
