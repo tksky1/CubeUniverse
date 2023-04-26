@@ -25,9 +25,6 @@ type drawData struct {
 	RecoveringBytesPerSec int `json:"RecoveringBytesPerSec"` // 每秒恢复数据流量
 }
 
-// 做一个map的缓存队列,最大存储1000个map信息
-var queue = list.New()
-
 // 用于在协程中完成读取websocket的操作
 func readMsg(ws *websocket.Conn, readInfo chan []byte) {
 	flag := 0
@@ -51,6 +48,9 @@ func readMsg(ws *websocket.Conn, readInfo chan []byte) {
 }
 
 func ConstSend(ctx *gin.Context) {
+	// 做一个map的缓存队列,最大存储1000个map信息
+	var queue = list.New()
+
 	var upgrade = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -125,6 +125,7 @@ func ConstSend(ctx *gin.Context) {
 			//如果链表过长休眠等待资源消耗
 			if queue.Len() >= 20 {
 				time.Sleep(2 * time.Second)
+				continue
 			}
 			//500毫秒的间歇
 			time.Sleep(500 * time.Millisecond)
@@ -193,7 +194,10 @@ func ConstSend(ctx *gin.Context) {
 		}
 		time.Sleep(2 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
-		queue.Remove(queue.Front())   //删除队头，即出队
+		if resMap == nil {
+			continue
+		}
+		queue.Remove(queue.Front()) //删除队头，即出队
 
 		//通过select语句进行channel读取
 		select {
