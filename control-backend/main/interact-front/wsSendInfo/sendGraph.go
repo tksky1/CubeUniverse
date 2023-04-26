@@ -186,13 +186,13 @@ func ConstSend(ctx *gin.Context) {
 	//进入死循环
 
 	for {
+		time.Sleep(2 * time.Second) //保持2s发送一次，放在检测为空前面
 		//从缓存中拿数据
 		//缓存吃空了
 		if queue.Len() <= 0 {
 			time.Sleep(1 * time.Second) //歇一下
 			continue
 		}
-		time.Sleep(2 * time.Second)
 		resMap := queue.Front().Value //取出队头元素
 		if resMap == nil {
 			continue
