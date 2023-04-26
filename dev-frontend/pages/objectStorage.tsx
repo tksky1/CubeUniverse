@@ -11,10 +11,14 @@ import {
     Tooltip,
     ActionIcon,
     Loader,
-    Group
+    Group,
+    Paper,
+    useMantineTheme,
+    Highlight
 } from "@mantine/core";
 import { useEffect, useState, useCallback } from "react";
 import { checkStorageOpen, createPvc, deletePvc, getPvcInfo, openStorage, updatePvcVolume } from "@/apis";
+import Image from "next/image";
 import { notifications } from "@mantine/notifications"
 import { Box } from "@mantine/core";
 import { MantineReactTable } from 'mantine-react-table';
@@ -25,6 +29,7 @@ import { useForm } from "@mantine/form";
 import { v4 } from "uuid";
 import { noti } from "@/utils/noti";
 import { useRouter } from "next/router";
+import objectStorage from "../public/obj.webp"
 
 interface ObjectPVC {
     name: string,
@@ -82,30 +87,22 @@ export default function ObjectStorage() {
                         p={"md"}
                         sx={theme => ({
                         })}>
-                        <ObjectPVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        <Stack>
+                            <ObjectStorageInfo />
+                            <ObjectPVCTable pvcs={pvcs} afterSubmit={updatePvc} />
+                        </Stack>
                     </Box>
                 )
                 : (
-                    <Center
-                        h={"100%"}
-                    >
-                        <Stack>
-                            <Title order={3}>
-                                Not Open
-                            </Title>
-                            <Button onClick={() => {
-                                openStorage("object")
-                                    .then(r => r.json())
-                                    .then(r => r.code === 200
-                                        ? Promise.resolve(r) : Promise.reject(r))
-                                    .then(r => noti("Success", "Success", "Open Storage"))
-                                    .catch(r => noti("Error", "Error", r.msg))
-                                    .finally(() => updateStorageOpen());
-                            }}>
-                                Open Me
-                            </Button>
-                        </Stack>
-                    </Center>
+                    <ObjectNotOpen openIt={() => {
+                        openStorage("object")
+                            .then(r => r.json())
+                            .then(r => r.code === 200
+                                ? Promise.resolve(r) : Promise.reject(r))
+                            .then(r => noti("Success", "Success", "Open Storage"))
+                            .catch(r => noti("Error", "Error", r.msg))
+                            .finally(() => updateStorageOpen());
+                    }} />
                 )
     )
 }
@@ -122,11 +119,11 @@ let hostColumns: MRT_ColumnDef<ObjectPVC>[] = [
         accessorKey: "namespace",
     },
     {
-        header: "Max Object",
+        header: "对象数上限",
         accessorKey: "max_object"
     },
     {
-        header: "Max Size",
+        header: "容量上限",
         accessorKey: "max_size"
     },
     {
@@ -260,22 +257,22 @@ function ObjectPVCTable({ pvcs, afterSubmit }: ObjectPVCTableInterface) {
                     <Stack>
                         <TextInput
                             withAsterisk
-                            label="Name"
+                            label="存储卷声明"
                             {...form.getInputProps("name")} />
                         <TextInput
                             withAsterisk
-                            label="NameSpace"
+                            label="命名空间"
                             {...form.getInputProps("namespace")} />
                         <NumberInput
                             min={1}
-                            label="Max Object"
+                            label="对象数上限"
                             {...form.getInputProps("maxObject")} />
                         <NumberInput
                             min={1}
-                            label="Max GB Size"
+                            label="容量上限"
                             {...form.getInputProps("maxGbSize")} />
                         <Switch
-                            label="Autoscale"
+                            label="自动扩容"
                             {...form.getInputProps("autoscale")} />
                         <Button
                             variant="gradient"
@@ -449,5 +446,105 @@ function DeleteModal({ name, namespace, afterSubmit, opened, close }: DeleteModa
                 </Group>
             </Stack>
         </Modal>
+    )
+}
+
+function ObjectNotOpen({ openIt }: { openIt: any }) {
+    let theme = useMantineTheme();
+    return (
+        <Box h={"100%"}>
+            <Center h={"100%"}>
+                <Paper
+                    radius={"xl"}
+                    shadow="xl"
+                    w={"60%"}
+                    p={"xl"}>
+                    <Stack>
+                        <Box>
+                            <Image
+                                src={objectStorage}
+                                height={150}
+                                style={{
+                                    float: "left",
+                                    marginRight: 10,
+                                    marginLeft: 10,
+                                    marginTop: 10,
+                                    clipPath: "circle(40%)"
+                                }}
+                                alt="BlockStorage" />
+                            <Highlight
+                                mt={30}
+                                mr={30}
+                                size={"md"}
+                                highlight={['对象存储', '离散型数据', "桶", "对象桶"]}
+                                highlightStyles={(theme) => ({
+                                    backgroundImage: theme.fn.linearGradient(45, theme.colors.blue[5], theme.colors.grape[5]),
+                                    fontWeight: 700,
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                })}
+                            >
+                                对象存储是一种存储离散型数据的方法，结合了文件存储与块存储的优势。对象存储将存储数据称为对象，包含键Key，元数据MetaData，对象数据Data，用户可通过键Key访问对应的对象。对象的组织形式称为“桶”，在不同对象桶可以装载不同的对象。在 CubeUniverse 中，通过控制面板创建桶后，可以以 CubeUniverse RESTful 或 websocket 协议访问对象存储服务
+                            </Highlight>
+                        </Box>
+                        <Center>
+                            <Button
+                                onClick={() => openIt()}
+                                variant="gradient"
+                                gradient={{ from: theme.colors.blue[5], to: theme.colors.grape[5], deg: 45 }}>开启块存储</Button>
+                        </Center>
+                    </Stack>
+                </Paper>
+            </Center>
+        </Box>
+    )
+}
+
+function ObjectStorageInfo() {
+    let theme = useMantineTheme();
+    // return <p>joe</p>
+    return (
+        <Center>
+            <Paper
+                p={"xl"}
+                sx={theme => ({
+                    borderRadius: 1,
+                    boxShadow: "0px 2px 5px 1px rgb(113,88,219)",
+                    border: "1px solid #c0e7ff"
+                })}
+            >
+                <Stack>
+                    <Box mr={100} ml={50} mt={20}>
+                        <Image
+                            height={150}
+                            src={objectStorage}
+                            style={{
+                                float: "left",
+                                marginRight: 30,
+                                marginBottom: 20,
+                                clipPath: "circle(40%)"
+                            }}
+                            alt="FileStorage" />
+                            <Title
+                            align="left"
+                            order={3}
+                            mb={"md"}
+                        >对象存储</Title>
+                        <Highlight
+                            size={"md"}
+                            highlight={['对象存储', '离散型数据', "桶", "对象桶"]}
+                            highlightStyles={(theme) => ({
+                                backgroundImage: theme.fn.linearGradient(45, theme.colors.blue[5], theme.colors.grape[5]),
+                                fontWeight: 700,
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            })}
+                        >
+                            对象存储是一种存储离散型数据的方法，结合了文件存储与块存储的优势。对象存储将存储数据称为对象，包含键Key，元数据MetaData，对象数据Data，用户可通过键Key访问对应的对象。对象的组织形式称为“桶”，在不同对象桶可以装载不同的对象。在 CubeUniverse 中，通过控制面板创建桶后，可以以 CubeUniverse RESTful 或 websocket 协议访问对象存储服务
+                        </Highlight>
+                    </Box>
+                </Stack>
+            </Paper>
+        </Center>
     )
 }

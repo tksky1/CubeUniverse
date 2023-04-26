@@ -54,7 +54,7 @@ metadata:
     app: operator
 spec:
   ports:
-    - name: dashboard
+    - name: operator
       port: 8890
       protocol: TCP
   selector:

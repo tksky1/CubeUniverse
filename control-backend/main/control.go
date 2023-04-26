@@ -124,8 +124,6 @@ func main() {
 	cubeControl.DynamicClient = universalFuncs.GetDynamicClient()
 	mutexInit() // 等待pod锁释放
 
-	go cubeControl.GetLog()
-
 	log.Println("正在加载control-backend..")
 	gin.SetMode(gin.ReleaseMode)
 	//先开启一个web服务告诉前端需要等待
@@ -148,6 +146,8 @@ func main() {
 	//测试websocket发送数据
 
 	cubeControl.Init()
+
+	go cubeControl.GetLog()
 
 	// 后端内容...
 	//初始化登录，完成路由注册，实现全部服务

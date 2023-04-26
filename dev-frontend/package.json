@@ -31,6 +31,8 @@
     "antd": "^5.3.1",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
+    "echarts": "^5.4.2",
+    "echarts-for-react": "^3.0.2",
     "eslint": "8.36.0",
     "eslint-config-next": "13.2.4",
     "mantine-react-table": "^1.0.0-beta.2",
@@ -38,6 +40,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-use-websocket": "^4.3.1",
+    "recharts": "^2.5.0",
     "signia": "^0.1.1",
     "typescript": "5.0.2",
     "uuid": "^9.0.0"

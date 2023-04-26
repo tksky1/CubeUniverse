@@ -21,9 +21,10 @@ export default function Log() {
                         backgroundColor: "#f7f8fb"
                     }}
                     p={"md"}>
-                    <Text>
+                    <pre>
+
                         {data && (data as any).Operatorlog ? (data as any).Operatorlog : "暂无日志"}
-                    </Text>
+                    </pre>
                 </Tabs.Panel>
                 <Tabs.Panel
                     value="back"
@@ -31,9 +32,9 @@ export default function Log() {
                         backgroundColor: "#f7f8fb"
                     }}
                     p={"md"}>
-                    <Text>
+                    <pre>
                         {data && (data as any).Backendlog ? (data as any).Backendlog : "暂无日志"}
-                    </Text>
+                    </pre>
                 </Tabs.Panel>
             </Tabs>
         </Box>

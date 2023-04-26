@@ -224,7 +224,7 @@ func SendHttpsRequest(request *http.Request, withToken bool) (*http.Response, er
 	if withToken {
 		request.Header.Add("Authorization", "Bearer "+cephToken)
 	}
-	client := &http.Client{Transport: tr, Timeout: 5 * time.Second}
+	client := &http.Client{Transport: tr, Timeout: 10 * time.Second}
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
